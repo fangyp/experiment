@@ -29,18 +29,21 @@ module.exports = {
     port: port,
     open: true,
     overlay: {
-      warnings: false,
+      warnings: true,
       errors: true
     },
     proxy: {
-      // change xxx-api/login => mock/login
-      // detail: https://cli.vuejs.org/config/#devserver-proxy
+      // 设置代理解决本地调试服务器连接开发服务器的跨域问题，以及mock的模拟。
+      // detail: https://cli.vuejs.org/config/#devserver-proxy 
       [process.env.VUE_APP_BASE_API]: {
-        target: `http://127.0.0.1:${port}/mock`,
+        // target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
+        target: `http://admin.dmemp.devdev`, // `${process.env.VUE_APP_API_HOST}`, // 
         changeOrigin: true,
+        /*
         pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
+          '^/admin-api': ''
         }
+        */
       }
     },
     after: require('./mock/mock-server.js')

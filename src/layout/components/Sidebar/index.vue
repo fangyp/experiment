@@ -12,7 +12,7 @@
         :collapse-transition="false"
         mode="vertical"
       >
-        <sidebar-item v-for="route in permission_routes" :key="route.path" :item="route" :base-path="route.path" />
+        <sidebar-item v-for="route in permission_routes" :key="route.name" :item="route" :base-path="basePath" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -48,7 +48,11 @@ export default {
     },
     isCollapse() {
       return !this.sidebar.opened
-    }
+	},
+	basePath() {
+		console.log(this.$store.state.app)
+		return this.$store.state.app.config.baseUrl
+	}
   }
 }
 </script>

@@ -80,5 +80,17 @@ export default [
         data: 'success'
       }
     }
-  }
+  },
+
+    // user logout
+    {
+      url: '/menu/list',
+      type: 'get',
+      response: _ => {
+        return {
+          code: 20000,
+          data: 'success'
+        }
+      }
+    }
 ]

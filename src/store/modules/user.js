@@ -1,4 +1,4 @@
-import { login, logout, getInfo, getMenus } from '@/api/user'
+import { login, logout, getMenus } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -49,6 +49,7 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
+    /*
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
@@ -73,6 +74,7 @@ const actions = {
         reject(error)
       })
     })
+    */
   },
 
   // user logout
@@ -127,10 +129,10 @@ const actions = {
 
   getMenus({ commit, state }) { //这个是新增的action
     return new Promise((resolve, reject) => {
-      getMenus(state.token).then(response => {  //这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
-        const { data } = response
-        console.log(data)
+      // 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 
+      getMenus().then(response => {
+        const { data } = response
         if (!data) {
           reject('Verification failed, please Login again.')
         }

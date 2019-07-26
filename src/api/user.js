@@ -1,33 +1,59 @@
-import request from '@/utils/request'
+import webcore from '@/webcore'
 
+/**
+ * 登录
+ * @param {*} data
+ */
 export function login(data) {
-  return request({
-    url: '/user/login',
-    method: 'post',
-    data
-  })
+	return webcore.admin.Service.request({
+		url: '/user/login',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true,
+		params: data
+	})
 }
 
-export function getInfo(token) {
-  return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
-  })
-}
-
+/**
+ * 退出登录
+ */
 export function logout() {
-  return request({
-    url: '/user/logout',
-    method: 'post'
-  })
+	return webcore.admin.Service.request({
+		url: '/user/logout',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true
+	})
 }
 
-// 从服务端获取当前登录用户的菜单/权限列表
-export function getMenus(token) {
-  return request({
-    url: '/user/menus',
-    method: 'get',
-    params: { token }
-  })
+/**
+ * 从服务端获取当前登录用户的菜单/权限列表
+ */
+export function getMenus() {
+	return webcore.admin.Service.request({
+		url: '/menu/list',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true
+	})
+}
+
+/**
+ * 获取当前用户信息
+ * @param {*} token 
+ */
+export function getInfo() {
+	return webcore.admin.Service.request({
+		url: '/user/info',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true
+	})
+}
+
+export default {
+	login,
+	getInfo,
+	logout,
+	getMenus,
 }

@@ -1,8 +1,7 @@
 <template>
 
-	<div id="app" class="with-weaken-control-label">
-<h1>Hello world! 哈哈哈</h1>
-
+	<div class="app-container">
+		<h1>Hello world! 哈哈哈</h1>
 	</div> 
 
 </template>
@@ -21,8 +20,8 @@ export default {
 	},
 
     mounted: function() {
-		console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route)
-		console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route.fullPath)
+		// console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route)
+		// console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route.fullPath)
 		
 	}
 }
@@ -31,3 +30,5 @@ export default {
 
 <style lang="scss">
 </style>
+
+
