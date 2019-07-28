@@ -38,7 +38,9 @@ module.exports = {
       [process.env.VUE_APP_BASE_API]: {
 		// target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
 		target: `${process.env.VUE_APP_API_HOST}`,
-        changeOrigin: true,
+		changeOrigin: true,
+		logLevel: 'info',
+		secure: false,
         /*
         pathRewrite: {
           '^/admin-api': ''
