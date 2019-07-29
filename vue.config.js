@@ -35,18 +35,16 @@ module.exports = {
     proxy: {
       // 设置代理解决本地调试服务器连接开发服务器的跨域问题，以及mock的模拟。
       // detail: https://cli.vuejs.org/config/#devserver-proxy 
-      [process.env.VUE_APP_BASE_API]: {
+      [process.env.VUE_APP_ADMIN_API]: {
 		// target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
 		target: `${process.env.VUE_APP_API_HOST}`,
 		changeOrigin: true,
-		logLevel: 'info',
+		logLevel: 'debug',
 		secure: false,
-        /*
         pathRewrite: {
-          '^/admin-api': ''
-        }
-        */
-      }
+		  '^/admin-api': '/admin',
+		}
+	  },
     },
     after: require('./mock/mock-server.js')
   },

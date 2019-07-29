@@ -48,11 +48,10 @@ export default {
     },
     isCollapse() {
       return !this.sidebar.opened
-	},
-	basePath() {
-		console.log(this.$store.state.app)
-		return this.$store.state.app.config.baseUrl
-	}
+    },
+    basePath() {
+      return this.$store.state.app.config.baseUrl
+    }
   }
 }
 </script>

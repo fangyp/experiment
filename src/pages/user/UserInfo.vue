@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import poppyjs from 'poppyjs-elem'
 
 export default {
   props: [],
@@ -19,9 +20,9 @@ export default {
   mounted: function() {
     // console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route)
     // console.log('>>>>>>>>>>>>>>>>>>> UserInfo mounted.', this.$route.fullPath)
+    poppyjs.html.Dialog.showToast('您的啊啊哈哈大护法')
   },
   methods: {
-    f1: function() {}
   }
 }
 
