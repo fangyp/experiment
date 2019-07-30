@@ -30,7 +30,8 @@
 </template>
 <script>
 import poppyjs from 'poppyjs-elem'
-import { isStringEmpty } from '../../utils/StringUtil'
+const isEmpty = poppyjs.util.StringUtil.isEmpty
+const showToast = poppyjs.html.Dialog.showMessage
 
 const key = 'e7e4e52e7b878f64076873dc495eead9'
 const userString = localStorage.getItem(key) || '{}'
@@ -60,19 +61,11 @@ export default {
       console.log(this)
       this.loading = false
 
-      if (isStringEmpty(this.account)) {
-        this.$message({
-          message: '请输入您的账号',
-          type: 'warning'
-        })
-        return
+      if (isEmpty(this.account)) {
+        return showToast('请输入您的登录账号')
       }
-      if (isStringEmpty(this.password)) {
-        this.$message({
-          message: '请输入登录密码',
-          type: 'warning'
-        })
-        return
+      if (isEmpty(this.password)) {
+        return showToast('请输入登录密码')
       }
 
       const state = {

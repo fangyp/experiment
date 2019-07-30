@@ -28,6 +28,8 @@ export const filterNumberString = value => {
     return '0'
   } else if (value === null) {
     return '0'
+  } else if (value === '') {
+    return '0'
   } else {
     return value + ''
   }

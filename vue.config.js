@@ -36,15 +36,15 @@ module.exports = {
       // 设置代理解决本地调试服务器连接开发服务器的跨域问题，以及mock的模拟。
       // detail: https://cli.vuejs.org/config/#devserver-proxy 
       [process.env.VUE_APP_ADMIN_API]: {
-		// target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
-		target: `${process.env.VUE_APP_API_HOST}`,
-		changeOrigin: true,
-		logLevel: 'debug',
-		secure: false,
+        // target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
+        target: `${process.env.VUE_APP_API_HOST}`,
+        changeOrigin: true,
+        logLevel: 'debug',
+        secure: false,
         pathRewrite: {
-		  '^/admin-api': '/admin',
-		}
-	  },
+          '^/admin-api': '/admin',
+        }
+      },
     },
     after: require('./mock/mock-server.js')
   },
@@ -60,10 +60,10 @@ module.exports = {
     }
   },
 
-  
+
   chainWebpack(config) {
     //config.plugins.delete('preload') // TODO: need test
-   // config.plugins.delete('prefetch') // TODO: need test
+    // config.plugins.delete('prefetch') // TODO: need test
 
     // set svg-sprite-loader
     config.module
@@ -106,7 +106,7 @@ module.exports = {
             .plugin('ScriptExtHtmlWebpackPlugin')
             .after('html')
             .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
+              // `runtime` must same as runtimeChunk name. default is `runtime`
               inline: /runtime\..*\.js$/
             }])
             .end()
@@ -155,12 +155,12 @@ function getPages(pagesPath) {
 
   console.log(files);
 
-  for(let i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i++) {
     let matchs = /pages\/(\S*)_page.js/.exec(files[i]);
     console.log(matchs);
     if (matchs !== null) {
       entryFileName = matchs[1];
-      if(/^_\w*/.test(entryFileName) || /\/_\w*/.test(entryFileName)) {
+      if (/^_\w*/.test(entryFileName) || /\/_\w*/.test(entryFileName)) {
         continue;
       }
 
@@ -168,7 +168,7 @@ function getPages(pagesPath) {
 
       pages[entryFileName] = {
         entry: files[i],
-        template: 'public/index.html',
+        template: './src/public/index.html',
         filename: `${pageName}.html`,
         chunks: ['chunk-vendors', 'chunk-common', pageName]
       };
