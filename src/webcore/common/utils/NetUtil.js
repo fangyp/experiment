@@ -19,7 +19,7 @@ class NetUtil {
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 			options.headers = { 'X-ACCESS-TOKEN': getToken() }
-			if (options.isAutoRefresh) {
+			if (options.autoRefresh) {
 				options.headers['X-AUTO-REFRESH'] = 1
 			}
 			poppyjs.biz.Http.request(options).then(
