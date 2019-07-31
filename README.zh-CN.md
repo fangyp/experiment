@@ -61,12 +61,13 @@ webcore.admin.Service.request({
 
 #### *参数options*
 
-* url: string, 必需。请求的url相对路径，注意前面要加上"/"，比如："/user/info"。
-* method: string, 可选。支持get、post、delete、update等。 默认为post。
-* params: object, 可选。请求参数列表，值对形式。
-* successMsg: string | boolean, 可选。显示的成功信息，如果设置为false，则不显示成功消息弹框。默认：false。
-* showErrorMsg: boolean, 可选。当发生错误时是否显示错误信息框，比如服务端返回业务错误。默认：true。
-* showLoading: boolean, 可选。是否显示加载提示，比如请求数据时显示的loading。 默认：true。
+* `url`: string, 必需。请求的url相对路径，注意前面要加上"/"，比如："/user/info"。
+* `method`: string, 可选。支持get、post、delete、update等。 默认为post。
+* `params`: object, 可选。请求参数列表，值对形式。
+* `successMsg`: string | boolean, 可选。显示的成功信息，如果设置为false，则不显示成功消息弹框。默认：false。
+* `showErrorMsg`: boolean, 可选。当发生错误时是否显示错误信息框，比如服务端返回业务错误。默认：true。
+* `showLoading`: boolean, 可选。是否显示加载提示，比如请求数据时显示的loading。 默认：true。
+* `autoRefresh`: boolean，可选。是否是自动刷新提交的请求。默认：false。对于自动刷新请求，服务端做了一些特殊处理，因此要加入这个标志。自动刷新的场景，如：每分钟自动保存数据、页面定时刷新等。
 
 #### *调用举例*
 ```
@@ -103,8 +104,8 @@ getMenus().then(response => {
 ```
 
 
-### **基于`env.VUE_APP_BASE_URL`的页面跳转**
-> 基于后端根路径跳转。
+### **基本页面跳转**
+> 基于后端根路径跳转。即基于`env.VUE_APP_BASE_URL`的页面跳转
 
 `webcore.common.util.NetUtil.redirect(uri)`
 
@@ -119,8 +120,8 @@ webcore.common.util.NetUtil.redirect('/auth/login')
 ```
 
 
-### **基于`env.VUE_APP_ADMIN_URL`的页面跳转**
-> 基于后端admin板块路径跳转。
+### **admin页面跳转**
+> 基于后端admin板块路径跳转。即基于`env.VUE_APP_ADMIN_URL`的页面跳转
 
 `webcore.common.util.NetUtil.adminRedirect(uri)`
 

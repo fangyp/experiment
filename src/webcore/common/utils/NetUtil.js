@@ -11,13 +11,17 @@ class NetUtil {
 	 *   url: 必需。请求地址，相对地址
 	 *   method: 可选。动词，默认post
 	 *   params: 可选。参数对象
+	 *   autoRefresh: boolean，可选。是否是自动刷新提交的请求。默认：false。
 	 * }
 	 */
 	static adminRequest(options) {
 		const self = this
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
-			options.headers = { 'X-Access-Token': getToken() }
+			options.headers = { 'X-ACCESS-TOKEN': getToken() }
+			if (options.autoRefresh) {
+				options.headers['X-AUTO-REFRESH'] = 1
+			}
 			poppyjs.biz.Http.request(options).then(
 				(response) => {
 					const checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
