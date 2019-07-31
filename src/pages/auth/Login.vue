@@ -30,6 +30,7 @@
 </template>
 <script>
 import poppyjs from 'poppyjs-elem'
+import webcore from '../../webcore'
 const isEmpty = poppyjs.util.StringUtil.isEmpty
 const showToast = poppyjs.html.Dialog.showMessage
 
@@ -37,72 +38,92 @@ const key = 'e7e4e52e7b878f64076873dc495eead9'
 const userString = localStorage.getItem(key) || '{}'
 const user = JSON.parse(userString) || {}
 
+const request = webcore.common.utils.NetUtil.adminRequest
+
+console.log(request)
 export default {
-  data() {
-    return {
-      account: user.account || '',
-      password: user.password || '',
-      checked: user.checked || false, // 记住密码
-      loading: user.loading || false // 提交动画
-    }
-  },
-  methods: {
-    setAccount(text) {
-      this.account = text.trim()
-    },
-    setPassword(text) {
-      this.password = text.trim()
-    },
-    setChecked(isCheck) {
-      this.checked = isCheck
-      console.log('isCheck = ' + isCheck)
-    },
-    submitLogin() {
-      console.log(this)
-      this.loading = false
+	data() {
+		return {
+			account: user.account || '',
+			password: user.password || '',
+			checked: user.checked || false, // 记住密码
+			loading: user.loading || false // 提交动画
+		}
+	},
+	methods: {
+		setAccount(text) {
+			this.account = text.trim()
+		},
+		setPassword(text) {
+			this.password = text.trim()
+		},
+		setChecked(isCheck) {
+			this.checked = isCheck
+			console.log('isCheck = ' + isCheck)
+		},
+		submitLogin() {
+			console.log(this)
+			this.loading = false
 
-      if (isEmpty(this.account)) {
-        return showToast('请输入您的登录账号')
-      }
-      if (isEmpty(this.password)) {
-        return showToast('请输入登录密码')
-      }
+			if (isEmpty(this.account)) {
+				return showToast('请输入您的登录账号')
+			}
+			if (isEmpty(this.password)) {
+				return showToast('请输入登录密码')
+			}
 
-      const state = {
-        account: this.account || '',
-        password: this.password || '',
-        checked: this.checked || false, // 记住密码
-        loading: this.loading || false // 提交动画
-      }
+			const state = {
+				account: this.account || '',
+				password: this.password || '',
+				checked: this.checked || false, // 记住密码
+				loading: this.loading || false // 提交动画
+			}
 
-      if (this.checked) {
-        console.log(JSON.stringify(state))
-        localStorage.setItem(key, JSON.stringify(state))
-      } else {
-        localStorage.removeItem(key)
-      }
+			if (this.checked) {
+				console.log(JSON.stringify(state))
+				localStorage.setItem(key, JSON.stringify(state))
+			} else {
+				localStorage.removeItem(key)
+			}
 
-      this.$message({
-        message: '登录成功,即将进入系统!',
-        type: 'success'
-      })
-      setTimeout(() => {
-        const user = localStorage.getItem(key)
-        console.log('user')
-        console.log(user)
-        poppyjs.util.NetUtil.redirect(
-          process.env.VUE_APP_BASE_URL + '/user/user-info'
-        )
-      }, 1000)
+			this.$message({
+				message: '登录成功,即将进入系统!',
+				type: 'success'
+			})
+			setTimeout(() => {
+				const user = localStorage.getItem(key)
+				console.log('user')
+				console.log(user)
+				// poppyjs.util.NetUtil.redirect(
+				//   process.env.VUE_APP_BASE_URL + "/user/user-info"
+				// );
+			}, 1000)
 
-      console.log(process.env.VUE_APP_BASE_API)
+			console.log(process.env.VUE_APP_BASE_API)
 
-      // this.$toast.center("这是在vue文件中使用的toast");
-      // this.$store.dispatch("login/showLoading");
-      // this.$store.dispatch("login/submitLogin");
-      // this.$router.push("/main/home");
-    }
-  }
+			const options = {
+				url: '/auth/login',
+				method: 'POST',
+				params: {
+					login_name: this.account,
+					password: this.password
+				}
+			}
+
+			request(options)
+				.then((response) => {
+					console.log(response)
+				})
+				.catch((error) => {
+					console.log(error)
+				})
+
+			// this.$toast.center("这是在vue文件中使用的toast");
+			// this.$store.dispatch("login/showLoading");
+			// this.$store.dispatch("login/submitLogin");
+			// this.$router.push("/main/home");
+		}
+	}
 }
 </script>
 <style lang="scss">

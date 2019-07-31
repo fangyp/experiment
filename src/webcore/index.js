@@ -1,8 +1,7 @@
-//import $ from 'jquery'
-//import * as poppyjs from 'poppyjs-elem'
-import common from './common/index'
+// import $ from 'jquery'
+// import * as poppyjs from 'poppyjs-elem'
+import { common } from './common'
 import admin from './admin/index'
-
 /*
 (() => {
     // 需要laravel设置在header头中，然后js来调用。 例如：
@@ -20,7 +19,7 @@ import admin from './admin/index'
         if ($("[data-show-datepicker='yes']").datepicker) {
             $("[data-show-datepicker='yes']").datepicker(hw.config.DefaultBootstrapDatepickerConfig);
         }
-        
+
         if ($().timepicker) {
             $("[data-show-timepicker='yes']").timepicker({
                 showInputs: false,
@@ -31,7 +30,7 @@ import admin from './admin/index'
                 showMeridian: false
             });
         }
-        
+
         if ($.blockUI) {
             $.blockUI.defaults.css = {
                 padding: 0,
@@ -45,13 +44,13 @@ import admin from './admin/index'
                 cursor: 'wait'
             };
         }
-        
+
     });
 })();
 */
 
 export default {
-    common: common,
-    admin: admin
+	common: common,
+	admin: admin
 }
 

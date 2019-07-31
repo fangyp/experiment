@@ -1,7 +1,7 @@
 import NetUtil from './NetUtil'
 import UploaderUtil from './UploaderUtil'
 
-export default {
+export {
 	NetUtil,
-	UploaderUtil,
-};
+	UploaderUtil
+}
