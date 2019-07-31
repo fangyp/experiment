@@ -53,7 +53,7 @@ module.exports = {
       'after': true
     }],
     'handle-callback-err': [2, '^(err|error)$'],
-    'indent': [2, 2, {
+    'indent': [2, 'tab', {
       'SwitchCase': 1
     }],
     'jsx-quotes': [2, 'prefer-single'],
@@ -103,12 +103,12 @@ module.exports = {
       'allowLoop': false,
       'allowSwitch': false
     }],
-    'no-lone-blocks': 2,
+	'no-lone-blocks': 2,
     'no-mixed-spaces-and-tabs': 2,
     'no-multi-spaces': 2,
     'no-multi-str': 2,
     'no-multiple-empty-lines': [2, {
-      'max': 1
+      'max': 2
     }],
     'no-native-reassign': 2,
     'no-negated-in-lhs': 2,
@@ -129,7 +129,8 @@ module.exports = {
     'no-sequences': 2,
     'no-shadow-restricted-names': 2,
     'no-spaced-func': 2,
-    'no-sparse-arrays': 2,
+	'no-sparse-arrays': 2,
+	'no-tabs': ["error", { allowIndentationTabs: true }],
     'no-this-before-super': 2,
     'no-throw-literal': 2,
     'no-trailing-spaces': 2,
