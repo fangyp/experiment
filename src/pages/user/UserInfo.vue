@@ -42,21 +42,14 @@
 
     <el-table
       :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
+      v-loading="showLoading"
+      :data="userList"
       border
       fit
       highlight-current-row
       style="width: 100%;"
-      @sort-change="sortChange"
     >
-      <el-table-column
-        label="编号"
-        prop="id"
-        align="center"
-        min-width="60px"
-        :class-name="getSortClass('id')"
-      >
+      <el-table-column label="编号" prop="id" align="center" min-width="60px">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
@@ -68,12 +61,12 @@
       </el-table-column>
       <el-table-column label="账户" min-width="120px" align="center">
         <template slot-scope="{row}">
-          <span @click="handleUpdate(row)">{{ row.account }}</span>
+          <span @click="modifyUserInfo(row)">{{ row.account }}</span>
         </template>
       </el-table-column>
       <el-table-column label="角色" min-width="90px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.role }}</span>
+          <span>{{ scope.row.role.value }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建日期" min-width="95px" align="center">
@@ -83,7 +76,7 @@
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" min-width="90px">
         <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">{{ row.status }}</el-tag>
+          <el-tag :type="row.state.key | userStateFilter">{{ row.state.value }}</el-tag>
         </template>
       </el-table-column>
 
@@ -94,42 +87,42 @@
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" plain @click="handleUpdate(row)">修改</el-button>
+          <el-button type="primary" size="mini" plain @click="modifyUserInfo(row)">修改</el-button>
           <el-button size="mini" type="danger" plain @click="deleteUser(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
-      @pagination="getList"
+      v-show="pageMap.total>0"
+      :total="pageMap.total"
+      :page.sync="pageMap.page"
+      :limit.sync="pageMap.limit"
+      @pagination="getUserList"
     />
 
     <el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
       <el-form
         ref="createForm"
         :rules="validations"
-        :model="newuser"
+        :model="user"
         label-position="left"
-        label-width="80px"
-        style="width: 300px; margin-left:10px;"
+        label-width="100px"
+        style="width: 400px; margin-left:10px;"
       >
         <el-form-item label="用户姓名" prop="username">
-          <el-input v-model="newuser.username" style="width: 220px;" placeholder="姓名" />
+          <el-input v-model="user.username" style="width: 220px;" placeholder="姓名" />
         </el-form-item>
 
         <el-form-item label="登录账号" prop="account">
-          <el-input v-model="newuser.account" style="width: 220px;" placeholder="用户登录账号" />
+          <el-input v-model="user.account" style="width: 220px;" placeholder="用户登录账号" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="newuser.password" style="width: 220px;" placeholder="用户登录密码" />
+          <el-input v-model="user.password" style="width: 220px;" placeholder="用户登录密码" />
         </el-form-item>
         <el-form-item label="用户角色" prop="role">
           <el-select
-            v-model="newuser.role"
+            v-model="user.role.key"
             class="filter-item"
             placeholder="请选择角色"
             style="width: 220px;"
@@ -144,7 +137,7 @@
         </el-form-item>
         <el-form-item label="用户状态" prop="status">
           <el-select
-            v-model="newuser.status"
+            v-model="user.state.key"
             class="filter-item"
             placeholder="设置用户状态"
             style="width: 220px;"
@@ -163,7 +156,7 @@
         <el-button
           size="medium"
           type="primary"
-          @click="createFormStatus==='create'?createData():updateData()"
+          @click="createFormStatus==='create'?createUserData():updateUserData()"
         >确定</el-button>
       </div>
     </el-dialog>
@@ -171,16 +164,24 @@
 </template>
 
 <script>
-import { createArticle, updateArticle } from '../../api/article'
+import poppyjs from 'poppyjs-elem'
+import webcore from '../../webcore'
+const isEmpty = poppyjs.util.StringUtil.isEmpty
+const showConfirm = poppyjs.html.Dialog.showConfirm
+
+const key = 'e7e4e52e7b878f64076873dc495eead9'
+const userString = localStorage.getItem(key) || '{}'
+const user = JSON.parse(userString) || {}
+
+const defaultRole = { key: '3', value: '实验人员' }
+const defaultState = { key: 'enable', value: '正常' }
+
+const request = webcore.common.utils.NetUtil.adminRequest
 import waves from '../../directive/waves' // waves directive
-import { parseTime } from '../../utils'
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 import Mock from 'mockjs'
 
 const List = []
-
-const image_uri =
-  'https://wpimg.wallstcn.com/e4558086-631c-425c-9430-56ffb46e70b3'
 
 for (let i = 0; i < 100; i++) {
 	List.push(
@@ -188,7 +189,15 @@ for (let i = 0; i < 100; i++) {
 			id: '@increment',
 			username: '小刘刘',
 			account: '18168896116',
-			role: '实验组长',
+			'role|1': [
+				{ key: '1', value: '院长' },
+				{ key: '2', value: '实验组长' },
+				{ key: '3', value: '实验人员' }
+			],
+			'state|1': [
+				{ key: 'disable', value: '已禁用' },
+				{ key: 'enable', value: '正常' }
+			],
 			datetime: +Mock.Random.date('T'),
 			author: '@first',
 			reviewer: '@first',
@@ -197,42 +206,27 @@ for (let i = 0; i < 100; i++) {
 			forecast: '@float(0, 100, 2, 2)',
 			importance: '@integer(1, 3)',
 			'type|1': ['CN', 'US', 'JP', 'EU'],
-			'status|1': ['enable', 'disable'],
+
 			display_time: '@datetime',
 			comment_disabled: true,
 			pageviews: '@integer(300, 5000)',
-			image_uri,
 			platforms: ['a-platform']
 		})
 	)
 }
-
-const calendarTypeOptions = [
-	{ key: 'CN', display_name: '院长' },
-	{ key: 'US', display_name: '实验组长' },
-	{ key: 'JP', display_name: '实验人员' }
-]
-
-// arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-	acc[cur.key] = cur.display_name
-	return acc
-}, {})
 
 export default {
 	name: 'UserInfo',
 	components: { Pagination },
 	directives: { waves },
 	filters: {
-		statusFilter(status) {
-			const statusMap = {
+		userStateFilter(status) {
+			// 用户账号状态颜色
+			const stateOption = {
 				enable: 'success',
 				disable: 'danger'
 			}
-			return statusMap[status]
-		},
-		typeFilter(type) {
-			return calendarTypeKeyValue[type]
+			return stateOption[status]
 		}
 	},
 	data() {
@@ -245,16 +239,16 @@ export default {
 				{ key: '3', value: '实验人员' }
 			],
 			statusOption: [
-				{ key: '0', value: '禁用账户' },
-				{ key: '1', value: '启用账户' }
+				{ key: 'disable', value: '禁用账户' },
+				{ key: 'enable', value: '启用账户' }
 			],
-			newuser: {
+			user: {
 				/** 新建用户模板 */
 				username: '',
 				account: '',
 				password: '',
-				role: '',
-				status: ''
+				role: defaultRole,
+				state: defaultState
 			},
 
 			validations: {
@@ -264,13 +258,10 @@ export default {
 				account: [
 					{ required: true, message: '请填写用户账户', trigger: 'change' }
 				],
-				password: [
-					{ required: true, message: '密码必须设置', trigger: 'change' }
-				],
 				role: [
 					{ required: true, message: '请选择用户角色', trigger: 'change' }
 				],
-				status: [
+				state: [
 					{ required: true, message: '请设置账户状态', trigger: 'change' }
 				]
 			},
@@ -282,65 +273,39 @@ export default {
 			},
 
 			tableKey: 0,
-			list: null,
-			total: 0,
-			listLoading: true,
-			listQuery: {
-				page: 1,
-				limit: 20,
-				importance: undefined,
-				name: undefined,
-				type: undefined,
-				sort: '+id'
-			},
-			importanceOptions: [1, 2, 3],
-			calendarTypeOptions,
-			sortOptions: [
-				{ label: 'ID Ascending', key: '+id' },
-				{ label: 'ID Descending', key: '-id' }
-			],
-			statusOptions: ['published', 'draft', 'deleted'],
-			showReviewer: false,
-			temp: {
-				id: undefined,
-				importance: 1,
-				remark: '',
-				timestamp: new Date(),
-				title: '',
-				type: '',
-				status: 'published'
-			},
-			dialogFormVisible: false,
-			dialogStatus: '',
-			textMap: {
-				update: '修改用户',
-				create: '新增用户'
-			},
-			dialogPvVisible: false,
-			pvData: [],
-			rules: {
-				type: [
-					{ required: true, message: 'type is required', trigger: 'change' }
-				],
-				timestamp: [
-					{
-						type: 'date',
-						required: true,
-						message: 'timestamp is required',
-						trigger: 'change'
-					}
-				],
-				title: [
-					{ required: true, message: 'title is required', trigger: 'blur' }
-				]
-			},
-			downloadLoading: false
+			userList: [],
+			showLoading: true,
+			pageMap: {
+				page: 0,
+				limit: 10,
+				total: 0
+			}
 		}
 	},
 	created() {
-		this.getList()
+		this.getUserList()
 	},
+
 	methods: {
+		/**
+     * 获取用户列表
+     */
+		getUserList(pageMap) {
+			if (!pageMap) pageMap = this.pageMap
+			this.showLoading = true
+			this.userList = []
+			this.userList = List.slice(
+				pageMap.page * pageMap.limit,
+				pageMap.page * pageMap.limit + pageMap.limit
+			)
+			console.log(pageMap.page * pageMap.limit + '----------' + pageMap.limit)
+			// console.log( pageMap.page * pageMap.limit +'----------'+(pageMap.page * pageMap.limit + pageMap.page * pageMap.limit));
+			this.pageMap.total = List.length
+			setTimeout(() => {
+				this.showLoading = false
+			}, 1000)
+		},
+
 		/**
      * 搜索
      */
@@ -349,15 +314,16 @@ export default {
 			console.log(this.rolekey)
 		},
 		initUser() {
-			this.newuser = {
+			this.user = {
 				/** 新建用户模板 */
 				username: '',
 				account: '',
 				password: '',
-				role: '',
-				status: ''
+				role: defaultRole,
+				state: defaultState
 			}
 		},
+		/** 新建用户 */
 		createUserAction() {
 			this.initUser()
 			this.createFormStatus = 'create'
@@ -367,142 +333,149 @@ export default {
 			})
 		},
 		/**
+     * 创建用户
+     */
+		createUserData() {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					console.log(this.user)
+					if (isEmpty(this.user.password)) {
+						console.log('密码不能为空')
+					}
+					const options = {
+						url: '/user/create',
+						method: 'POST',
+						params: {
+							...this.user,
+							token: user.access_token || 'token'
+						}
+					}
+					console.log(options)
+					request(options)
+						.then(response => {
+							console.log(response)
+							this.createFormVisible = false
+							/** 这里把新用户的数据拼接到用户数据列表内 */
+							// this.list.unshift(this.temp);
+						})
+						.catch(error => {
+							console.log(error)
+						})
+					this.createFormVisible = false
+					this.$notify({
+						title: '系统提示',
+						message: '创建用户成功',
+						type: 'success',
+						duration: 2000
+					})
+				}
+			})
+		},
+
+		/**
+     * 修改用户
+     */
+		modifyUserInfo(row) {
+			this.user = Object.assign({}, row) // copy obj
+			this.createFormStatus = 'update'
+			this.createFormVisible = true
+			this.$nextTick(() => {
+				this.$refs['createForm'].clearValidate()
+			})
+		},
+		/**
+     * 确定修改用户消息
+     */
+		updateUserData() {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					console.log(this.user)
+					const options = {
+						url: '/user/update',
+						method: 'POST',
+						params: {
+							...this.user,
+							token: user.access_token || 'token'
+						}
+					}
+					console.log(options)
+					request(options)
+						.then(response => {
+							console.log(response)
+							this.createFormVisible = false
+							/** 这里把新用户的数据拼接到用户数据列表内 */
+							// this.list.unshift(this.temp);
+						})
+						.catch(error => {
+							console.log(error)
+						})
+					this.createFormVisible = false
+					this.$notify({
+						title: '系统提示',
+						message: '用户消息修改成功',
+						type: 'success',
+						duration: 2000
+					})
+				}
+			})
+		},
+		/**
      * 删除用户
      */
 		deleteUser(row) {
 			console.log(row)
+
+			const options = {
+				title: '删除用户',
+				msg: '确定删除此用户吗?',
+				yesBtn: '确定',
+				noBtn: '取消',
+				yesCallback: () => {
+					console.log(this.user)
+					const options = {
+						url: '/user/delete',
+						method: 'POST',
+						params: {
+							...this.user,
+							token: user.access_token || 'token'
+						}
+					}
+					console.log(options)
+					request(options)
+						.then(response => {
+							console.log(response)
+							this.createFormVisible = false
+							/** 这里把新用户的数据拼接到用户数据列表内 */
+							// this.list.unshift(this.temp);
+						})
+						.catch(error => {
+							console.log(error)
+						})
+					this.createFormVisible = false
+					this.$notify({
+						title: '系统提示',
+						message: '用户删除成功',
+						type: 'success',
+						duration: 2000
+					})
+				},
+				noCallback: () => {}
+			}
+
+			showConfirm(options)
 		},
 
 		getList() {
-			this.listLoading = true
+			this.showLoading = true
 			this.list = List
 			this.total = List.length
 			setTimeout(() => {
-				this.listLoading = false
+				this.showLoading = false
 			}, 1.5 * 1000)
 		},
 		handleFilter() {
 			this.listQuery.page = 1
 			this.getList()
-		},
-		handleModifyStatus(row, status) {
-			this.$message({
-				message: '操作Success',
-				type: 'success'
-			})
-			row.status = status
-		},
-		sortChange(data) {
-			const { prop, order } = data
-			if (prop === 'id') {
-				this.sortByID(order)
-			}
-		},
-		sortByID(order) {
-			if (order === 'ascending') {
-				this.listQuery.sort = '+id'
-			} else {
-				this.listQuery.sort = '-id'
-			}
-			this.handleFilter()
-		},
-
-		createData() {
-			this.$refs['createForm'].validate(valid => {
-				if (valid) {
-					console.log(this.newuser)
-					this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-					this.temp.author = 'vue-element-admin'
-					createArticle(this.temp).then(() => {
-						this.list.unshift(this.temp)
-						this.dialogFormVisible = false
-						this.$notify({
-							title: 'Success',
-							message: 'Created Successfully',
-							type: 'success',
-							duration: 2000
-						})
-					})
-				}
-			})
-		},
-		handleUpdate(row) {
-			this.temp = Object.assign({}, row) // copy obj
-			this.temp.timestamp = new Date(this.temp.timestamp)
-			this.dialogStatus = 'update'
-			this.dialogFormVisible = true
-			this.$nextTick(() => {
-				this.$refs['dataForm'].clearValidate()
-			})
-		},
-		updateData() {
-			console.log('createForm')
-			this.$refs['createForm'].validate(valid => {
-				if (valid) {
-					console.log(this.newuser)
-					const tempData = Object.assign({}, this.temp)
-					tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-					updateArticle(tempData).then(() => {
-						for (const v of this.list) {
-							if (v.id === this.temp.id) {
-								const index = this.list.indexOf(v)
-								this.list.splice(index, 1, this.temp)
-								break
-							}
-						}
-						this.dialogFormVisible = false
-						this.$notify({
-							title: 'Success',
-							message: 'Update Successfully',
-							type: 'success',
-							duration: 2000
-						})
-					})
-				}
-			})
-		},
-		handleDelete(row) {
-			this.$notify({
-				title: 'Success',
-				message: 'Delete Successfully',
-				type: 'success',
-				duration: 2000
-			})
-			const index = this.list.indexOf(row)
-			this.list.splice(index, 1)
-		},
-
-		handleFetchPv(pv) {
-			this.pvData = [
-				{ key: 'PC', pv: 1024 },
-				{ key: 'mobile', pv: 1024 },
-				{ key: 'ios', pv: 1024 },
-				{ key: 'android', pv: 1024 }
-			]
-			this.dialogPvVisible = true
-		},
-		handleDownload() {
-			this.downloadLoading = false
-			console.log('handleDownload')
-		},
-		formatJson(filterVal, jsonData) {
-			return jsonData.map(v =>
-				filterVal.map(j => {
-					if (j === 'timestamp') {
-						return parseTime(v[j])
-					} else {
-						return v[j]
-					}
-				})
-			)
-		},
-		getSortClass: function(key) {
-			const sort = this.listQuery.sort
-			return sort === `+${key}`
-				? 'ascending'
-				: sort === `-${key}`
-					? 'descending'
-					: ''
 		}
 	}
 }
