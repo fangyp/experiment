@@ -42,8 +42,17 @@ module.exports = {
 				logLevel: 'debug',
 				secure: false,
 				pathRewrite: {
-					'^/admin-dev': '/admin',
-					'^/auth-dev': '/auth',
+					'^/admin-dev': '/admin'
+				}
+			},
+			[process.env.VUE_APP_AUTH_API]: {
+				// target: `http://127.0.0.1:${port}/mock`, // `${process.env.VUE_APP_API_HOST}`, // 
+				target: `${process.env.VUE_APP_API_HOST}`,
+				changeOrigin: true,
+				logLevel: 'debug',
+				secure: false,
+				pathRewrite: {
+					'^/auth-dev': '/auth'
 				}
 			},
 		},
