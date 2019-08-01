@@ -168,11 +168,10 @@ import poppyjs from 'poppyjs-elem'
 import webcore from '../../webcore'
 const isEmpty = poppyjs.util.StringUtil.isEmpty
 const showConfirm = poppyjs.html.Dialog.showConfirm
-
-const key = 'e7e4e52e7b878f64076873dc495eead9'
-const userString = localStorage.getItem(key) || '{}'
-const user = JSON.parse(userString) || {}
-
+// , setUserInfo, removeUserInfo
+import { getUserInfo } from '../../utils/auth'
+const user = getUserInfo()
+console.log(user)
 const defaultRole = { key: '3', value: '实验人员' }
 const defaultState = { key: 'enable', value: '正常' }
 

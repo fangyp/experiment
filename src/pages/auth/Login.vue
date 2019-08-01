@@ -7,14 +7,14 @@
     <el-form class="login-form">
       <el-form-item prop="username">
         <span class="svg-container">
-          <li class="el-icon-circle-close" />
+          <font-awesome-icon icon="user" />
         </span>
         <el-input type="password" style="position:fixed;bottom:-8000px" />
         <el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
       </el-form-item>
       <el-form-item>
         <span class="svg-container">
-          <li class="el-icon-circle-close" />
+          <font-awesome-icon icon="unlock" />
         </span>
         <el-input type="password" style="position:fixed;bottom:-9000px" />
         <el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
@@ -30,17 +30,17 @@
 </template>
 <script>
 import poppyjs from 'poppyjs-elem'
-import webcore from '../../webcore'
+import { login } from '../../api/user'
+import {
+	setToken,
+	getUserInfo,
+	setUserInfo,
+	removeUserInfo
+} from '../../utils/auth'
+const user = getUserInfo()
 const isEmpty = poppyjs.util.StringUtil.isEmpty
 const showToast = poppyjs.html.Dialog.showMessage
 
-const key = 'e7e4e52e7b878f64076873dc495eead9'
-const userString = localStorage.getItem(key) || '{}'
-const user = JSON.parse(userString) || {}
-
-const request = webcore.common.utils.NetUtil.adminRequest
-
-console.log(request)
 export default {
 	data() {
 		return {
@@ -72,56 +72,42 @@ export default {
 				return showToast('请输入登录密码')
 			}
 
-			const state = {
-				account: this.account || '',
-				password: this.password || '',
-				checked: this.checked || false, // 记住密码
-				loading: this.loading || false // 提交动画
+			const params = {
+				login_name: this.account,
+				password: this.password
 			}
 
-			if (this.checked) {
-				console.log(JSON.stringify(state))
-				localStorage.setItem(key, JSON.stringify(state))
-			} else {
-				localStorage.removeItem(key)
-			}
-
-			this.$message({
-				message: '登录成功,即将进入系统!',
-				type: 'success'
-			})
-			setTimeout(() => {
-				const user = localStorage.getItem(key)
-				console.log('user')
-				console.log(user)
-				// poppyjs.util.NetUtil.redirect(
-				//   process.env.VUE_APP_BASE_URL + "/user/user-info"
-				// );
-			}, 1000)
-
-			console.log(process.env.VUE_APP_BASE_API)
-
-			const options = {
-				url: '/auth/login',
-				method: 'POST',
-				params: {
-					login_name: this.account,
-					password: this.password
-				}
-			}
-
-			request(options)
-				.then((response) => {
+			login(params)
+				.then(response => {
 					console.log(response)
+					const { access_token = '', status = 0 } = response.data || {}
+					console.log(access_token)
+					if (status === 0) {
+						setToken(access_token)
+						const state = {
+							account: this.account || '',
+							password: this.password || '',
+							checked: this.checked || false, // 记住密码
+							token: access_token || ''
+						}
+						if (this.checked) {
+							setUserInfo(state)
+						} else {
+							removeUserInfo(state)
+						}
+						setTimeout(() => {
+							const user = getUserInfo()
+							console.log('user')
+							console.log(user)
+						}, 1000)
+						poppyjs.util.NetUtil.redirect(
+							process.env.VUE_APP_BASE_URL + '/user/user-info'
+						)
+					}
 				})
-				.catch((error) => {
+				.catch(error => {
 					console.log(error)
 				})
-
-			// this.$toast.center("这是在vue文件中使用的toast");
-			// this.$store.dispatch("login/showLoading");
-			// this.$store.dispatch("login/submitLogin");
-			// this.$router.push("/main/home");
 		}
 	}
 }
