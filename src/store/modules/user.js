@@ -1,4 +1,4 @@
-import { login, logout, getMenus } from '@/api/user'
+import { login, logout, getMenus, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -49,32 +49,26 @@ const actions = {
 
 	// get user info
 	getInfo({ commit, state }) {
-		/*
-    return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
+		return new Promise((resolve, reject) => {
+			getInfo(state.token).then(response => {
+				const { data } = response
 
-        if (!data) {
-          reject('Verification failed, please Login again.')
-        }
+				if (!data) {
+					reject('Verification failed, please Login again.')
+				}
 
-        const { roles, name, avatar, introduction } = data
+				const { info } = data
+				const { role_type_name, user_name, login_name } = info
 
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-    */
+				commit('SET_ROLES', [role_type_name])
+				commit('SET_NAME', login_name)
+				// commit('SET_AVATAR', avatar) // 没有头像
+				commit('SET_INTRODUCTION', user_name)
+				resolve(data)
+			}).catch(error => {
+				reject(error)
+			})
+		})
 	},
 
 	// user logout

@@ -2,9 +2,9 @@
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
 
-function resolve(dir) {
-	return path.join(__dirname, dir)
-}
+// The var '__dirname' is 'build' dir.
+/* path定义 */
+const pagesPath = path.resolve(__dirname, "src/pages");
 
 const name = defaultSettings.title || 'vue Element Admin' // page title
 
@@ -17,18 +17,18 @@ const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
-	/**
-	 * You will need to set publicPath if you plan to deploy your site under a sub path,
-	 * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
-	 * then publicPath should be set to "/bar/".
-	 * In most cases please use '/' !!!
-	 * Detail: https://cli.vuejs.org/config/#publicpath
-	 */
+  /**
+   * You will need to set publicPath if you plan to deploy your site under a sub path,
+   * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
+   * then publicPath should be set to "/bar/".
+   * In most cases please use '/' !!!
+   * Detail: https://cli.vuejs.org/config/#publicpath
+   */
 	publicPath: '/',
 	outputDir: 'dist',
 	assetsDir: 'static',
 	filenameHashing: true,
-	// pages: getPages(pagesPath),
+	pages: getPages(pagesPath),
 	lintOnSave: process.env.NODE_ENV === 'development',
 	runtimeCompiler: false,
 	productionSourceMap: false,
@@ -80,7 +80,7 @@ module.exports = {
 
 
 	chainWebpack(config) {
-		// config.plugins.delete('preload') // TODO: need test
+		//config.plugins.delete('preload') // TODO: need test
 		// config.plugins.delete('prefetch') // TODO: need test
 
 		// set svg-sprite-loader
@@ -156,4 +156,49 @@ module.exports = {
 				}
 			)
 	}
+
+}
+
+
+// 获取页面配置列表
+function getPages(pagesPath) {
+	const glob = require('glob');
+	let pagesSrcPath = pagesPath + '/**/*.js';
+
+	console.log(pagesSrcPath);
+
+	let files = glob.sync(pagesSrcPath);
+	let pages = {};
+	let entryFileName;
+
+	console.log(files);
+
+	for (let i = 0; i < files.length; i++) {
+		let matchs = /pages\/(\S*)_page.js/.exec(files[i]);
+		console.log(matchs);
+		if (matchs !== null) {
+			entryFileName = matchs[1];
+			if (/^_\w*/.test(entryFileName) || /\/_\w*/.test(entryFileName)) {
+				continue;
+			}
+
+			let pageName = entryFileName;
+
+			pages[entryFileName] = {
+				entry: files[i],
+				template: './src/public/index.html',
+				filename: `${pageName}.html`,
+				chunks: ['chunk-vendors', 'chunk-common', pageName]
+			};
+		}
+	}
+
+	//entry['app'] = './sass/admin/main.scss';
+
+	console.log('> pages: ' + JSON.stringify(pages))
+	return pages;
+}
+
+function resolve(dir) {
+	return path.join(__dirname, dir)
 }

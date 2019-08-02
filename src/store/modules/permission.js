@@ -1,4 +1,4 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router'
 import Layout from '@/layout'
 
 /**
@@ -63,12 +63,7 @@ const actions = {
 	*/
 	generateRoutes({ commit, state }, { roles, menus }) {
 		return new Promise(resolve => {
-			let accessedRoutes
-			accessedRoutes = dataArrayToRoutes(parseRouters(menus))
-
-			console.log(accessedRoutes)
-
-
+			const accessedRoutes = dataArrayToRoutes(parseRouters(menus))
 			commit('SET_ROUTES', accessedRoutes)
 			resolve(accessedRoutes)
 		})
@@ -97,26 +92,10 @@ function dataArrayToRoutes(data) {
 
 // 将后端发来的菜单权限数据解析为框架的route结构
 function parseRouters(menuList) {
-	let parsedRouters = []
-	// 首页菜单
-	parsedRouters.push({
-		id: '0',
-		path: '/',
-		component: 'Layout',
-		redirect: 'noRedirect',
-		name: 'home',
-		hidden: false,
-		external: false,
-		meta: {
-			title: '首页',
-			icon: 'dashboard'
-		},
-		children: []
-	})
-	// 其他菜单
-	menuList.forEach(function (value, index, array) {
-		let childrenList = []
-		value.sub_menus.forEach(function (value, index, array) {
+	const allRouters = []
+	menuList.forEach((value, index, array) => {
+		const childrenList = []
+		value.sub_menus.forEach((value, index, array) => {
 			childrenList.push({
 				id: value.menu_id + '',
 				path: value.uri,
@@ -126,13 +105,14 @@ function parseRouters(menuList) {
 				meta: { title: value.menu_name }
 			})
 		})
-		parsedRouters.push({
+
+		allRouters.push({
 			id: value.menu_id + '',
 			path: value.uri,
 			component: 'Layout',
 			redirect: 'noRedirect',
 			name: value.menu_id,
-			hidden: (value.main_nav != 1),
+			hidden: (value.main_nav !== 1),
 			external: false,
 			meta: {
 				title: value.menu_name,
@@ -141,7 +121,7 @@ function parseRouters(menuList) {
 			children: childrenList
 		})
 	})
-	return parsedRouters
+	return allRouters
 }
 
 

@@ -1,7 +1,5 @@
 import poppyjs from 'poppyjs-elem'
 
-console.log(poppyjs)
-
 class BoolEnum extends poppyjs.biz.BaseEnum {
 }
 BoolEnum.No = 0
