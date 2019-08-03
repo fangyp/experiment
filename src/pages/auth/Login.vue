@@ -95,14 +95,8 @@ export default {
 						} else {
 							removeUserInfo(state)
 						}
-						setTimeout(() => {
-							const user = getUserInfo()
-							console.log('user')
-							console.log(user)
-						}, 1000)
-						poppyjs.util.NetUtil.redirect(
-							process.env.VUE_APP_BASE_URL + '/user/user-info'
-						)
+						console.log(this)
+						this.$router.push('/user/user_info')
 					}
 				})
 				.catch(error => {

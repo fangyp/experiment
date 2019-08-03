@@ -16,6 +16,8 @@ class NetUtil {
 	 */
 	static adminRequest(options) {
 		const self = this
+		console.log('adminRequest')
+		console.log(getToken())
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 			options.headers = { 'X-ACCESS-TOKEN': getToken() }
