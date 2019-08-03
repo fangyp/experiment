@@ -10,27 +10,33 @@ import Layout from '@/layout'
 export const constantRoutes = [
 
 
-  {
-    path: '/',
-    component: Layout,
-    // redirect: '/user/user_info',
-    hidden: true,
-    children: [
-      {
-        path: 'user/user_info',
-        component: () => import('@/pages/user/UserInfo'),
-        name: 'UserInfo',
-        // meta: { title: 'Profile', icon: 'user', noCache: true }
-      }
-    ]
-  }
+	{
+		path: '/',
+		component: Layout,
+		// redirect: '/user/user_info',
+		hidden: true,
+		children: [
+			{
+				path: 'user/user_info',
+				component: () => import('@/pages/user/UserInfo'),
+				name: 'UserInfo'
+				// meta: { title: 'Profile', icon: 'user', noCache: true }
+			},
+			{
+				path: 'group/group_list',
+				component: () => import('@/pages/group/GroupList'),
+				name: 'GroupList'
+				// meta: { title: 'Profile', icon: 'user', noCache: true }
+			}
+		]
+	}
 
 
-  /*
+	/*
   { path: '/user/user_info', component: () => import('@/pages/user/UserInfo'), name: 'UserInfo' }
   */
 
-  /*
+	/*
   {
     path: '/redirect',
     component: Layout,
@@ -94,18 +100,18 @@ export const constantRoutes = [
 ]
 
 const createRouter = () => new Router({
-  mode: 'history', // require service support
-  // scrollBehavior: () => ({ y: 0 }),
-  base: '/user/user_info',
-  routes: constantRoutes
+	mode: 'history', // require service support
+	// scrollBehavior: () => ({ y: 0 }),
+	base: '/user/user_info',
+	routes: constantRoutes
 })
 
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher // reset router
+	const newRouter = createRouter()
+	router.matcher = newRouter.matcher // reset router
 }
 
 export default router
