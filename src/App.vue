@@ -1,13 +1,11 @@
 <template>
   <div id="app">
-    <transition name="fade">
-      <router-view />
-    </transition>
+    <router-view />
   </div>
 </template>
 <script>
 export default {
-  name: 'App'
+	name: 'App'
 }
 </script>
 <style lang="scss">

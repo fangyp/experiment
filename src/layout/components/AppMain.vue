@@ -3,6 +3,7 @@
     <transition name="fade-transform" mode="out-in">
       <keep-alive :include="cachedViews">
         <main-content />
+        <router-view :key="key" />
       </keep-alive>
     </transition>
   </section>
@@ -22,6 +23,7 @@ export default {
 	},
 	mounted: function() {
 		console.log(this.$route.query)
+		return this.$route.path
 	}
 }
 </script>
