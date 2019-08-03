@@ -23,11 +23,6 @@ router.beforeEach(async(to, from, next) => {
 	const hasToken = getToken()
 
 	if (hasToken) {
-		// lxb added: 如果已经登录(本地存有token)时，请求后台获取菜单数据
-		const menus = await store.dispatch('user/getMenus')
-		const accessRoutes = await store.dispatch('permission/generateRoutes', { menus })
-		router.addRoutes(accessRoutes)
-
 		if (to.path === '/auth/login') {
 			// if is logged in, redirect to the home page
 			next({ path: '/' })
@@ -42,6 +37,11 @@ router.beforeEach(async(to, from, next) => {
 					// get user info
 					// note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
 					await store.dispatch('user/getInfo')
+
+					// lxb added: 如果已经登录(本地存有token)时，请求后台获取菜单数据
+					const menus = await store.dispatch('user/getMenus')
+					const accessRoutes = await store.dispatch('permission/generateRoutes', { menus })
+					router.addRoutes(accessRoutes)
 
 					// hack method to ensure that addRoutes is complete
 					// set the replace: true, so the navigation will not leave a history record

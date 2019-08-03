@@ -79,8 +79,10 @@ function dataArrayToRoutes(data) {
 		} else {
 			// let sub_view = tmp.component
 			// sub_view = sub_view.replace(/^\/*/g, '')
-			// //这里很重要，把view动态加载进来，而且似乎我只找到这样的写法，用拼接不行，然后 views 后面没有斜杆也不行
-			// tmp.component = () => import(`@/views/${sub_view}`)
+			// //这里很重要，把view动态加载进来
+			if (tmp.extend !== null && tmp.extend !== '') {
+				tmp.component = () => import(`@/pages/${tmp.extend}`)
+			}
 		}
 		if (tmp.children) {
 			tmp.children = dataArrayToRoutes(tmp.children)
