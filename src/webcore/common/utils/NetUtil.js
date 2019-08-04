@@ -2,6 +2,8 @@ import Vue from 'vue'
 import poppyjs from 'poppyjs-elem'
 // import store from '@/store'
 import { getToken } from '@/utils/auth'
+import router from '@/router'
+import { removeToken } from '@/utils/auth' // get token from cookie
 
 class NetUtil {
 	/**
@@ -15,9 +17,6 @@ class NetUtil {
 	 * }
 	 */
 	static adminRequest(options) {
-		const self = this
-		console.log('adminRequest')
-		console.log(getToken())
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 			options.headers = { 'X-ACCESS-TOKEN': getToken() }
@@ -30,9 +29,13 @@ class NetUtil {
 						poppyjs.html.Dialog.closeLoading()
 						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
 							// 登录超时，跳转到登录页
-							self.redirect('/auth/login')
+							// self.redirect('/auth/login')
+							console.log('hahahahahahh')
+							console.log(removeToken())
+							router.push('/auth/login')
 						})
 					})
+					console.log(checkResult)
 					if (checkResult) {
 						resolve(response.data)
 					} else {
