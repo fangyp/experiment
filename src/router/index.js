@@ -5,31 +5,6 @@ import Layout from '@/layout'
 Vue.use(Router)
 
 export const constantRoutes = [
-	{
-		path: '/',
-		component: Layout,
-		// redirect: '/user/user_info',
-		hidden: true,
-		children: [
-			{
-				path: 'user/user_info',
-				component: () => import('@/pages/user/UserInfo'),
-				name: 'UserInfo'
-				// meta: { title: 'Profile', icon: 'user', noCache: true }
-			},
-			{
-				path: 'group/group_list',
-				component: () => import('@/pages/group/GroupList'),
-				name: 'GroupList'
-				// meta: { title: 'Profile', icon: 'user', noCache: true }
-			}
-		]
-	},
-
-
-	/*
-{ path: '/user/user_info', component: () => import('@/pages/user/UserInfo'), name: 'UserInfo' }
-*/
 
 	/*
 {
@@ -142,7 +117,8 @@ export const constantRoutes = [
 const createRouter = () => new Router({
 	mode: 'history', // require service support
 	// scrollBehavior: () => ({ y: 0 }),
-	base: '/user/user_info',
+	base: '/',
+	// base: '/user/user_info',
 	// mode: 'history', // require service support
 	scrollBehavior: () => ({ y: 0 }),
 	routes: constantRoutes

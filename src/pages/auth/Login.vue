@@ -96,7 +96,7 @@ export default {
 							removeUserInfo(state)
 						}
 						console.log(this)
-						this.$router.push('/user/user_info')
+						this.$router.push('/')
 					}
 				})
 				.catch(error => {

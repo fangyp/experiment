@@ -3,15 +3,15 @@ import '@/common'
 import router from '@/router'
 import store from '@/store'
 import Layout from '@/layout'
-import UserInfo from './UserInfo'
+// import UserInfo from './UserInfo'
 
-Vue.component('main-content', UserInfo)
+// Vue.component('main-content', UserInfo)
 
 new Vue({
-  el: '#app',
-  store,
-  router,
-  render: h => h(Layout)
+	el: '#app',
+	store,
+	router,
+	render: h => h(Layout)
 })
 
 /*
