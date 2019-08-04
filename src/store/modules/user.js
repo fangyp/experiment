@@ -58,8 +58,6 @@ const actions = {
 				}
 
 				const { info } = data
-				console.log('user info')
-				console.log(info)
 				const { role_type_name, user_name, login_name } = info
 
 				commit('SET_ROLES', [role_type_name])

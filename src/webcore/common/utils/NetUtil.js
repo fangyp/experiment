@@ -35,7 +35,6 @@ class NetUtil {
 							router.push('/auth/login')
 						})
 					})
-					console.log(checkResult)
 					if (checkResult) {
 						resolve(response.data)
 					} else {

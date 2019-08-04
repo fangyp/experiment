@@ -21,8 +21,6 @@ router.beforeEach(async(to, from, next) => {
 
 	// determine whether the user has logged in
 	const hasToken = getToken()
-	console.log('hasToken')
-	console.log(hasToken)
 	if (hasToken) {
 		if (to.path === '/auth/login') {
 			// if is logged in, redirect to the home page
@@ -41,11 +39,7 @@ router.beforeEach(async(to, from, next) => {
 
 					// lxb added: 如果已经登录(本地存有token)时，请求后台获取菜单数据
 					const menus = await store.dispatch('user/getMenus')
-					console.log('menus')
-					console.log(menus)
 					const accessRoutes = await store.dispatch('permission/generateRoutes', { menus })
-					console.log('accessRoutes')
-					console.log(accessRoutes)
 					router.addRoutes(accessRoutes)
 
 					// hack method to ensure that addRoutes is complete

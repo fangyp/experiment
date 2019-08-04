@@ -77,12 +77,10 @@ function dataArrayToRoutes(data) {
 		if (tmp.component === 'Layout') {
 			tmp.component = Layout
 		} else {
-			// let sub_view = tmp.component
+			const sub_view = tmp.component
 			// sub_view = sub_view.replace(/^\/*/g, '')
 			// //这里很重要，把view动态加载进来
-			if (tmp.extend !== null && tmp.extend !== '') {
-				tmp.component = () => import(`@/pages/${tmp.extend}`)
-			}
+			tmp.component = () => import(`@/pages/${sub_view}`)
 		}
 		if (tmp.children) {
 			tmp.children = dataArrayToRoutes(tmp.children)
@@ -101,6 +99,7 @@ function parseRouters(menuList) {
 			childrenList.push({
 				id: value.menu_id + '',
 				path: value.uri,
+				component: (value.extend !== null && value.extend !== '' ? value.extend : 'Layout'),
 				// component: () => import('@/views/components-demo/tinymce'),
 				name: value.menu_id,
 				external: false,
@@ -113,7 +112,7 @@ function parseRouters(menuList) {
 			path: value.uri,
 			component: 'Layout',
 			redirect: 'noRedirect',
-			name: value.menu_id,
+			name: '' + value.menu_id,
 			hidden: (value.main_nav !== 1),
 			external: false,
 			meta: {
