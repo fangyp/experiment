@@ -227,7 +227,7 @@ for (let i = 0; i < 100; i++) {
 }
 
 export default {
-	name: 'UserInfo',
+	name: 'AuthUser',
 	components: { Pagination },
 	directives: { waves },
 	filters: {

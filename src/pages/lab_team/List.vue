@@ -174,7 +174,7 @@ const testerOptions = [
 ]
 
 export default {
-	name: 'GroupList',
+	name: 'LabTeam',
 	components: { Pagination },
 	directives: { waves },
 	filters: {
