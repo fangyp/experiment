@@ -19,6 +19,12 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUser, faUnlock } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faUser, faUnlock)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -29,23 +35,25 @@ import * as filters from './filters' // global filters
  */
 import { mockXHR } from '../mock'
 if (process.env.NODE_ENV === 'production') {
-  mockXHR()
+	mockXHR()
 }
 
 Vue.use(Element, {
-  size: Cookies.get('size') || 'medium' // set element-ui default size
+	size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
+	Vue.filter(key, filters[key])
 })
 
 Vue.config.productionTip = false
-
+// import { getToken, setToken, removeToken, removeUserInfo } from './utils/auth'
+// removeToken();
+// removeUserInfo();
 new Vue({
-  el: '#app',
-  router,
-  store,
-  render: h => h(App)
+	el: '#app',
+	router,
+	store,
+	render: h => h(App)
 })

@@ -1,8 +1,8 @@
 <template>
   <div id="login" class="login-container">
     <div class="title-container">
-      <!-- <img src="../../images/logo/logo.svg" /> -->
-      <span>Vue for React</span>
+      <img src="../../icons/logo/logotbf.png">
+      <span>数据管理平台</span>
     </div>
     <el-form class="login-form">
       <el-form-item prop="username">
@@ -29,79 +29,40 @@
   </div>
 </template>
 <script>
-import poppyjs from 'poppyjs-elem'
-import { login } from '../../api/user'
-import {
-	setToken,
-	getUserInfo,
-	setUserInfo,
-	removeUserInfo
-} from '../../utils/auth'
-const user = getUserInfo()
-const isEmpty = poppyjs.util.StringUtil.isEmpty
-const showToast = poppyjs.html.Dialog.showMessage
-
+import { mapState } from 'vuex'
 export default {
-	data() {
-		return {
-			account: user.account || '',
-			password: user.password || '',
-			checked: user.checked || false, // 记住密码
-			loading: user.loading || false // 提交动画
-		}
+	computed: {
+		/**
+     * state
+     * */
+		...mapState({
+			account: state => state.login.account,
+			password: state => state.login.password,
+			checked: state => state.login.checked,
+			loading: state => state.login.loading
+		})
+		/**
+     * 计算属性
+     * */
+		// ...mapGetters({ account: "setAccount", password: "setPassword" })
 	},
 	methods: {
 		setAccount(text) {
-			this.account = text.trim()
+			this.$store.dispatch('login/setAccount', text.trim())
 		},
 		setPassword(text) {
-			this.password = text.trim()
+			this.$store.dispatch('login/setPassword', text.trim())
 		},
 		setChecked(isCheck) {
-			this.checked = isCheck
 			console.log('isCheck = ' + isCheck)
+			this.$store.dispatch('login/setChecked', isCheck)
 		},
 		submitLogin() {
-			console.log(this)
-			this.loading = false
-
-			if (isEmpty(this.account)) {
-				return showToast('请输入您的登录账号')
-			}
-			if (isEmpty(this.password)) {
-				return showToast('请输入登录密码')
-			}
-
-			const params = {
-				login_name: this.account,
-				password: this.password
-			}
-
-			login(params)
-				.then(response => {
-					console.log(response)
-					const { access_token = '', status = 0 } = response.data || {}
-					console.log(access_token)
-					if (status === 0) {
-						setToken(access_token)
-						const state = {
-							account: this.account || '',
-							password: this.password || '',
-							checked: this.checked || false, // 记住密码
-							token: access_token || ''
-						}
-						if (this.checked) {
-							setUserInfo(state)
-						} else {
-							removeUserInfo(state)
-						}
-						console.log(this)
-						this.$router.push('/')
-					}
-				})
-				.catch(error => {
-					console.log(error)
-				})
+			this.$store.dispatch('login/showLoading')
+			this.$store.dispatch('login/submitLogin').then(() => {
+				console.log('success')
+				this.$router.push('/')
+			})
 		}
 	}
 }
@@ -166,18 +127,19 @@ $cursor: #fff;
     width: 100%;
     text-align: center;
     margin-top: 140px;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
+    height: 120px;
     span {
       color: #fff;
       font-weight: 600;
       font-size: 30px;
-      vertical-align: text-top;
+      vertical-align: middle;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
     }
     img {
-      height: 40px;
+      height: 120px;
       margin-right: 16px;
-      vertical-align: text-top;
+      vertical-align: middle;
     }
   }
   .login-form {
