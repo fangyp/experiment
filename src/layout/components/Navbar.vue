@@ -20,13 +20,11 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img src="../../icons/logo/logowf.png" class="user-avatar">
+          <span class="welcome">欢迎您:</span>
+          <span class="name">{{ username }}</span>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/">
-            <el-dropdown-item>主页</el-dropdown-item>
-          </router-link>
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">退出登录</span>
           </el-dropdown-item>
@@ -43,7 +41,7 @@ import Hamburger from '@/components/Hamburger'
 import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
-
+import { mapState } from 'vuex'
 export default {
 	components: {
 		Breadcrumb,
@@ -53,6 +51,9 @@ export default {
 		SizeSelect
 	},
 	computed: {
+		...mapState({
+			username: state => state.user.introduction
+		}),
 		...mapGetters(['sidebar', 'avatar', 'device'])
 	},
 	methods: {
@@ -128,9 +129,14 @@ export default {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
         position: relative;
-
+        .welcome {
+          font-size: 15px;
+        }
+        .name {
+          font-size: 25px;
+          font-weight: bold;
+        }
         .user-avatar {
           cursor: pointer;
           width: 40px;
