@@ -1,4 +1,4 @@
-import { login, logout, getMenus, getInfo } from '@/api/user'
+import { login, logout, getPermissions, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -7,7 +7,8 @@ const state = {
 	name: '',
 	avatar: '',
 	introduction: '',
-	roles: []
+	roles: [],
+	permissions: {}
 }
 
 const mutations = {
@@ -28,6 +29,9 @@ const mutations = {
 	},
 	SET_MENUS: (state, menus) => { // 这里是新增的
 		state.menus = menus
+	},
+	SET_PERMISSIONS: (state, permissions) => { // 这里是新增的
+		state.permissions = permissions
 	}
 }
 
@@ -121,24 +125,26 @@ const actions = {
 		})
 	},
 
-	getMenus({ commit, state }) { // 这个是新增的action
+	getPermissions({ commit, state }) { // 这个是新增的action
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 
-			getMenus().then(response => {
+			getPermissions().then(response => {
 				const { data } = response
 				if (!data) {
 					reject('Verification failed, please Login again.')
 				}
 
-				const menus = data
+				const menus = data.menus
+				const permissions = data.permissions
 
 				// roles must be a non-empty array
 				if (!menus || menus.length <= 0) {
-					reject('getMenus: menus must be a non-null array!')
+					reject('getPermissions: menus must be a non-null array!')
 				}
 
 				commit('SET_MENUS', menus)
+				commit('SET_PERMISSIONS', permissions)
 				resolve(menus)
 			}).catch(error => {
 				reject(error)

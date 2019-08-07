@@ -38,7 +38,7 @@ router.beforeEach(async(to, from, next) => {
 					await store.dispatch('user/getInfo')
 
 					// lxb added: 如果已经登录(本地存有token)时，请求后台获取菜单数据
-					const menus = await store.dispatch('user/getMenus')
+					const menus = await store.dispatch('user/getPermissions')
 					const accessRoutes = await store.dispatch('permission/generateRoutes', { menus })
 					router.addRoutes(accessRoutes)
 

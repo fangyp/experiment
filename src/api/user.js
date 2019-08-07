@@ -29,9 +29,9 @@ export function logout() {
 /**
  * 从服务端获取当前登录用户的菜单/权限列表
  */
-export function getMenus() {
+export function getPermissions() {
 	return webcore.admin.Service.requestAdmin({
-		url: '/menu/list',
+		url: '/permission/list',
 		showSuccessMsg: false,
 		showErrorMsg: true,
 		showLoading: true
@@ -55,5 +55,5 @@ export default {
 	login,
 	getInfo,
 	logout,
-	getMenus
+	getPermissions
 }
