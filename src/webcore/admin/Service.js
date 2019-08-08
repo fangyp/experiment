@@ -36,6 +36,7 @@ class Service {
 	static request(options) {
 		// 解析选项
 		const url = options.url
+		console.log('url ==' + url)
 		const method = (undefined === options.method || options.method === null) ? 'post' : options.method
 		const params = (undefined === options.params) ? null : options.params
 		const successMsg = (undefined === options.successMsg || options.successMsg === null) ? false : options.successMsg

@@ -68,7 +68,6 @@ const login = {
 					.then(response => {
 						console.log(response)
 						const { access_token = '' } = response.data || {}
-						console.log(access_token)
 						setToken(access_token)
 						const saveUser = {
 							account: state.account || '',
