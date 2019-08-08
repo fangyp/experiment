@@ -2,6 +2,7 @@
  * 人员列表的用户
  */
 import { saveData as saveDataRequest, getDataList as getDataListRequest } from '../../api/consumer'
+import { updateData as updateDataRequest } from '../../api/consumer'
 import { validPhone, isPassword } from '../../utils/validate'
 import { page } from '../../utils/page'
 /**
@@ -22,6 +23,14 @@ const createTemplate = {
 	password_confirmation: '', // 确认密码
 	role_type: 'lab_staff'
 }
+/**
+ * 表达标题
+ */
+const formTitles = {
+	update: '修改用户',
+	create: '新建用户'
+}
+
 /**
  * 验证新建表单
  */
@@ -77,37 +86,24 @@ const consumer = {
 	namespaced: true,
 	state: {
 		keyword: '', /** 搜索条件 */
-		roleType: '', /** 搜索条件角色 */
+		role_type: '', /** 搜索条件角色 */
 		createFormVisible: false, /** 新建弹出层的显示或隐藏 */
 		createFormStatus: '', // form类型 create or update
 		showFormLoading: false, // 表单加载动画
-		user: createTemplate, // 新建&修改用户信息对象
+		user: { ...createTemplate }, // 新建&修改用户信息对象
 		validation: validation, // 验证器
 		roleOptions: roleOptions, // 角色枚举
 		statusOption: statusOption, // 账号枚举
 		pageMap: page, // 分页对象
-		userList: []// 用户列表数据
+		userList: [], // 用户列表数据
+		formTitles: formTitles, // 表达标题
+		tableKey: 0// 听说管刷新的
 
 	},
 	/**
      * 更改state的方法
      */
 	mutations: {
-		// 新建动作
-		onCreateAction(state) {
-			state.createFormVisible = true
-			state.createFormStatus = 'create'
-			state.user = createTemplate
-		},
-		// 新建保存
-		onSaveAction(state) {
-			const params = state.user
-			saveDataRequest(params)
-				.then(response => {
-					console.log(response)
-					state.createFormVisible = false
-				})
-		},
 		// 获取数据列表
 		getDataArray(state, payload = {}) {
 			console.log(payload)
@@ -116,7 +112,7 @@ const consumer = {
 				user_name: state.keyword,
 				login_name: state.keyword,
 				phone: state.keyword,
-				role_type: state.roleType,
+				role_type: state.role_type,
 				...payload
 			}
 			getDataListRequest(params)
@@ -131,7 +127,45 @@ const consumer = {
 						current_page: current_page// 当前第几页
 					}
 				})
+		},
+		// 新建动作
+		onCreateAction(state) {
+			state.createFormVisible = true
+			state.createFormStatus = 'create'
+			state.user = { ...createTemplate }
+		},
+		// 新建保存
+		onSaveAction(state) {
+			const params = state.user
+			saveDataRequest(params)
+				.then(response => {
+					console.log(response)
+					state.createFormVisible = false
+				})
+		},
+		// 修改动作
+		onModifyAction(state, payload) {
+			state.createFormVisible = true
+			state.createFormStatus = 'update'
+			state.user = { ...payload }
+			state.user.role_type = state.user.role_type_formatted
+		},
+		// 修改保存
+		onUpdateAction(state) {
+			const { user_id = '', role_type = '', user_name = '', phone = '' } = state.user
+			const params = {
+				id: user_id,
+				role_type: role_type,
+				user_name: user_name,
+				phone: phone
+			}
+			updateDataRequest(params)
+				.then(response => {
+					console.log(response)
+					state.createFormVisible = false
+				})
 		}
+
 	},
 	/**
     * 更改状态发送的事件
@@ -147,6 +181,12 @@ const consumer = {
 		},
 		getDataArray(context, payload = {}) {
 			context.commit('getDataArray', payload)
+		},
+		onModifyAction(context, payload = {}) {
+			context.commit('onModifyAction', payload)
+		},
+		onUpdateAction(context, payload = {}) {
+			context.commit('onUpdateAction', payload)
 		}
 	}
 }

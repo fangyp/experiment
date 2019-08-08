@@ -80,6 +80,8 @@ function dataArrayToRoutes(data) {
 			const sub_view = tmp.component
 			// sub_view = sub_view.replace(/^\/*/g, '')
 			// //这里很重要，把view动态加载进来
+			console.log()
+			console.log('sub_view == ' + `@/pages/${sub_view}`)
 			tmp.component = () => import(`@/pages/${sub_view}`)
 		}
 		if (tmp.children) {

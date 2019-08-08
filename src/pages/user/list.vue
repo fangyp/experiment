@@ -4,24 +4,25 @@
       <el-input
         v-model="keyword"
         placeholder="请输入姓名或账号"
-        style="width: 240px;"
+        style="width: 200px;"
         class="filter-item"
         clearable
-        @keyup.enter.native="handleSearchAction"
+        @keyup.enter.native="searchAction"
       />
       <el-select
-        v-model="roleType"
+        v-model="role_type"
         placeholder="用户角色"
         clearable
         style="margin-left:10px; width: 240px,min-height:90px"
         class="filter-item"
       >
-        <!-- <el-option
+        <el-option
           v-for="item in roleOptions"
           :key="item.key"
-          :label="item.vlaue"
+          :label="item.value"
           :value="item.key"
-        />-->
+          style="height: 35px;"
+        />
       </el-select>
       <el-button
         v-waves
@@ -29,7 +30,7 @@
         type="primary"
         icon="el-icon-search"
         style="margin-left:10px; width: 120px"
-        @click="handleSearchAction"
+        @click="searchAction"
       >搜索</el-button>
       <el-button
         class="filter-item"
@@ -43,7 +44,7 @@
     <el-table
       :key="tableKey"
       v-loading="showFormLoading"
-      element-loading-text="给我一点时间"
+      element-loading-text="努力加载中..."
       :data="userList"
       border
       fit
@@ -51,33 +52,33 @@
       style="width: 100%;"
     >
       <el-table-column label="编号" min-width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.user_id }}</span>
+        <template slot-scope="{row}">
+          <span @click="modifyInfo(row)">{{ row.user_id }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" min-width="95px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.user_name }}</span>
+        <template slot-scope="{row}">
+          <span @click="modifyInfo(row)">{{ row.user_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="账户" min-width="95px" align="center">
         <template slot-scope="{row}">
-          <span @click="createAction(row)">{{ row.login_name }}</span>
+          <span @click="modifyInfo(row)">{{ row.login_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="手机" min-width="95px" align="center">
         <template slot-scope="{row}">
-          <span @click="createAction(row)">{{ row.phone }}</span>
+          <span @click="modifyInfo(row)">{{ row.phone }}</span>
         </template>
       </el-table-column>
       <el-table-column label="角色" min-width="75px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.role_type_formatted }}</span>
+        <template slot-scope="{row}">
+          <span>{{ row.role_type_formatted }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建日期" min-width="90px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.reg_time | parseTime('{y}-{m}-{d}') }}</span>
+        <template slot-scope="{row}">
+          <span>{{ row.reg_time | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" min-width="60px">
@@ -99,7 +100,10 @@
               <i class="el-icon-arrow-down el-icon--right" />
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="createAction(row)">修改信息</el-dropdown-item>
+              <el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
+              <el-dropdown-item @click.native="modifyInfo(row)">启用/禁用账户</el-dropdown-item>
+              <el-dropdown-item @click.native="modifyInfo(row)">停用账户</el-dropdown-item>
+              <el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
               <!-- <el-dropdown-item @click.native="changeState(row)">{{ row.state.key|userStateText }}</el-dropdown-item> -->
               <el-dropdown-item @click.native="deleteUser(row)">删除用户</el-dropdown-item>
             </el-dropdown-menu>
@@ -127,7 +131,7 @@
         <el-form-item label="用户姓名" prop="user_name">
           <el-input v-model="user.user_name" style="width: 220px;" placeholder="用户姓名" />
         </el-form-item>
-        <el-form-item label="登录账号" prop="login_name">
+        <el-form-item v-show="createFormStatus==='create'" label="登录账号" prop="login_name">
           <el-input v-model="user.login_name" style="width: 220px;" placeholder="设置登录账号" />
         </el-form-item>
         <el-form-item label="手机号码" prop="phone">
@@ -175,7 +179,7 @@
         <el-button
           size="medium"
           type="primary"
-          @click="createFormStatus==='create'?onSaveUserAction():updateUserData()"
+          @click="createFormStatus==='create'?onSaveAction():updateData()"
         >确定</el-button>
       </div>
     </el-dialog>
@@ -184,6 +188,7 @@
 
 <script>
 import { page } from '../../utils/page'
+const isEmpty = poppyjs.util.StringUtil.isEmpty
 
 import poppyjs from 'poppyjs-elem'
 import webcore from '../../webcore'
@@ -197,35 +202,11 @@ console.log(user)
 const request = webcore.common.utils.NetUtil.adminRequest
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
-import Mock from 'mockjs'
-
-const List = []
-
-for (let i = 0; i < 100; i++) {
-	List.push(
-		Mock.mock({
-			id: '@increment', // 用户编号
-			account: 'liuxiaoxiao', // 账户
-			username: '老刘', // 姓名
-			phone: '18168896116', // 手机
-			'role|1': [
-				{ key: 'dean', value: '院长' },
-				{ key: 'team_leader', value: '实验组长' },
-				{ key: 'lab_staff', value: '实验员' }
-			], // 角色
-			'state|1': [
-				{ key: 'disable', value: '已禁用' },
-				{ key: 'enable', value: '正常' }
-			], // 账号状态
-			datetime: +Mock.Random.date('T')
-		})
-	)
-}
 
 import { mapState } from 'vuex'
 
 export default {
-	name: 'Consumer',
+	name: 'List',
 	components: { Pagination },
 	directives: { waves },
 
@@ -250,22 +231,8 @@ export default {
 			return option[status]
 		}
 	},
-	data() {
-		return {
-			formTitles: {
-				update: '修改用户',
-				create: '新增用户'
-			},
-
-			tableKey: 0,
-			showLoading: true
-		}
-	},
-
 	computed: {
 		...mapState({
-			keyword: state => state.consumer.keyword,
-			roleType: state => state.consumer.roleType,
 			user: state => state.consumer.user,
 			validation: state => state.consumer.validation,
 			createFormStatus: state => state.consumer.createFormStatus,
@@ -273,7 +240,9 @@ export default {
 			statusOption: state => state.consumer.statusOption,
 			roleOptions: state => state.consumer.roleOptions,
 			pageMap: state => state.consumer.pageMap,
-			userList: state => state.consumer.userList
+			userList: state => state.consumer.userList,
+			formTitles: state => state.consumer.formTitles,
+			tableKey: state => state.consumer.tableKey
 		}),
 		createFormVisible: {
 			get() {
@@ -282,6 +251,22 @@ export default {
 			set(val) {
 				this.$store.state.consumer.createFormVisible = val
 			}
+		},
+		keyword: {
+			get() {
+				return this.$store.state.consumer.keyword
+			},
+			set(val) {
+				this.$store.state.consumer.keyword = val
+			}
+		},
+		role_type: {
+			get() {
+				return this.$store.state.consumer.role_type
+			},
+			set(val) {
+				this.$store.state.consumer.role_type = val
+			}
 		}
 	},
 	created() {
@@ -289,6 +274,13 @@ export default {
 	},
 
 	methods: {
+		/**
+     * 获取列表
+     */
+		getDataList(pageMap = page) {
+			console.log(pageMap)
+			this.$store.dispatch('consumer/getDataArray', pageMap)
+		},
 		// 新建动作
 		createAction() {
 			this.$store.dispatch('consumer/onCreateAction')
@@ -297,7 +289,7 @@ export default {
 			})
 		},
 		// 新建保存
-		onSaveUserAction() {
+		onSaveAction() {
 			this.$refs['createForm'].validate(valid => {
 				if (valid) {
 					if (this.user.password !== this.user.password_confirmation) {
@@ -306,72 +298,42 @@ export default {
 						this.$nextTick(() => {
 							this.$refs['createForm'].clearValidate()
 						})
-						this.$store.dispatch('consumer/onSaveAction')
+						this.$store.commit('consumer/onSaveAction')
+						this.getDataList()
 					}
 				}
 			})
 		},
-		/**
-     * 获取列表
-     */
-		getDataList(pageMap = page) {
-			console.log(pageMap)
-			this.$store.dispatch('consumer/getDataArray', pageMap)
-		},
-
 		/**
      * 修改
      */
 		modifyInfo(row) {
-			this.user = Object.assign({}, row) // copy obj
-			this.createFormStatus = 'update'
-			this.createFormVisible = true
+			this.$store.dispatch('consumer/onModifyAction', row)
 			this.$nextTick(() => {
 				this.$refs['createForm'].clearValidate()
 			})
 		},
-		/**
-     * 搜索
-     */
-		handleSearchAction() {
-			console.log(this.keyword)
+		// 修改保存
+		updateData() {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					this.$nextTick(() => {
+						this.$refs['createForm'].clearValidate()
+					})
+					this.$store.commit('consumer/onUpdateAction')
+					this.getDataList()
+				}
+			})
 		},
 
 		/**
-     * 确定修改用户消息
+     * 搜索
      */
-		updateUserData() {
-			this.$refs['createForm'].validate(valid => {
-				if (valid) {
-					console.log(this.user)
-					const options = {
-						url: '/user/update',
-						method: 'POST',
-						params: {
-							...this.user,
-							token: user.access_token || 'token'
-						}
-					}
-					console.log(options)
-					request(options)
-						.then(response => {
-							console.log(response)
-							this.createFormVisible = false
-							/** 这里把新用户的数据拼接到用户数据列表内 */
-							// this.list.unshift(this.temp);
-						})
-						.catch(error => {
-							console.log(error)
-						})
-					this.createFormVisible = false
-					this.$notify({
-						title: '系统提示',
-						message: '用户消息修改成功',
-						type: 'success',
-						duration: 2000
-					})
-				}
-			})
+		searchAction() {
+			if (isEmpty(this.keyword) && isEmpty(this.role_type)) {
+				return showToast('请输入搜索条件')
+			}
+			this.$store.dispatch('consumer/getDataArray', page)
 		},
 		/**
      * 删除用户
@@ -417,15 +379,6 @@ export default {
 			}
 
 			showConfirm(options)
-		},
-
-		getList() {
-			this.showLoading = true
-			this.list = List
-			this.total = List.length
-			setTimeout(() => {
-				this.showLoading = false
-			}, 1.5 * 1000)
 		},
 		/**
      * 改变用户状态
