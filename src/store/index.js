@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import getters from './getters'
-import createLogger from '../utils/logger'
+// import createLogger from '../utils/logger'
 
 Vue.use(Vuex)
 
@@ -18,12 +18,12 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 	return modules
 }, {})
 
-const isDev = process.env.NODE_ENV === 'development'
+// const isDev = process.env.NODE_ENV === 'development'
 
 const store = new Vuex.Store({
 	modules,
-	getters,
-	plugins: isDev ? [createLogger()] : []
+	getters
+	// plugins: isDev ? [createLogger()] : []
 })
 
 export default store
