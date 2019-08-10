@@ -6,7 +6,7 @@ import webcore from '@/webcore'
  */
 export function preloadData() {
 	return webcore.admin.Service.requestAdmin({
-		url: '/user/preload',
+		url: '/lab-team/preload',
 		showSuccessMsg: false,
 		showErrorMsg: false,
 		showLoading: false
@@ -14,12 +14,12 @@ export function preloadData() {
 }
 
 /**
- * 获取当前用户列表
+ * 获取数据列表
  * @param {*} token
  */
 export function getDataList(data) {
 	return webcore.admin.Service.requestAdmin({
-		url: '/user/get-list',
+		url: '/lab-team/get-list',
 		showSuccessMsg: false,
 		showErrorMsg: true,
 		showLoading: true,
@@ -28,12 +28,12 @@ export function getDataList(data) {
 }
 
 /**
- * 保存用户
+ * 保存
  * @param {*} data
  */
 export function saveData(data) {
 	return webcore.admin.Service.requestAdmin({
-		url: '/user/save',
+		url: '/lab-team/save',
 		showSuccessMsg: true,
 		showErrorMsg: true,
 		showLoading: true,
@@ -42,12 +42,12 @@ export function saveData(data) {
 }
 
 /**
- * 更新用户
+ * 更新
  */
 export function updateData(data) {
 	const { id = '' } = data
 	return webcore.admin.Service.requestAdmin({
-		url: `/user/update/${id}`,
+		url: `/lab-team/update/${id}`,
 		showSuccessMsg: true,
 		showErrorMsg: true,
 		showLoading: true,
@@ -61,33 +61,21 @@ export function updateData(data) {
 export function changeState(data) {
 	const { id = '' } = data
 	return webcore.admin.Service.requestAdmin({
-		url: `/user/user-status/${id}`,
+		url: `/lab-team/team-status/${id}`,
 		showSuccessMsg: true,
 		showErrorMsg: true,
 		showLoading: true,
 		params: data
 	})
 }
+
 /**
- * 修改密码
+ * 删除
  */
-export function modifyPassword(data) {
+export function deleteData(data) {
 	const { id = '' } = data
 	return webcore.admin.Service.requestAdmin({
-		url: `/user/update-password/${id}`,
-		showSuccessMsg: true,
-		showErrorMsg: true,
-		showLoading: true,
-		params: data
-	})
-}
-/**
- * 删除用户
- */
-export function deleteUser(data) {
-	const { id = '' } = data
-	return webcore.admin.Service.requestAdmin({
-		url: `/user/delete/${id}`,
+		url: `/lab-team/delete/${id}`,
 		showSuccessMsg: true,
 		showErrorMsg: true,
 		showLoading: true,

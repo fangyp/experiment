@@ -116,7 +116,7 @@
       v-show="pageMap.total>0"
       :total="pageMap.total"
       :page.sync="pageMap.page"
-      :limit.sync="pageMap.limit"
+      :limit.sync="pageMap.page_size"
       @pagination="getDataList"
     />
 
@@ -241,7 +241,6 @@ export default {
 			validation: state => state.consumer.validation,
 			createFormStatus: state => state.consumer.createFormStatus,
 			showFormLoading: state => state.consumer.showFormLoading,
-			statusOption: state => state.consumer.statusOption,
 			roleOptions: state => state.consumer.roleOptions,
 			userList: state => state.consumer.userList,
 			formTitles: state => state.consumer.formTitles,
@@ -281,6 +280,7 @@ export default {
 		}
 	},
 	created() {
+		this.$store.dispatch('consumer/onPreloadAction')
 		this.getDataList()
 	},
 
@@ -304,7 +304,7 @@ export default {
 			this.pageMap = { ...this.pageMap, ...pageMap }
 			this.$store.dispatch('consumer/getDataArray', {
 				page: this.pageMap.page,
-				page_size: this.pageMap.limit
+				page_size: this.pageMap.page_size
 			})
 		},
 		// 新建动作
@@ -360,7 +360,8 @@ export default {
      */
 		searchAction() {
 			this.$store.dispatch('consumer/getDataArray', {
-				page: page.current_page
+				page: this.pageMap.page,
+				page_size: this.pageMap.page_size
 			})
 		},
 		/**
@@ -438,7 +439,7 @@ export default {
 			})
 		},
 		/**
-     * 删除用户
+     * 删除
      */
 		deleteUser(row) {
 			const options = {

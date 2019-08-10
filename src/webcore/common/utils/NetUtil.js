@@ -30,7 +30,6 @@ class NetUtil {
 						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
 							// 登录超时，跳转到登录页
 							// self.redirect('/auth/login')
-							console.log('hahahahahahh')
 							console.log(removeToken())
 							router.push('/auth/login')
 						})

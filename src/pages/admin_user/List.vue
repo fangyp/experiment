@@ -110,7 +110,7 @@
       v-show="pageMap.total>0"
       :total="pageMap.total"
       :page.sync="pageMap.page"
-      :limit.sync="pageMap.limit"
+      :limit.sync="pageMap.page_size"
       @pagination="getUserList"
     />
 

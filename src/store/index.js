@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import getters from './getters'
-// import createLogger from '../utils/logger'
 
 Vue.use(Vuex)
 
@@ -19,6 +18,7 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 }, {})
 
 // const isDev = process.env.NODE_ENV === 'development'
+// import createLogger from '../utils/logger'
 
 const store = new Vuex.Store({
 	modules,

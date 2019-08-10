@@ -1,7 +1,7 @@
 /**
  * 人员列表的用户
  */
-import { saveData as saveDataRequest, getDataList as getDataListRequest } from '../../api/consumer'
+import { preloadData as preloadDataRequest, saveData as saveDataRequest, getDataList as getDataListRequest } from '../../api/consumer'
 import { updateData as updateDataRequest, changeState as changeStateRequest } from '../../api/consumer'
 import { modifyPassword as modifyPasswordRequest, deleteUser as deleteUserRequest } from '../../api/consumer'
 import { validPhone, isPassword } from '../../utils/validate'
@@ -89,13 +89,6 @@ const validation = {
 		]
 	}
 }
-/**
- * 账号状态
- */
-const statusOption = [
-	{ key: 'disable', value: '已禁用' },
-	{ key: 'enable', value: '正常' }
-]
 
 const consumer = {
 	namespaced: true,
@@ -108,7 +101,6 @@ const consumer = {
 		user: { ...createTemplate }, // 新建&修改用户信息对象
 		validation: validation, // 验证器
 		roleOptions: roleOptions, // 角色枚举
-		statusOption: statusOption, // 账号枚举
 		pageMap: page, // 分页对象
 		userList: [], // 用户列表数据
 		formTitles: formTitles, // 表达标题
@@ -116,9 +108,28 @@ const consumer = {
 
 	},
 	/**
+  * store的计算属性
+  */
+	getters: {
+		/**
+		 * 这里的state是当前类的state
+		 * @param {*} state
+		 */
+		getStateCount: function(state) {
+			return 100 + 100
+		}
+	},
+	/**
      * 更改state的方法
      */
 	mutations: {
+		// 获取预加载项目
+		onPreloadAction(state, payload = {}) {
+			preloadDataRequest()
+				.then(response => {
+					// const { data = [] } = response.data || {}
+				})
+		},
 		// 获取数据列表
 		getDataArray(state, payload = {}) {
 			state.showFormLoading = false
@@ -126,7 +137,7 @@ const consumer = {
 				user_name: state.keyword,
 				role_type: state.role_type,
 				page: payload.page,
-				limit: payload.limit
+				page_size: payload.page_size
 			}
 			getDataListRequest(params)
 				.then(response => {
@@ -134,9 +145,9 @@ const consumer = {
 					state.showFormLoading = false
 					state.userList = data
 					state.pageMap = {
-						total: total,
-						limit: per_page, // 每页多少显示多少条数据
-						page: current_page// 当前第几页
+						total: parseInt(total),
+						page_size: parseInt(per_page), // 每页多少显示多少条数据
+						page: parseInt(current_page)// 当前第几页
 					}
 				})
 		},
@@ -230,6 +241,9 @@ const consumer = {
     * 不正规方式:this.$store.commit(); 这会调用上面的 mutations中的方法 mutations是同步的
     */
 	actions: {
+		onPreloadAction(context, payload = {}) {
+			context.commit('onPreloadAction', payload)
+		},
 		onCreateAction(context, payload = {}) {
 			context.commit('onCreateAction', payload)
 		},

@@ -28,7 +28,6 @@ const login = {
      * @param {*} state
      */
 		getStateCount: function(state) {
-			console.log(state)
 			return 100 + 100
 		}
 	},
@@ -66,7 +65,6 @@ const login = {
 
 				loginUrl(params)
 					.then(response => {
-						console.log(response)
 						const { access_token = '' } = response.data || {}
 						setToken(access_token)
 						const saveUser = {
@@ -83,7 +81,6 @@ const login = {
 						resolve()
 					})
 					.catch(error => {
-						console.log(error)
 						removeUserInfo()
 						removeToken()
 						reject(error)
