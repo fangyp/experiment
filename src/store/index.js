@@ -5,10 +5,6 @@ import createLogger from '../utils/logger'
 
 Vue.use(Vuex)
 
-const isDev = process.env.NODE_ENV === 'development'
-console.log(process.env.NODE_ENV)
-console.log('development = ' + isDev)
-
 // https://webpack.js.org/guides/dependency-management/#requirecontext
 const modulesFiles = require.context('./modules', true, /\.js$/)
 
@@ -21,7 +17,9 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 	modules[moduleName] = value.default
 	return modules
 }, {})
-console.log(modules)
+
+const isDev = process.env.NODE_ENV === 'development'
+
 const store = new Vuex.Store({
 	modules,
 	getters,

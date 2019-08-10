@@ -2,9 +2,11 @@
  * 人员列表的用户
  */
 import { saveData as saveDataRequest, getDataList as getDataListRequest } from '../../api/consumer'
-import { updateData as updateDataRequest } from '../../api/consumer'
+import { updateData as updateDataRequest, changeState as changeStateRequest } from '../../api/consumer'
+import { modifyPassword as modifyPasswordRequest, deleteUser as deleteUserRequest } from '../../api/consumer'
 import { validPhone, isPassword } from '../../utils/validate'
 import { page } from '../../utils/page'
+
 /**
 * 角色
 */
@@ -21,21 +23,21 @@ const createTemplate = {
 	phone: '', // 手机号码
 	password: '', // 密码
 	password_confirmation: '', // 确认密码
-	role_type: 'lab_staff'
+	role_type: ''
 }
 /**
- * 表达标题
+ * 表单标题
  */
 const formTitles = {
 	update: '修改用户',
-	create: '新建用户'
+	create: '新建用户',
+	password: '修改密码'
 }
-
 /**
- * 验证新建表单
+ * 验证表单
  */
 const validation = {
-	/** 验证验证*/
+	/** 新建验证*/
 	create: {
 		user_name: [
 			{ required: true, message: '请填写用户姓名', trigger: 'blur' }
@@ -72,6 +74,19 @@ const validation = {
 			{ validator: validPhone, trigger: 'blur' }
 		],
 		role_type: [{ required: true, message: '请选择用户角色', trigger: 'blur' }]
+	},
+	/** 修改面膜 */
+	password: {
+		password: [
+			{ required: true, message: '请设置用户密码', trigger: 'blur' },
+			{ min: 6, max: 16, message: '密码长度在6到16位之间', trigger: 'blur' },
+			{ validator: isPassword, trigger: 'blur' }
+		],
+		password_confirmation: [
+			{ required: true, message: '请输入确认密码', trigger: 'blur' },
+			{ min: 6, max: 16, message: '密码长度在6到16位之间', trigger: 'blur' },
+			{ validator: isPassword, trigger: 'blur' }
+		]
 	}
 }
 /**
@@ -106,28 +121,26 @@ const consumer = {
 	mutations: {
 		// 获取数据列表
 		getDataArray(state, payload = {}) {
-			console.log(payload)
 			state.showFormLoading = false
 			const params = {
 				user_name: state.keyword,
-				login_name: state.keyword,
-				phone: state.keyword,
 				role_type: state.role_type,
-				...payload
+				page: payload.page,
+				limit: payload.limit
 			}
 			getDataListRequest(params)
 				.then(response => {
-					console.log(response)
 					const { data = [], total = 0, per_page = 10, current_page = 1 } = response.data || {}
 					state.showFormLoading = false
 					state.userList = data
 					state.pageMap = {
 						total: total,
-						per_page: per_page, // 每页多少显示多少条数据
-						current_page: current_page// 当前第几页
+						limit: per_page, // 每页多少显示多少条数据
+						page: current_page// 当前第几页
 					}
 				})
 		},
+
 		// 新建动作
 		onCreateAction(state) {
 			state.createFormVisible = true
@@ -135,11 +148,13 @@ const consumer = {
 			state.user = { ...createTemplate }
 		},
 		// 新建保存
-		onSaveAction(state) {
+		onSaveAction(state, payload) {
+			const { finishCallback = () => { } } = payload
+
 			const params = state.user
 			saveDataRequest(params)
-				.then(response => {
-					console.log(response)
+				.then(() => {
+					finishCallback()
 					state.createFormVisible = false
 				})
 		},
@@ -151,7 +166,8 @@ const consumer = {
 			state.user.role_type = state.user.role_type_formatted
 		},
 		// 修改保存
-		onUpdateAction(state) {
+		onUpdateAction(state, payload) {
+			const { finishCallback = () => { } } = payload
 			const { user_id = '', role_type = '', user_name = '', phone = '' } = state.user
 			const params = {
 				id: user_id,
@@ -160,12 +176,53 @@ const consumer = {
 				phone: phone
 			}
 			updateDataRequest(params)
-				.then(response => {
-					console.log(response)
+				.then(() => {
+					state.createFormVisible = false
+					finishCallback()
+				})
+		},
+
+		// 改变状态
+		onChangeStateAction(state, payload) {
+			const { id, statuskey, finishCallback = () => { } } = payload
+			const params = {
+				id: id,
+				status: statuskey
+			}
+			changeStateRequest(params)
+				.then(() => {
+					finishCallback()
+				})
+		},
+		// 修改密码
+		onModifyPassAction(state, payload) {
+			state.createFormVisible = true
+			state.createFormStatus = 'password'
+			state.user = { ...payload }
+		},
+		onUpdatePasword(state) {
+			const { user_id = '', password = '', password_confirmation = '' } = state.user
+			const params = {
+				id: user_id,
+				password: password,
+				password_confirmation: password_confirmation
+			}
+			modifyPasswordRequest(params)
+				.then(() => {
 					state.createFormVisible = false
 				})
+		},
+		// 删除用户
+		onDeleteAction(state, payload) {
+			const { id, finishCallback = () => { } } = payload
+			const params = {
+				id: id
+			}
+			deleteUserRequest(params)
+				.then(() => {
+					finishCallback()
+				})
 		}
-
 	},
 	/**
     * 更改状态发送的事件
@@ -187,7 +244,20 @@ const consumer = {
 		},
 		onUpdateAction(context, payload = {}) {
 			context.commit('onUpdateAction', payload)
+		},
+		onChangeStateAction(context, payload = {}) {
+			context.commit('onChangeStateAction', payload)
+		},
+		onModifyPassAction(context, payload = {}) {
+			context.commit('onModifyPassAction', payload)
+		},
+		onUpdatePasword(context, payload = {}) {
+			context.commit('onUpdatePasword', payload)
+		},
+		onDeleteAction(context, payload = {}) {
+			context.commit('onDeleteAction', payload)
 		}
+
 	}
 }
 

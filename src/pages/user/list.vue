@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input
         v-model="keyword"
-        placeholder="请输入姓名或账号"
+        placeholder="请输入用户姓名"
         style="width: 200px;"
         class="filter-item"
         clearable
@@ -56,17 +56,17 @@
           <span @click="modifyInfo(row)">{{ row.user_id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="姓名" min-width="95px" align="center">
+      <el-table-column label="姓名" min-width="85px" align="center">
         <template slot-scope="{row}">
           <span @click="modifyInfo(row)">{{ row.user_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="账户" min-width="95px" align="center">
+      <el-table-column label="账户" min-width="105px" align="center">
         <template slot-scope="{row}">
           <span @click="modifyInfo(row)">{{ row.login_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="手机" min-width="95px" align="center">
+      <el-table-column label="手机" min-width="105px" align="center">
         <template slot-scope="{row}">
           <span @click="modifyInfo(row)">{{ row.phone }}</span>
         </template>
@@ -76,12 +76,12 @@
           <span>{{ row.role_type_formatted }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" min-width="90px" align="center">
+      <el-table-column label="创建日期" min-width="95px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.reg_time | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" class-name="status-col" min-width="60px">
+      <el-table-column label="状态" class-name="status-col" min-width="70px">
         <template slot-scope="{row}">
           <el-tag :type="row.user_status | stateColorFilter">{{ row.user_status_formatted }}</el-tag>
         </template>
@@ -90,7 +90,7 @@
       <el-table-column
         label="操作"
         align="center"
-        min-width="100px"
+        min-width="75px"
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{row}">
@@ -101,10 +101,11 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
-              <el-dropdown-item @click.native="modifyInfo(row)">启用/禁用账户</el-dropdown-item>
-              <el-dropdown-item @click.native="modifyInfo(row)">停用账户</el-dropdown-item>
-              <el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
-              <!-- <el-dropdown-item @click.native="changeState(row)">{{ row.state.key|userStateText }}</el-dropdown-item> -->
+              <el-dropdown-item
+                @click.native="changeState(row)"
+              >{{ row.user_status|stateTextFilter }}</el-dropdown-item>
+              <el-dropdown-item v-show="row.user_status !==3" @click.native="stopAccount(row)">停用账户</el-dropdown-item>
+              <el-dropdown-item @click.native="modifyPassAction(row)">修改密码</el-dropdown-item>
               <el-dropdown-item @click.native="deleteUser(row)">删除用户</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -114,8 +115,8 @@
     <pagination
       v-show="pageMap.total>0"
       :total="pageMap.total"
-      :page.sync="pageMap.current_page"
-      :limit.sync="pageMap.per_page"
+      :page.sync="pageMap.page"
+      :limit.sync="pageMap.limit"
       @pagination="getDataList"
     />
 
@@ -128,16 +129,28 @@
         label-width="100px"
         style="width: 400px; margin-left:10px;"
       >
-        <el-form-item label="用户姓名" prop="user_name">
+        <el-form-item
+          v-show="createFormStatus==='create' || createFormStatus==='update'"
+          label="用户姓名"
+          prop="user_name"
+        >
           <el-input v-model="user.user_name" style="width: 220px;" placeholder="用户姓名" />
         </el-form-item>
         <el-form-item v-show="createFormStatus==='create'" label="登录账号" prop="login_name">
           <el-input v-model="user.login_name" style="width: 220px;" placeholder="设置登录账号" />
         </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
+        <el-form-item
+          v-show="createFormStatus==='create' || createFormStatus==='update'"
+          label="手机号码"
+          prop="phone"
+        >
           <el-input v-model="user.phone" style="width: 220px;" placeholder="用户手机号码" />
         </el-form-item>
-        <el-form-item label="用户角色" prop="role_type">
+        <el-form-item
+          v-show="createFormStatus==='create' || createFormStatus==='update'"
+          label="用户角色"
+          prop="role_type"
+        >
           <el-select
             v-model="user.role_type"
             class="filter-item"
@@ -153,7 +166,11 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-show="createFormStatus==='create'" label="登录密码" prop="password">
+        <el-form-item
+          v-show="createFormStatus==='create'|| createFormStatus==='password'"
+          label="登录密码"
+          prop="password"
+        >
           <el-input
             v-model="user.password"
             style="width: 220px;"
@@ -162,7 +179,7 @@
           />
         </el-form-item>
         <el-form-item
-          v-show="createFormStatus==='create'"
+          v-show="createFormStatus==='create'|| createFormStatus==='password'"
           label="确认密码"
           prop="password_confirmation"
         >
@@ -176,11 +193,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button size="medium" @click="createFormVisible = false">取消</el-button>
-        <el-button
-          size="medium"
-          type="primary"
-          @click="createFormStatus==='create'?onSaveAction():updateData()"
-        >确定</el-button>
+        <el-button size="medium" type="primary" @click="onFromAction">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -188,18 +201,9 @@
 
 <script>
 import { page } from '../../utils/page'
-const isEmpty = poppyjs.util.StringUtil.isEmpty
-
 import poppyjs from 'poppyjs-elem'
-import webcore from '../../webcore'
 const showConfirm = poppyjs.html.Dialog.showConfirm
 const showToast = poppyjs.html.Dialog.showMessage
-
-import { getUserInfo } from '../../utils/auth'
-const user = getUserInfo()
-console.log(user)
-
-const request = webcore.common.utils.NetUtil.adminRequest
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 
@@ -214,19 +218,19 @@ export default {
 		// 状态颜色
 		stateColorFilter(status) {
 			const stateOption = {
-				'1': 'success',
-				'2': 'warning',
-				'3': 'danger'
+				1: 'success',
+				2: 'warning',
+				3: 'danger'
 			}
 			return stateOption[status]
 		},
 		/**
-     * 启动&禁用账户显示文本
+     * 状态文本
      */
-		userStateText(status) {
+		stateTextFilter(status) {
 			const option = {
-				enable: '禁用账户',
-				disable: '启用账户'
+				1: '禁用账户',
+				2: '启用账户'
 			}
 			return option[status]
 		}
@@ -239,7 +243,6 @@ export default {
 			showFormLoading: state => state.consumer.showFormLoading,
 			statusOption: state => state.consumer.statusOption,
 			roleOptions: state => state.consumer.roleOptions,
-			pageMap: state => state.consumer.pageMap,
 			userList: state => state.consumer.userList,
 			formTitles: state => state.consumer.formTitles,
 			tableKey: state => state.consumer.tableKey
@@ -267,6 +270,14 @@ export default {
 			set(val) {
 				this.$store.state.consumer.role_type = val
 			}
+		},
+		pageMap: {
+			get() {
+				return this.$store.state.consumer.pageMap
+			},
+			set(val) {
+				this.$store.state.consumer.pageMap = val
+			}
 		}
 	},
 	created() {
@@ -275,11 +286,26 @@ export default {
 
 	methods: {
 		/**
+     * form 事件
+     */
+		onFromAction() {
+			if (this.createFormStatus === 'create') {
+				this.onSaveAction()
+			} else if (this.createFormStatus === 'update') {
+				this.updateData()
+			} else if (this.createFormStatus === 'password') {
+				this.onSavePassword()
+			}
+		},
+		/**
      * 获取列表
      */
 		getDataList(pageMap = page) {
-			console.log(pageMap)
-			this.$store.dispatch('consumer/getDataArray', pageMap)
+			this.pageMap = { ...this.pageMap, ...pageMap }
+			this.$store.dispatch('consumer/getDataArray', {
+				page: this.pageMap.page,
+				limit: this.pageMap.limit
+			})
 		},
 		// 新建动作
 		createAction() {
@@ -298,8 +324,10 @@ export default {
 						this.$nextTick(() => {
 							this.$refs['createForm'].clearValidate()
 						})
-						this.$store.commit('consumer/onSaveAction')
-						this.getDataList()
+						const payload = {
+							finishCallback: () => this.getDataList()
+						}
+						this.$store.commit('consumer/onSaveAction', payload)
 					}
 				}
 			})
@@ -320,71 +348,115 @@ export default {
 					this.$nextTick(() => {
 						this.$refs['createForm'].clearValidate()
 					})
-					this.$store.commit('consumer/onUpdateAction')
-					this.getDataList()
+					const payload = {
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.commit('consumer/onUpdateAction', payload)
 				}
 			})
 		},
-
 		/**
      * 搜索
      */
 		searchAction() {
-			if (isEmpty(this.keyword) && isEmpty(this.role_type)) {
-				return showToast('请输入搜索条件')
+			this.$store.dispatch('consumer/getDataArray', {
+				page: page.current_page
+			})
+		},
+		/**
+     * 改变状态
+     */
+		changeState(row) {
+			const { user_id = '', user_status = 1 } = row
+			let status = 0
+			let statuskey = ''
+			let formatted = ''
+			if (user_status === 1) {
+				// 正常账户 要锁定
+				status = 2
+				formatted = '锁定'
+				statuskey = 'locked'
+			} else if (user_status === 2) {
+				// 锁定账户 要解锁
+				status = 1
+				formatted = '正常'
+				statuskey = 'normal'
 			}
-			this.$store.dispatch('consumer/getDataArray', page)
+
+			const payload = {
+				id: user_id,
+				status: status,
+				statuskey: statuskey,
+				formatted: formatted,
+				finishCallback: () => this.getDataList()
+			}
+
+			this.$store.dispatch('consumer/onChangeStateAction', payload)
+		},
+		/**
+     * 停用账号
+     */
+		stopAccount(row) {
+			const options = {
+				title: '停用用户',
+				msg: '停用后不可恢复,不可登录,您确定要停用此用户吗?',
+				yesBtn: '确定',
+				noBtn: '取消',
+				yesCallback: () => {
+					const { user_id = '' } = row
+					const payload = {
+						id: user_id,
+						status: -1,
+						statuskey: 'invalid',
+						formatted: '停用',
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.dispatch('consumer/onChangeStateAction', payload)
+				},
+				noCallback: () => {}
+			}
+			showConfirm(options)
+		},
+		/**
+     * 修改密码
+     */
+		modifyPassAction(row) {
+			this.$store.dispatch('consumer/onModifyPassAction', row)
+			this.$nextTick(() => {
+				this.$refs['createForm'].clearValidate()
+			})
+		},
+		/** 更新密码 */
+		onSavePassword() {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					this.$store.dispatch('consumer/onUpdatePasword')
+					this.$nextTick(() => {
+						this.$refs['createForm'].clearValidate()
+					})
+				}
+			})
 		},
 		/**
      * 删除用户
      */
 		deleteUser(row) {
-			console.log(row)
-
 			const options = {
 				title: '删除用户',
-				msg: '确定删除此用户吗?',
+				msg: '删除后不可恢复,您确定删除此用户吗?',
 				yesBtn: '确定',
 				noBtn: '取消',
 				yesCallback: () => {
-					console.log(this.user)
-					const options = {
-						url: '/user/delete',
-						method: 'POST',
-						params: {
-							...this.user,
-							token: user.access_token || 'token'
-						}
+					const { user_id = '' } = row
+					const payload = {
+						id: user_id,
+						finishCallback: () => this.getDataList()
 					}
-					console.log(options)
-					request(options)
-						.then(response => {
-							console.log(response)
-							this.createFormVisible = false
-							/** 这里把新用户的数据拼接到用户数据列表内 */
-							// this.list.unshift(this.temp);
-						})
-						.catch(error => {
-							console.log(error)
-						})
-					this.createFormVisible = false
-					this.$notify({
-						title: '系统提示',
-						message: '用户删除成功',
-						type: 'success',
-						duration: 2000
-					})
+					this.$store.dispatch('consumer/onDeleteAction', payload)
 				},
 				noCallback: () => {}
 			}
-
 			showConfirm(options)
-		},
-		/**
-     * 改变用户状态
-     */
-		changeState(row) {
-			console.log(row)
 		}
 	}
 }

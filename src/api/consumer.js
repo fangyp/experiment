@@ -13,6 +13,19 @@ export function preloadEnum() {
 	})
 }
 
+/**
+ * 获取当前用户列表
+ * @param {*} token
+ */
+export function getDataList(data) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/user/get-list',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true,
+		params: data
+	})
+}
 
 /**
  * 保存用户
@@ -61,7 +74,20 @@ export function changeState(data) {
 export function modifyPassword(data) {
 	const { id = '' } = data
 	return webcore.admin.Service.requestAdmin({
-		url: `/user/user-update-password/${id}`,
+		url: `/user/update-password/${id}`,
+		showSuccessMsg: true,
+		showErrorMsg: true,
+		showLoading: true,
+		params: data
+	})
+}
+/**
+ * 删除用户
+ */
+export function deleteUser(data) {
+	const { id = '' } = data
+	return webcore.admin.Service.requestAdmin({
+		url: `/user/delete/${id}`,
 		showSuccessMsg: true,
 		showErrorMsg: true,
 		showLoading: true,
@@ -69,20 +95,6 @@ export function modifyPassword(data) {
 	})
 }
 
-
-/**
- * 获取当前用户列表
- * @param {*} token
- */
-export function getDataList(data) {
-	return webcore.admin.Service.requestAdmin({
-		url: '/user/get-list',
-		showSuccessMsg: false,
-		showErrorMsg: true,
-		showLoading: true,
-		params: data
-	})
-}
 
 export default {
 	preloadEnum,
