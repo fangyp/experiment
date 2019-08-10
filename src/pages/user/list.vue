@@ -304,7 +304,7 @@ export default {
 			this.pageMap = { ...this.pageMap, ...pageMap }
 			this.$store.dispatch('consumer/getDataArray', {
 				page: this.pageMap.page,
-				limit: this.pageMap.limit
+				page_size: this.pageMap.limit
 			})
 		},
 		// 新建动作
