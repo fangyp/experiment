@@ -1,4 +1,4 @@
-import poppyjs from 'poppyjs-elem'
+
 import {
 	setToken,
 	removeToken,
@@ -8,9 +8,6 @@ import {
 } from '../../utils/auth'
 import { login as loginUrl } from '../../api/user'
 const user = getUserInfo()
-const isEmpty = poppyjs.util.StringUtil.isEmpty
-const showToast = poppyjs.html.Dialog.showMessage
-
 const login = {
 	namespaced: true,
 	state: {
@@ -50,14 +47,6 @@ const login = {
 		submitLogin(state) {
 			return new Promise((resolve, reject) => {
 				state.loading = false
-
-				if (isEmpty(state.account)) {
-					return showToast('请输入您的登录账号')
-				}
-				if (isEmpty(state.password)) {
-					return showToast('请输入登录密码')
-				}
-
 				const params = {
 					login_name: state.account,
 					password: state.password

@@ -1,34 +1,38 @@
 <template>
-  <div id="login" class="login-container">
-    <div class="title-container">
-      <img src="../../icons/logo/logotbf.png">
-      <span>数据管理平台</span>
-    </div>
-    <el-form class="login-form">
-      <el-form-item prop="username">
-        <span class="svg-container">
-          <font-awesome-icon icon="user" />
-        </span>
-        <el-input type="password" style="position:fixed;bottom:-8000px" />
-        <el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
-      </el-form-item>
-      <el-form-item>
-        <span class="svg-container">
-          <font-awesome-icon icon="unlock" />
-        </span>
-        <el-input type="password" style="position:fixed;bottom:-9000px" />
-        <el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
-      </el-form-item>
-      <el-checkbox :checked="checked" @change="setChecked">记住密码</el-checkbox>
-      <el-button
-        type="primary"
-        style="margin-top:15px; height:40px; width:100%;margin-bottom:60px;"
-        @click="submitLogin"
-      >登录</el-button>
-    </el-form>
-  </div>
+	<div id="login" class="login-container">
+		<div class="title-container">
+			<img src="../../icons/logo/logotbf.png">
+			<span>数据管理平台</span>
+		</div>
+		<el-form class="login-form">
+			<el-form-item prop="username">
+				<span class="svg-container">
+					<font-awesome-icon icon="user" />
+				</span>
+				<el-input type="password" style="position:fixed;bottom:-8000px" />
+				<el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
+			</el-form-item>
+			<el-form-item>
+				<span class="svg-container">
+					<font-awesome-icon icon="unlock" />
+				</span>
+				<el-input type="password" style="position:fixed;bottom:-9000px" />
+				<el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
+			</el-form-item>
+			<!-- <el-checkbox :checked="checked" @change="setChecked">记住密码</el-checkbox> -->
+			<el-button
+				type="primary"
+				style="margin-top:15px; height:40px; width:100%;margin-bottom:60px;"
+				@click="submitLogin"
+			>登录</el-button>
+		</el-form>
+	</div>
 </template>
 <script>
+import poppyjs from 'poppyjs-elem'
+const isEmpty = poppyjs.util.StringUtil.isEmpty
+const showToast = poppyjs.html.Dialog.showMessage
+
 import { mapState } from 'vuex'
 export default {
 	computed: {
@@ -58,9 +62,14 @@ export default {
 			this.$store.dispatch('login/setChecked', isCheck)
 		},
 		submitLogin() {
+			if (isEmpty(this.$store.state.login.account)) {
+				return showToast('请输入您的登录账号')
+			}
+			if (isEmpty(this.$store.state.login.password)) {
+				return showToast('请输入登录密码')
+			}
 			this.$store.dispatch('login/showLoading')
 			this.$store.dispatch('login/submitLogin').then(() => {
-				console.log('success')
 				this.$router.push('/')
 			})
 		}
