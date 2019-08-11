@@ -8,11 +8,9 @@
 						<el-form-item label="实验名称" prop="experiment_name">
 							<el-input v-model="addForm.experiment_name" />
 						</el-form-item>
-						<el-form-item label="类型" prop="experiment_type">
-							<el-select v-model="addForm.experiment_type" placeholder="请选择实验类型">
-								<el-option label="应用" value="application" />
-								<el-option label="合成" value="synthetic" />
-							</el-select>
+						<el-form-item label="实验类型" prop="experiment_type">
+							<el-radio v-model="addForm.experiment_type" label="application" border>应用</el-radio>
+							<el-radio v-model="addForm.experiment_type" label="synthetic" border>合成</el-radio>
 						</el-form-item>
 						<el-form-item label="实验编号" prop="experiment_no">
 							<el-input v-model="addForm.experiment_no" />
@@ -84,6 +82,7 @@ export default {
 	},
 
 	methods: {
+
 		// 显示创建确认
 		showAdd() {
 			const self = this
@@ -118,7 +117,7 @@ export default {
 				}
 				addExperiment(params).then(function(data) {
 					// 创建成功后跳转到编辑页面
-					self.$route.push('/experiment/edit/' + data.experiment_id)
+					self.$router.push('/experiment/edit/' + data.experiment_id)
 				})
 			})
 		}

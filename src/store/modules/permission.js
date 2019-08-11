@@ -99,7 +99,7 @@ function parseRouters(menuList) {
 				path: value.uri,
 				component: (value.extend !== null && value.extend !== '' ? value.extend : 'Layout'),
 				name: '' + value.menu_id,
-				isMenu: true,
+				isMenu: (value.main_nav === 1),
 				external: false,
 				meta: { title: value.menu_name }
 			})
@@ -120,6 +120,8 @@ function parseRouters(menuList) {
 			children: childrenList
 		})
 	})
+
+	console.log(allRouters)
 
 	return allRouters
 }
