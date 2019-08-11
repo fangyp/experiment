@@ -139,7 +139,7 @@ const actions = {
 				const permissions = data.permissions
 
 				// roles must be a non-empty array
-				if (!menus || menus.length <= 0) {
+				if (!menus) {
 					reject('getPermissions: menus must be a non-null array!')
 				}
 

@@ -8,7 +8,6 @@ export const constantRoutes = [
 	{
 		path: '/redirect',
 		component: Layout,
-		hidden: true,
 		children: [
 			{
 				path: '/redirect/:path*',
@@ -19,23 +18,19 @@ export const constantRoutes = [
 	{
 		path: '/login',
 		name: 'login',
-		component: () => import('@/pages/auth/Login'),
-		hidden: true
+		component: () => import('@/pages/auth/Login')
 	},
 	{
 		path: '/auth-redirect',
-		component: () => import('@/pages/auth/auth-redirect'),
-		hidden: true
+		component: () => import('@/pages/auth/auth-redirect')
 	},
 	{
 		path: '/404',
-		component: () => import('@/pages/error-page/404'),
-		hidden: true
+		component: () => import('@/pages/error-page/404')
 	},
 	{
 		path: '/401',
-		component: () => import('@/pages/error-page/401'),
-		hidden: true
+		component: () => import('@/pages/error-page/401')
 	},
 	{
 		path: '/',
@@ -54,9 +49,9 @@ export const constantRoutes = [
 ]
 
 const createRouter = () => new Router({
-	mode: 'history', // require service support
+	// mode: 'history', // require service support
 	// scrollBehavior: () => ({ y: 0 }),
-	base: '/',
+	// base: '/',
 	scrollBehavior: () => ({ y: 0 }),
 	routes: constantRoutes
 })
