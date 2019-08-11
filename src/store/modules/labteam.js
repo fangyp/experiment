@@ -38,14 +38,6 @@ const validation = {
 		]
 	}
 }
-/**
- * 账号状态
- */
-const statusOption = [
-	{ key: 'open', value: '启用' },
-	{ key: 'stop', value: '停用' }
-]
-
 const labteam = {
 	namespaced: true,
 	state: {
@@ -55,7 +47,6 @@ const labteam = {
 		showFormLoading: false, // 表单加载动画
 		createNew: { ...createTemplate }, // 新建&修改对象
 		validation: validation, // 验证器
-		statusOption: statusOption, // 枚举
 		pageMap: page, // 分页对象
 		dataList: [], // 数据列表
 		formTitles: formTitles, // 表单标题

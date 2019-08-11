@@ -1,199 +1,199 @@
 <template>
-  <div class="app-container">
-    <div class="filter-container">
-      <el-input
-        v-model="keyword"
-        placeholder="请输入实验名称"
-        style="width: 200px; margin-right:10px;"
-        class="filter-item"
-        clearable
-        @keyup.enter.native="handleSearchAction"
-      />
-      <el-select
-        v-model="expstatus"
-        placeholder="实验状态"
-        clearable
-        style="margin-right:10px; width: 200px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in expOptions"
-          :key="item.key"
-          :label="item.value"
-          :value="item.key"
-        />
-      </el-select>
-      <el-select
-        v-show="searchBarOneLine"
-        v-model="expteam"
-        placeholder="实验小组"
-        clearable
-        style="margin-right:10px; width: 200px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in teamOptions"
-          :key="item.key"
-          :label="item.value"
-          :value="item.key"
-        />
-      </el-select>
-      <el-select
-        v-show="searchBarOneLine"
-        v-model="tester"
-        placeholder="实验员"
-        clearable
-        style="margin-right:10px;width: 200px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in testerOptions"
-          :key="item.key"
-          :label="item.value"
-          :value="item.key"
-        />
-      </el-select>
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        style="width: 120px"
-        @click="handleSearchAction"
-      >搜索</el-button>
-      <el-button
-        class="filter-item"
-        style="margin-right:10px; width: 120px"
-        type="primary"
-        icon="el-icon-edit"
-        @click="createAction"
-      >新建实验</el-button>
-    </div>
-    <div v-show="!searchBarOneLine" class="filter-container">
-      <el-select
-        v-model="expteam"
-        placeholder="实验小组"
-        clearable
-        style="margin-right:10px; width: 200px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in teamOptions"
-          :key="item.key"
-          :label="item.value"
-          :value="item.key"
-        />
-      </el-select>
-      <el-select
-        v-model="tester"
-        placeholder="实验员"
-        clearable
-        style="margin-right:10px; width: 200px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in testerOptions"
-          :key="item.key"
-          :label="item.value"
-          :value="item.key"
-        />
-      </el-select>
-    </div>
-    <el-table
-      :key="tableKey"
-      v-loading="showLoading"
-      :data="userList"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-    >
-      <el-table-column label="编号" prop="id" align="center" min-width="60px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="实验名称" min-width="160px" align="center">
-        <template slot-scope="{row}">
-          <span @click="detailAction(row)">{{ row.expname }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="实验员" min-width="70px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.tester }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" class-name="status-col" min-width="85px">
-        <template slot-scope="{row}">
-          <el-tag :type="row.expstatus | expStatusFilter">{{ row.expstatus | expStatusText }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建日期" min-width="95px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.createtime | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+	<div class="app-container">
+		<div class="filter-container">
+			<el-input
+				v-model="keyword"
+				placeholder="请输入实验名称"
+				style="width: 200px; margin-right:10px;"
+				class="filter-item"
+				clearable
+				@keyup.enter.native="handleSearchAction"
+			/>
+			<el-select
+				v-model="expstatus"
+				placeholder="实验状态"
+				clearable
+				style="margin-right:10px; width: 200px"
+				class="filter-item"
+			>
+				<el-option
+					v-for="item in expOptions"
+					:key="item.key"
+					:label="item.value"
+					:value="item.key"
+				/>
+			</el-select>
+			<el-select
+				v-show="searchBarOneLine"
+				v-model="expteam"
+				placeholder="实验小组"
+				clearable
+				style="margin-right:10px; width: 200px"
+				class="filter-item"
+			>
+				<el-option
+					v-for="item in teamOptions"
+					:key="item.key"
+					:label="item.value"
+					:value="item.key"
+				/>
+			</el-select>
+			<el-select
+				v-show="searchBarOneLine"
+				v-model="tester"
+				placeholder="实验员"
+				clearable
+				style="margin-right:10px;width: 200px"
+				class="filter-item"
+			>
+				<el-option
+					v-for="item in testerOptions"
+					:key="item.key"
+					:label="item.value"
+					:value="item.key"
+				/>
+			</el-select>
+			<el-button
+				v-waves
+				class="filter-item"
+				type="primary"
+				icon="el-icon-search"
+				style="width: 120px"
+				@click="handleSearchAction"
+			>搜索</el-button>
+			<el-button
+				class="filter-item"
+				style="margin-right:10px; width: 120px"
+				type="primary"
+				icon="el-icon-edit"
+				@click="createAction"
+			>新建实验</el-button>
+		</div>
+		<div v-show="!searchBarOneLine" class="filter-container">
+			<el-select
+				v-model="expteam"
+				placeholder="实验小组"
+				clearable
+				style="margin-right:10px; width: 200px"
+				class="filter-item"
+			>
+				<el-option
+					v-for="item in teamOptions"
+					:key="item.key"
+					:label="item.value"
+					:value="item.key"
+				/>
+			</el-select>
+			<el-select
+				v-model="tester"
+				placeholder="实验员"
+				clearable
+				style="margin-right:10px; width: 200px"
+				class="filter-item"
+			>
+				<el-option
+					v-for="item in testerOptions"
+					:key="item.key"
+					:label="item.value"
+					:value="item.key"
+				/>
+			</el-select>
+		</div>
+		<el-table
+			:key="tableKey"
+			v-loading="showLoading"
+			:data="userList"
+			border
+			fit
+			highlight-current-row
+			style="width: 100%;"
+		>
+			<el-table-column label="编号" prop="id" align="center" min-width="60px">
+				<template slot-scope="scope">
+					<span>{{ scope.row.id }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验名称" min-width="160px" align="center">
+				<template slot-scope="{row}">
+					<span @click="detailAction(row)">{{ row.expname }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验员" min-width="70px" align="center">
+				<template slot-scope="scope">
+					<span>{{ scope.row.tester }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="状态" class-name="status-col" min-width="85px">
+				<template slot-scope="{row}">
+					<el-tag :type="row.expstatus | expStatusFilter">{{ row.expstatus | expStatusText }}</el-tag>
+				</template>
+			</el-table-column>
+			<el-table-column label="创建日期" min-width="95px" align="center">
+				<template slot-scope="scope">
+					<span>{{ scope.row.createtime | parseTime('{y}-{m}-{d}') }}</span>
+				</template>
+			</el-table-column>
 
-      <el-table-column
-        label="操作"
-        align="center"
-        min-width="200px"
-        class-name="small-padding fixed-width"
-      >
-        <template slot-scope="{row}">
-          <el-button type="primary" size="small" plain @click="detailAction(row)">实验详情</el-button>
-          <el-dropdown trigger="click" style="margin-left:30px">
-            <span class="el-dropdown-link">
-              更多
-              <i class="el-icon-arrow-down el-icon--right" />
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="modifyAction(row)">修改</el-dropdown-item>
-              <el-dropdown-item @click.native="deleteAction(row)">删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </template>
-      </el-table-column>
-    </el-table>
-    <pagination
-      v-show="pageMap.total>0"
-      :total="pageMap.total"
-      :page.sync="pageMap.page"
-      :limit.sync="pageMap.limit"
-      @pagination="getUserList"
-    />
+			<el-table-column
+				label="操作"
+				align="center"
+				min-width="200px"
+				class-name="small-padding fixed-width"
+			>
+				<template slot-scope="{row}">
+					<el-button type="primary" size="small" plain @click="detailAction(row)">实验详情</el-button>
+					<el-dropdown trigger="click" style="margin-left:30px">
+						<span class="el-dropdown-link">
+							更多
+							<i class="el-icon-arrow-down el-icon--right" />
+						</span>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item @click.native="modifyAction(row)">修改</el-dropdown-item>
+							<el-dropdown-item @click.native="deleteAction(row)">删除</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</template>
+			</el-table-column>
+		</el-table>
+		<pagination
+			v-show="pageMap.total>0"
+			:total="pageMap.total"
+			:page.sync="pageMap.page"
+			:limit.sync="pageMap.limit"
+			@pagination="getUserList"
+		/>
 
-    <el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
-      <el-form
-        ref="createForm"
-        :rules="rules"
-        :model="createTemplate"
-        label-position="left"
-        label-width="100px"
-        style="width: 400px; margin-left:10px;"
-      >
-        <el-form-item label="实验名称" prop="expname">
-          <el-input v-model="createTemplate.expname" style="width: 220px;" placeholder="请输入实验名称" />
-        </el-form-item>
-        <el-form-item label="温度" prop="temperature">
-          <el-input v-model="createTemplate.temperature" style="width: 220px;" placeholder="请输入温度" />
-          <span>℃</span>
-        </el-form-item>
-        <el-form-item label="湿度" prop="humidity">
-          <el-input v-model="createTemplate.humidity" style="width: 220px;" placeholder="请输入湿度" />
-          <span>%</span>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button size="medium" @click="createFormVisible = false">取消</el-button>
-        <el-button
-          size="medium"
-          type="primary"
-          @click="createFormStatus==='create'?createData():updateData()"
-        >确定</el-button>
-      </div>
-    </el-dialog>
-  </div>
+		<el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
+			<el-form
+				ref="createForm"
+				:rules="rules"
+				:model="createTemplate"
+				label-position="left"
+				label-width="100px"
+				style="width: 400px; margin-left:10px;"
+			>
+				<el-form-item label="实验名称" prop="expname">
+					<el-input v-model="createTemplate.expname" style="width: 220px;" placeholder="请输入实验名称" />
+				</el-form-item>
+				<el-form-item label="温度" prop="temperature">
+					<el-input v-model="createTemplate.temperature" style="width: 220px;" placeholder="请输入温度" />
+					<span>℃</span>
+				</el-form-item>
+				<el-form-item label="湿度" prop="humidity">
+					<el-input v-model="createTemplate.humidity" style="width: 220px;" placeholder="请输入湿度" />
+					<span>%</span>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button size="medium" @click="createFormVisible = false">取消</el-button>
+				<el-button
+					size="medium"
+					type="primary"
+					@click="createFormStatus==='create'?createData():updateData()"
+				>确定</el-button>
+			</div>
+		</el-dialog>
+	</div>
 </template>
 
 <script>

@@ -1,158 +1,158 @@
 <template>
-  <div class="app-container">
-    <div class="filter-container">
-      <el-input
-        v-model="keyword"
-        placeholder="请输入关键字进行搜索"
-        style="width: 200px;"
-        class="filter-item"
-        clearable
-        @keyup.enter.native="searchAction"
-      />
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        style="margin-left:10px; width: 120px"
-        @click="searchAction"
-      >搜索</el-button>
-      <el-button
-        class="filter-item"
-        style="margin-left:10px; width: 120px"
-        type="primary"
-        icon="el-icon-edit"
-        @click="createAction"
-      >新增实验组</el-button>
-    </div>
+	<div class="app-container">
+		<div class="filter-container">
+			<el-input
+				v-model="keyword"
+				placeholder="请输入关键字进行搜索"
+				style="width: 200px;"
+				class="filter-item"
+				clearable
+				@keyup.enter.native="searchAction"
+			/>
+			<el-button
+				v-waves
+				class="filter-item"
+				type="primary"
+				icon="el-icon-search"
+				style="margin-left:10px; width: 120px"
+				@click="searchAction"
+			>搜索</el-button>
+			<el-button
+				class="filter-item"
+				style="margin-left:10px; width: 120px"
+				type="primary"
+				icon="el-icon-edit"
+				@click="createAction"
+			>新增实验组</el-button>
+		</div>
 
-    <el-table
-      :key="tableKey"
-      v-loading="showFormLoading"
-      element-loading-text="努力加载中..."
-      :data="dataList"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-    >
-      <el-table-column label="编号" min-width="50px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.team_id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="实验组名称" min-width="130px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.team_name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="实验组⻓" min-width="100px" align="center">
-        <template slot-scope="{row}">
-          <el-tag size="small">{{ findLeaderName(row.team_leader_id) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="实验员" min-width="240px">
-        <template slot-scope="{row}">
-          <el-tag
-            v-for="user in row.user_list"
-            :key="user.user_id"
-            type="info"
-            size="small"
-          >{{ user.user_name }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" class-name="status-col" min-width="70px">
-        <template slot-scope="{row}">
-          <el-tag :type="row.enabled | stateColorFilter">{{ row.enabled | stateTextFilter }}</el-tag>
-        </template>
-      </el-table-column>
+		<el-table
+			:key="tableKey"
+			v-loading="showFormLoading"
+			element-loading-text="努力加载中..."
+			:data="dataList"
+			border
+			fit
+			highlight-current-row
+			style="width: 100%;"
+		>
+			<el-table-column label="编号" min-width="50px" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.team_id }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验组名称" min-width="130px" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.team_name }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验组⻓" min-width="100px" align="center">
+				<template slot-scope="{row}">
+					<el-tag size="small">{{ findLeaderName(row.team_leader_id) }}</el-tag>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验员" min-width="240px">
+				<template slot-scope="{row}">
+					<el-tag
+						v-for="user in row.user_list"
+						:key="user.user_id"
+						type="info"
+						size="small"
+					>{{ user.user_name }}</el-tag>
+				</template>
+			</el-table-column>
+			<el-table-column label="状态" class-name="status-col" min-width="70px">
+				<template slot-scope="{row}">
+					<el-tag :type="row.enabled | stateColorFilter">{{ row.enabled | stateTextFilter }}</el-tag>
+				</template>
+			</el-table-column>
 
-      <el-table-column
-        label="操作"
-        align="center"
-        min-width="75px"
-        class-name="small-padding fixed-width"
-      >
-        <template slot-scope="{row}">
-          <el-dropdown trigger="click">
-            <span class="el-dropdown-link">
-              更多
-              <i class="el-icon-arrow-down el-icon--right" />
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
-              <el-dropdown-item @click.native="changeState(row)">{{ row.enabled|stateMenuFilter }}</el-dropdown-item>
-              <el-dropdown-item @click.native="onDeleteAction(row)">删除用户</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </template>
-      </el-table-column>
-    </el-table>
+			<el-table-column
+				label="操作"
+				align="center"
+				min-width="75px"
+				class-name="small-padding fixed-width"
+			>
+				<template slot-scope="{row}">
+					<el-dropdown trigger="click">
+						<span class="el-dropdown-link">
+							更多
+							<i class="el-icon-arrow-down el-icon--right" />
+						</span>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
+							<el-dropdown-item @click.native="changeState(row)">{{ row.enabled|stateMenuFilter }}</el-dropdown-item>
+							<el-dropdown-item @click.native="onDeleteAction(row)">删除用户</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</template>
+			</el-table-column>
+		</el-table>
 
-    <pagination
-      v-show="pageMap.total>0"
-      :total="pageMap.total"
-      :page.sync="pageMap.page"
-      :limit.sync="pageMap.page_size"
-      @pagination="getDataList"
-    />
+		<pagination
+			v-show="pageMap.total>10"
+			:total="pageMap.total"
+			:page.sync="pageMap.page"
+			:limit.sync="pageMap.page_size"
+			@pagination="getDataList"
+		/>
 
-    <el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
-      <el-form
-        ref="createForm"
-        :rules="validation[createFormStatus]"
-        :model="createNew"
-        label-position="left"
-        label-width="100px"
-        style="width: 400px; margin-left:10px;"
-      >
-        <el-form-item label="实验组名称" prop="team_name">
-          <el-input v-model="createNew.team_name" style="width: 220px;" placeholder="实验组名称" />
-        </el-form-item>
+		<el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
+			<el-form
+				ref="createForm"
+				:rules="validation[createFormStatus]"
+				:model="createNew"
+				label-position="left"
+				label-width="100px"
+				style="width: 400px; margin-left:10px;"
+			>
+				<el-form-item label="实验组名称" prop="team_name">
+					<el-input v-model="createNew.team_name" style="width: 220px;" placeholder="实验组名称" />
+				</el-form-item>
 
-        <el-form-item label="实验组长" prop="leader_id">
-          <el-select
-            v-model="createNew.leader_id"
-            class="filter-item"
-            placeholder="请选择实验组长"
-            style="width: 220px;"
-            clearable
-          >
-            <el-option
-              v-for="item in team_leaders"
-              :key="item.user_id"
-              :label="item.user_name"
-              :value="item.user_id"
-              style="height: 35px;"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="实验员" prop="lab_staffs">
-          <el-select
-            v-model="createNew.member_ids"
-            style="width: 220px;"
-            multiple
-            placeholder="请选择实验员"
-          >
-            <el-option
-              v-for="item in lab_staffs"
-              :key="item.user_id"
-              :label="item.user_name"
-              :value="item.user_id"
-            />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button size="medium" @click="createFormVisible = false">取消</el-button>
-        <el-button
-          size="medium"
-          type="primary"
-          @click="createFormStatus==='create'?onSaveAction():updateData()"
-        >确定</el-button>
-      </div>
-    </el-dialog>
-  </div>
+				<el-form-item label="实验组长" prop="leader_id">
+					<el-select
+						v-model="createNew.leader_id"
+						class="filter-item"
+						placeholder="请选择实验组长"
+						style="width: 220px;"
+						clearable
+					>
+						<el-option
+							v-for="item in team_leaders"
+							:key="item.user_id"
+							:label="item.user_name"
+							:value="item.user_id"
+							style="height: 35px;"
+						/>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="实验员" prop="lab_staffs">
+					<el-select
+						v-model="createNew.member_ids"
+						style="width: 220px;"
+						multiple
+						placeholder="请选择实验员"
+					>
+						<el-option
+							v-for="item in lab_staffs"
+							:key="item.user_id"
+							:label="item.user_name"
+							:value="item.user_id"
+						/>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button size="medium" @click="createFormVisible = false">取消</el-button>
+				<el-button
+					size="medium"
+					type="primary"
+					@click="createFormStatus==='create'?onSaveAction():updateData()"
+				>确定</el-button>
+			</div>
+		</el-dialog>
+	</div>
 </template>
 
 <script>
@@ -199,7 +199,6 @@ export default {
 			validation: state => state.labteam.validation,
 			createFormStatus: state => state.labteam.createFormStatus,
 			showFormLoading: state => state.labteam.showFormLoading,
-			statusOption: state => state.labteam.statusOption,
 			dataList: state => state.labteam.dataList,
 			formTitles: state => state.labteam.formTitles,
 			tableKey: state => state.labteam.tableKey,
