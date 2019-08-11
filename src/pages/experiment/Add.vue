@@ -115,9 +115,9 @@ export default {
 					temperature: self.addForm.temperature,
 					humidity: self.addForm.humidity
 				}
-				addExperiment(params).then(function(data) {
+				addExperiment(params).then(function(resp) {
 					// 创建成功后跳转到编辑页面
-					self.$router.push('/experiment/edit/' + data.experiment_id)
+					self.$router.push('/experiment/edit/' + resp.data.experiment_id)
 				})
 			})
 		}
