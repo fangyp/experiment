@@ -226,7 +226,28 @@ export function isOneToNinetyNine(rule, value, callback) {
 	}, 0)
 }
 
+
 // 验证是否整数
+export function isNumber(rule, value, callback) {
+	if (!value) {
+		return callback(new Error('输入不可以为空'))
+	}
+	setTimeout(() => {
+		if (!Number(value)) {
+			callback(new Error('请输入数字'))
+		} else {
+			const reg = /^-?[1-9]\d*$/
+			const rsCheck = reg.test(value)
+			if (!rsCheck) {
+				callback(new Error('请输入数字'))
+			} else {
+				callback()
+			}
+		}
+	}, 0)
+}
+
+// 验证是否是正整数
 export function isInteger(rule, value, callback) {
 	if (!value) {
 		return callback(new Error('输入不可以为空'))

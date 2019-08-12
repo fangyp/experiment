@@ -9,7 +9,31 @@ export function getExperiment(experimentId) {
 		successMsg: false
 	})
 }
-
+/**
+ * 枚举
+ * @param {*} data
+ */
+export function preloadData() {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/preload',
+		showSuccessMsg: false,
+		showErrorMsg: false,
+		showLoading: false
+	})
+}
+/**
+ * 获取列表数据
+ * @param {*} token
+ */
+export function getDataList(data) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/get-list',
+		showSuccessMsg: false,
+		showErrorMsg: true,
+		showLoading: true,
+		params: data
+	})
+}
 /**
  * 添加一个新实验
  */
