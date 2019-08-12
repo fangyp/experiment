@@ -18,6 +18,7 @@
 			</el-select>
 			<el-date-picker
 				v-model="event_time1"
+				value-format="yyyy-MM-dd"
 				style="margin-left:10px; width: 180px"
 				type="date"
 				placeholder="选择日期"
@@ -27,6 +28,7 @@
 				v-model="event_time2"
 				style="margin-left:10px; width: 180px"
 				type="date"
+				value-format="yyyy-MM-dd"
 				placeholder="选择日期"
 				class="filter-item"
 			/>

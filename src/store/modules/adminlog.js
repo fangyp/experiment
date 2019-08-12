@@ -46,6 +46,7 @@ const adminlog = {
 				page: payload.page,
 				page_size: payload.page_size
 			}
+
 			getDataListRequest(params)
 				.then(response => {
 					const { data = [], total = 0, per_page = 10, current_page = 1 } = response.data || {}
@@ -59,7 +60,6 @@ const adminlog = {
 							const itemTemp = { ...item, content: contentObject }
 							dataArray.push(itemTemp)
 						} else {
-							console.log(contentObject)
 							const modulesTemp = []
 							for (const [key, value] of entries(contentObject)) {
 								const model = {
@@ -72,7 +72,6 @@ const adminlog = {
 							dataArray.push(itemTemp)
 						}
 					}
-					console.log(dataArray)
 					state.dataList = dataArray
 					state.pageMap = {
 						total: parseInt(total),
