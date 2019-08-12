@@ -6,7 +6,7 @@
 				<el-card class="box-card">
 					<el-form ref="addForm" :model="addForm" :rules="addRules" label-width="80px">
 						<el-form-item label="实验名称" prop="experiment_name">
-							<el-input v-model="addForm.experiment_name" />
+							<el-input v-model="addForm.experiment_name" maxlength="20" />
 						</el-form-item>
 						<el-form-item label="实验类型" prop="experiment_type">
 							<el-radio v-model="addForm.experiment_type" label="application" border>应用</el-radio>
@@ -16,10 +16,10 @@
 							<el-input v-model="addForm.experiment_no" />
 						</el-form-item>
 						<el-form-item label="温度" prop="temperature">
-							<el-input v-model.number="addForm.temperature" />
+							<el-input v-model="baseForm.temperature"><template slot="append">℃</template></el-input>
 						</el-form-item>
 						<el-form-item label="湿度" prop="humidity">
-							<el-input v-model.number="addForm.humidity" />
+							<el-input v-model="baseForm.humidity"><template slot="append">RH%</template></el-input>
 						</el-form-item>
 						<el-form-item>
 							<el-button type="primary" @click="showAdd">立即创建</el-button>
@@ -40,6 +40,7 @@ import poppyjs from 'poppyjs-elem'
 import waves from '../../directive/waves'
 // import webcore from '@/webcore'
 import { addExperiment } from '@/api/experiment'
+import { baseRules } from './validation_rules'
 
 export default {
 	name: 'ExperimentAdd',
@@ -53,28 +54,7 @@ export default {
 				temperature: '',
 				humidity: ''
 			},
-			addRules: {
-				experiment_name: [
-					{ required: true, message: '请输入实验名称', trigger: 'blur' },
-					{ min: 1, max: 20, message: '最多20个字', trigger: 'blur' }
-				],
-				experiment_type: [
-					{ required: true, message: '请选择实验类型', trigger: 'change' }
-				],
-				experiment_no: [
-					{ max: 10, message: '最多10个字', trigger: 'blur' }
-				],
-				temperature: [
-					{ required: true, message: '请输入温度', trigger: 'blur' },
-					{ type: 'number', message: '温度必须为数字值' },
-					{ type: 'number', min: -999999, max: 999999, message: '范围：-999999到999999', trigger: 'blur' }
-				],
-				humidity: [
-					{ required: true, message: '请输入湿度', trigger: 'blur' },
-					{ type: 'number', message: '湿度必须为数字值' },
-					{ type: 'number', min: 0, max: 999999, message: '范围：0到999999', trigger: 'blur' }
-				]
-			}
+			addRules: baseRules
 		}
 	},
 
@@ -107,7 +87,6 @@ export default {
 				if (!valid) {
 					return false
 				}
-				console.log(self.addForm)
 				const params = {
 					experiment_name: self.addForm.experiment_name.trim(),
 					experiment_type: self.addForm.experiment_type,
