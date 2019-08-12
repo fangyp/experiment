@@ -54,12 +54,13 @@ export function getInfo() {
  * 获取当前用户信息
  * @param {*} token
  */
-export function modifyPassword() {
+export function modifyPassword(data) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/profile/password/',
 		showSuccessMsg: true,
 		showErrorMsg: true,
-		showLoading: true
+		showLoading: true,
+		params: data
 	})
 }
 
