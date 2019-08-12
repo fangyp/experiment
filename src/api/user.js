@@ -50,6 +50,18 @@ export function getInfo() {
 		showLoading: true
 	})
 }
+/**
+ * 获取当前用户信息
+ * @param {*} token
+ */
+export function modifyPassword() {
+	return webcore.admin.Service.requestAdmin({
+		url: '/profile/password/',
+		showSuccessMsg: true,
+		showErrorMsg: true,
+		showLoading: true
+	})
+}
 
 export default {
 	login,

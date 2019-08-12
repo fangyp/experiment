@@ -46,7 +46,7 @@
 					<span>{{ row.team_name }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="实验组⻓" min-width="100px" align="center">
+			<el-table-column label="实验组⻓" min-width="90px" align="center">
 				<template slot-scope="{row}">
 					<el-tag size="small">{{ findLeaderName(row.team_leader_id) }}</el-tag>
 				</template>

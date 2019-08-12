@@ -1,6 +1,41 @@
-import { login, logout, getPermissions, getInfo } from '@/api/user'
+import { login, logout, getPermissions, getInfo, modifyPassword } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
+import { isPassword } from '../../utils/validate'
+/**
+ * 验证表单
+ */
+const validation = {
+	/** 修改面膜 */
+	update: {
+		old_password: [
+			{ required: true, message: '请输入旧密码', trigger: 'blur' }
+		],
+		password: [
+			{ required: true, message: '请设置新密码', trigger: 'blur' },
+			{ min: 6, max: 16, message: '密码长度在6到16位之间', trigger: 'blur' },
+			{ validator: isPassword, trigger: 'blur' }
+		],
+		password_confirmation: [
+			{ required: true, message: '确认新密码', trigger: 'blur' },
+			{ min: 6, max: 16, message: '密码长度在6到16位之间', trigger: 'blur' },
+			{ validator: isPassword, trigger: 'blur' }
+		]
+	}
+}
+/**
+ * 表单标题
+ */
+const formTitles = {
+	update: '修改密码'
+}
+
+/** 新建模板 */
+const createTemplate = {
+	old_password: '', // 旧密码
+	password: '', // 密码
+	password_confirmation: '' // 确认密码
+}
 
 const state = {
 	token: getToken(),
@@ -8,7 +43,13 @@ const state = {
 	avatar: '',
 	introduction: '',
 	roles: [],
-	permissions: {}
+	permissions: {},
+	/** 密码修改相关 */
+	createFormVisible: false, /** 新建弹出层的显示或隐藏 */
+	createFormStatus: 'update', // form类型 create or update
+	validation: validation, // 验证器
+	formTitles: formTitles, // 表达标题
+	createNew: { ...createTemplate } // 新建&修改用户信息对象
 }
 
 const mutations = {
@@ -32,7 +73,28 @@ const mutations = {
 	},
 	SET_PERMISSIONS: (state, permissions) => { // 这里是新增的
 		state.permissions = permissions
+	},
+	// 修改密码
+	onModifyPassAction(state, payload) {
+		state.createFormVisible = true
+		state.createNew = { ...createTemplate }
+	},
+	onUpdatePasword(state, payload) {
+		const { finishCallback = () => { } } = payload
+		const { old_password = '', password = '', password_confirmation = '' } = state.createNew
+		const params = {
+			old_password: old_password,
+			password: password,
+			password_confirmation: password_confirmation
+		}
+		console.log(params)
+		modifyPassword(params)
+			.then(() => {
+				state.createFormVisible = false
+				finishCallback()
+			})
 	}
+
 }
 
 const actions = {
@@ -150,6 +212,13 @@ const actions = {
 				reject(error)
 			})
 		})
+	},
+
+	onModifyPassAction(context, payload = {}) {
+		context.commit('onModifyPassAction', payload)
+	},
+	onUpdatePasword(context, payload = {}) {
+		context.commit('onUpdatePasword', payload)
 	}
 
 }

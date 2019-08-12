@@ -7,6 +7,46 @@
 			@toggleClick="toggleSideBar"
 		/>
 
+		<el-dialog :title="formTitles[createFormStatus]" :visible.sync="createFormVisible">
+			<el-form
+				ref="createForm"
+				:rules="validation[createFormStatus]"
+				:model="createNew"
+				label-position="left"
+				label-width="100px"
+				style="width: 400px; margin-left:10px;"
+			>
+				<el-form-item label="旧密码" prop="old_password">
+					<el-input
+						v-model="createNew.old_password"
+						style="width: 220px;"
+						show-password
+						placeholder="请输入旧登录密码"
+					/>
+				</el-form-item>
+				<el-form-item label="新密码" prop="password">
+					<el-input
+						v-model="createNew.password"
+						style="width: 220px;"
+						show-password
+						placeholder="请设置新密码"
+					/>
+				</el-form-item>
+				<el-form-item label="确认新密码" prop="password_confirmation">
+					<el-input
+						v-model="createNew.password_confirmation"
+						style="width: 220px;"
+						show-password
+						placeholder="确认登录新密码"
+					/>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button size="medium" @click="createFormVisible = false">取消</el-button>
+				<el-button size="medium" type="primary" @click="onSavePassword">确定</el-button>
+			</div>
+		</el-dialog>
+
 		<breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
 
 		<div class="right-menu">
@@ -26,7 +66,7 @@
 				</div>
 				<el-dropdown-menu slot="dropdown">
 					<el-dropdown-item>
-						<span style="display:block;" @click="logout">修改密码</span>
+						<span style="display:block;" @click="modifyPassAction">修改密码</span>
 					</el-dropdown-item>
 					<el-dropdown-item divided>
 						<span style="display:block;" @click="logout">退出登录</span>
@@ -55,8 +95,21 @@ export default {
 	},
 	computed: {
 		...mapState({
-			username: state => state.user.introduction
+			username: state => state.user.introduction,
+			createNew: state => state.user.createNew,
+			validation: state => state.user.validation,
+			createFormStatus: state => state.user.createFormStatus,
+			showFormLoading: state => state.user.showFormLoading,
+			formTitles: state => state.user.formTitles
 		}),
+		createFormVisible: {
+			get() {
+				return this.$store.state.user.createFormVisible
+			},
+			set(val) {
+				this.$store.state.user.createFormVisible = val
+			}
+		},
 		...mapGetters(['sidebar', 'avatar', 'device'])
 	},
 	methods: {
@@ -66,6 +119,29 @@ export default {
 		async logout() {
 			await this.$store.dispatch('user/logout')
 			this.$router.push(`auth/login?redirect=${this.$route.fullPath}`)
+		},
+		/**
+     * 修改密码
+     */
+		modifyPassAction() {
+			this.$store.dispatch('user/onModifyPassAction')
+			this.$nextTick(() => {
+				this.$refs['createForm'].clearValidate()
+			})
+		},
+		/** 更新密码 */
+		onSavePassword() {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					const payload = {
+						finishCallback: () => this.logout()
+					}
+					this.$store.dispatch('user/onUpdatePasword', payload)
+					this.$nextTick(() => {
+						this.$refs['createForm'].clearValidate()
+					})
+				}
+			})
 		}
 	}
 }
