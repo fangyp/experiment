@@ -81,14 +81,19 @@
 			highlight-current-row
 			style="width: 100%;"
 		>
-			<el-table-column label="编号" prop="id" align="center" min-width="60px">
+			<el-table-column label="编号" prop="id" align="center" min-width="55px">
 				<template slot-scope="{row}">
 					<span>{{ row.experiment_id }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="实验名称" min-width="160px" align="center">
+			<el-table-column label="实验名称" min-width="150px" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.experiment_name }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="实验组" min-width="120px" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.team_name }}</span>
 				</template>
 			</el-table-column>
 			<el-table-column label="实验员" min-width="70px" align="center">
@@ -103,7 +108,7 @@
 					>{{ row.experiment_status_formatted }}</el-tag>
 				</template>
 			</el-table-column>
-			<el-table-column label="创建日期" min-width="95px" align="center">
+			<el-table-column label="日期" min-width="95px" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
 				</template>
@@ -112,19 +117,20 @@
 			<el-table-column
 				label="操作"
 				align="center"
-				min-width="200px"
+				min-width="160px"
 				class-name="small-padding fixed-width"
 			>
 				<template slot-scope="{row}">
-					<el-button type="primary" size="small" plain @click="detailAction(row)">实验详情</el-button>
-					<el-dropdown trigger="click" style="margin-left:30px">
+					<el-button type="text" plain @click="detailAction(row)">实验详情</el-button>
+					<el-dropdown trigger="click" style="margin-left:5px">
 						<span class="el-dropdown-link">
 							更多
 							<i class="el-icon-arrow-down el-icon--right" />
 						</span>
 						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item @click.native="modifyAction(row)">修改</el-dropdown-item>
-							<el-dropdown-item @click.native="deleteAction(row)">删除</el-dropdown-item>
+							<el-dropdown-item @click.native="modifyAction(row)">修改基本信息</el-dropdown-item>
+							<el-dropdown-item @click.native="auditAction(row)">审核实验</el-dropdown-item>
+							<el-dropdown-item @click.native="onDeleteAction(row)">删除实验</el-dropdown-item>
 						</el-dropdown-menu>
 					</el-dropdown>
 				</template>
@@ -147,14 +153,22 @@
 				label-width="100px"
 				style="width: 400px; margin-left:10px;"
 			>
-				<el-form-item label="实验名称" prop="experiment_name">
+				<el-form-item
+					v-show="createFormStatus==='create'|| createFormStatus==='update'"
+					label="实验名称"
+					prop="experiment_name"
+				>
 					<el-input
 						v-model="createNew.experiment_name"
 						style="width: 220px;"
 						placeholder="请输入实验名称"
 					/>
 				</el-form-item>
-				<el-form-item label="实验类型" prop="experiment_type">
+				<el-form-item
+					v-show="createFormStatus==='create'|| createFormStatus==='update'"
+					label="实验类型"
+					prop="experiment_type"
+				>
 					<el-select
 						v-model="createNew.experiment_type"
 						class="filter-item"
@@ -170,12 +184,36 @@
 						/>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="温度" prop="temperature">
+				<el-form-item v-show="createFormStatus==='audit'" label="审核状态" prop="audit_status">
+					<el-select
+						v-model="createNew.audit_status"
+						class="filter-item"
+						placeholder="请选择审核状态"
+						style="width: 220px;"
+					>
+						<el-option
+							v-for="item in statusOptions"
+							:key="item.key"
+							:label="item.value"
+							:value="item.key"
+							style="height: 35px;"
+						/>
+					</el-select>
+				</el-form-item>
+				<el-form-item
+					v-show="createFormStatus==='create'|| createFormStatus==='update'"
+					label="温度"
+					prop="temperature"
+				>
 					<el-input v-model="createNew.temperature" style="width: 220px;" placeholder="请输入温度">
 						<template slot="append">℃</template>
 					</el-input>
 				</el-form-item>
-				<el-form-item label="湿度" prop="humidity">
+				<el-form-item
+					v-show="createFormStatus==='create'|| createFormStatus==='update'"
+					label="湿度"
+					prop="humidity"
+				>
 					<el-input v-model="createNew.humidity" style="width: 220px;" placeholder="请输入湿度">
 						<template slot="append">%</template>
 					</el-input>
@@ -183,19 +221,15 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button size="medium" @click="createFormVisible = false">取消</el-button>
-				<el-button
-					size="medium"
-					type="primary"
-					@click="createFormStatus==='create'?onSaveAction():updateData()"
-				>确定</el-button>
+				<el-button size="medium" type="primary" @click="onFromAction">确定</el-button>
 			</div>
 		</el-dialog>
 	</div>
 </template>
 
 <script>
-// import poppyjs from 'poppyjs-elem'
-// const showConfirm = poppyjs.html.Dialog.showConfirm;
+import poppyjs from 'poppyjs-elem'
+const showConfirm = poppyjs.html.Dialog.showConfirm
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 
@@ -218,7 +252,7 @@ export default {
 				'6': 'success',
 				'-1': 'info'
 			}
-			return stateOption[status.key]
+			return stateOption[status]
 		}
 	},
 	data() {
@@ -238,7 +272,8 @@ export default {
 			tableKey: state => state.explist.tableKey,
 			dataList: state => state.explist.dataList,
 			experiment_status_list: state => state.explist.experiment_status_list,
-			lab_team_list: state => state.explist.lab_team_list
+			lab_team_list: state => state.explist.lab_team_list,
+			statusOptions: state => state.explist.statusOptions
 		}),
 		keyword: {
 			get() {
@@ -308,6 +343,18 @@ export default {
 	},
 	methods: {
 		/**
+     * form 事件
+     */
+		onFromAction() {
+			if (this.createFormStatus === 'create') {
+				this.onSaveAction()
+			} else if (this.createFormStatus === 'update') {
+				this.onUpdateAction()
+			} else if (this.createFormStatus === 'audit') {
+				this.onSaveAudit()
+			}
+		},
+		/**
      * 获取列表
      */
 		getDataList(pageMap = page) {
@@ -360,9 +407,7 @@ export default {
      * 修改
      */
 		modifyAction(row) {
-			this.createTemplate = Object.assign({}, row) // copy obj
-			this.createFormStatus = 'update'
-			this.createFormVisible = true
+			this.$store.dispatch('explist/onModifyAction', row)
 			this.$nextTick(() => {
 				this.$refs['createForm'].clearValidate()
 			})
@@ -370,24 +415,64 @@ export default {
 		/**
      * 确定修改用户消息
      */
-		updateData() {
+		onUpdateAction() {
 			this.$refs['createForm'].validate(valid => {
 				if (valid) {
-					console.log('updateData')
+					this.$nextTick(() => {
+						this.$refs['createForm'].clearValidate()
+					})
+					const payload = {
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.commit('explist/onUpdateAction', payload)
 				}
 			})
 		},
 		/**
      * 删除
      */
-		deleteAction(row) {
-			console.log('updateData')
+		onDeleteAction(row) {
+			const options = {
+				title: '删除实验',
+				msg: '删除后不可恢复,您确定删除此实验吗?',
+				yesBtn: '确定',
+				noBtn: '取消',
+				yesCallback: () => {
+					const { experiment_id = '' } = row
+					const payload = {
+						id: experiment_id,
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.dispatch('explist/onDeleteAction', payload)
+				},
+				noCallback: () => {}
+			}
+			showConfirm(options)
 		},
 		/**
-     * 改变用户状态
+     * 审核实验
      */
-		changeState(row) {
-			console.log(row)
+		auditAction(row) {
+			this.$store.dispatch('explist/onAuditAction', row)
+			this.$nextTick(() => {
+				this.$refs['createForm'].clearValidate()
+			})
+		},
+		/**
+     * 审核实验
+     */
+		onSaveAudit(row) {
+			this.$refs['createForm'].validate(valid => {
+				if (valid) {
+					this.$nextTick(() => {
+						this.$refs['createForm'].clearValidate()
+					})
+					const payload = {
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.commit('explist/onSaveAuditResult', payload)
+				}
+			})
 		}
 	}
 }

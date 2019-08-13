@@ -2,7 +2,7 @@
  * 人员列表的用户
  */
 import { addExperiment as saveDataRequest, getDataList as getDataListRequest } from '../../api/experiment'
-import { updateExperiment as updateDataRequest, updateExperimentStatus as changeStateRequest } from '../../api/experiment'
+import { updateExperiment as updateDataRequest, auditExperiment as auditExperimentRequest } from '../../api/experiment'
 import { preloadData as preloadDataRequest, deleteExperiment as deleteDataRequest } from '../../api/experiment'
 import { isNumber } from '../../utils/validate'
 import { page } from '../../utils/page'
@@ -20,14 +20,26 @@ const createTemplate = {
 	experiment_name: '', // 实验名称
 	experiment_type: '', // 实验类型
 	temperature: '', // 温度
-	humidity: '' // 湿度
+	humidity: '', // 湿度
+
+	/** 审核相关*/
+	audit_status: '' // 状态 通过 、驳回
+	// content:'',//审核意见
+
+
 }
+/** 审核状态 */
+const statusOptions = [
+	{ key: 'pass', value: '通过' },
+	{ key: 'reject', value: '驳回' }
+]
 /**
  * 表单标题
  */
 const formTitles = {
 	create: '新建实验基本信息',
-	update: '修改实验基本信息'
+	update: '修改实验基本信息',
+	audit: '审核实验'
 }
 /**
  * 验证表单
@@ -66,6 +78,9 @@ const validation = {
 			{ validator: isNumber, trigger: 'blur' },
 			{ min: 0, max: 100, message: '实验温度范围 0% ~ 100%', trigger: 'blur' }
 		]
+	},
+	audit: {
+		audit_status: [{ required: true, message: '请选择审核状态', trigger: 'blur' }]
 	}
 }
 
@@ -85,7 +100,8 @@ const explist = {
 		team_id: '', // 实验组id
 		lab_team_list: [], // 全部实验组列表(包含状态不可用的)
 		keyword: '', /** 搜索条件 */
-		dataList: [] // 数据列表
+		dataList: [], // 数据列表
+		statusOptions: statusOptions// 审核
 	},
 	/**
      * 更改state的方法
@@ -131,7 +147,6 @@ const explist = {
 			state.createFormVisible = true
 			state.createFormStatus = 'create'
 			state.createNew = { ...createTemplate }
-			console.log('onCreateAction')
 		},
 		// 新建保存
 		onSaveAction(state, payload) {
@@ -148,16 +163,16 @@ const explist = {
 		onModifyAction(state, payload) {
 			state.createFormVisible = true
 			state.createFormStatus = 'update'
-			state.user = { ...payload }
-			state.user.role_type = state.user.role_type_formatted
+			state.createNew = { ...payload }
+			state.createNew.experiment_type = state.createNew.experiment_type === 0 ? 'application' : 'synthetic'
 		},
 		// 修改保存
 		onUpdateAction(state, payload) {
 			const { finishCallback = () => { } } = payload
-			const { user_id = '', role_type = '', user_name = '', phone = '' } = state.user
+			const { experiment_id = '', experiment_name = '', user_name = '', phone = '' } = state.createNew
 			const params = {
-				id: user_id,
-				role_type: role_type,
+				id: experiment_id,
+				experiment_name: experiment_name,
 				user_name: user_name,
 				phone: phone
 			}
@@ -168,18 +183,26 @@ const explist = {
 				})
 		},
 
-		// 改变状态
-		onChangeStateAction(state, payload) {
-			const { id, statuskey, finishCallback = () => { } } = payload
+		// 审核
+		onAuditAction(state, payload) {
+			state.createFormVisible = true
+			state.createFormStatus = 'audit'
+			state.createNew = { ...createTemplate }
+		},
+		// 审核
+		onSaveAuditResult(state, payload) {
+			const { finishCallback = () => { } } = payload
+			const { experiment_id = '', audit_status = '' } = state.createNew
 			const params = {
-				id: id,
-				status: statuskey
+				id: experiment_id,
+				status: audit_status
 			}
-			changeStateRequest(params)
+			auditExperimentRequest(params)
 				.then(() => {
 					finishCallback()
 				})
 		},
+
 		// 删除用户
 		onDeleteAction(state, payload) {
 			const { id, finishCallback = () => { } } = payload
@@ -201,14 +224,15 @@ const explist = {
 		onPreloadAction(context, payload = {}) {
 			context.commit('onPreloadAction', payload)
 		},
+		getDataArray(context, payload = {}) {
+			context.commit('getDataArray', payload)
+		},
+
 		onCreateAction(context, payload = {}) {
 			context.commit('onCreateAction', payload)
 		},
 		onSaveAction(context, payload = {}) {
 			context.commit('onSaveAction', payload)
-		},
-		getDataArray(context, payload = {}) {
-			context.commit('getDataArray', payload)
 		},
 		onModifyAction(context, payload = {}) {
 			context.commit('onModifyAction', payload)
@@ -216,8 +240,11 @@ const explist = {
 		onUpdateAction(context, payload = {}) {
 			context.commit('onUpdateAction', payload)
 		},
-		onChangeStateAction(context, payload = {}) {
-			context.commit('onChangeStateAction', payload)
+		onAuditAction(context, payload = {}) {
+			context.commit('onAuditAction', payload)
+		},
+		onSaveAuditResult(context, payload = {}) {
+			context.commit('onSaveAuditResult', payload)
 		},
 		onDeleteAction(context, payload = {}) {
 			context.commit('onDeleteAction', payload)

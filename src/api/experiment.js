@@ -60,9 +60,10 @@ export function updateExperiment(experimentId, params, autoSubmit) {
 /**
  * 删除一个实验
  */
-export function deleteExperiment(experimentId) {
+export function deleteExperiment(params) {
+	const { id = '' } = params
 	return webcore.admin.Service.requestAdmin({
-		url: '/experiment/delete/' + experimentId,
+		url: '/experiment/delete/' + id,
 		successMsg: '删除成功'
 	})
 }
