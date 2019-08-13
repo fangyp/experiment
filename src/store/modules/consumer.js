@@ -16,6 +16,12 @@ const roleOptions = [
 	{ key: 'lab_staff', value: '实验员' }
 ]
 
+const roleTransfer = {
+	1: 'lab_staff',
+	2: 'team_leader',
+	3: 'dean'
+}
+
 /** 新建模板 */
 const createTemplate = {
 	user_name: '', // 用户姓名
@@ -174,7 +180,7 @@ const consumer = {
 			state.createFormVisible = true
 			state.createFormStatus = 'update'
 			state.user = { ...payload }
-			state.user.role_type = state.user.role_type_formatted
+			state.user.role_type = roleTransfer[state.user.role_type]
 		},
 		// 修改保存
 		onUpdateAction(state, payload) {
