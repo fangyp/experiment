@@ -19,11 +19,7 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUser, faUnlock } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faUser, faUnlock)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+import './font-awesome'
 
 /**
  * If you don't want to use mock-server
