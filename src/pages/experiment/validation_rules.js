@@ -6,9 +6,6 @@ export const baseRules = {
 	experiment_type: [
 		{ required: true, message: '请选择实验类型', trigger: 'change' }
 	],
-	experiment_no: [
-		{ max: 10, message: '最多10个字', trigger: 'blur' }
-	],
 	temperature: [
 		{ type: 'number', message: '温度必须为数值', trigger: 'blur' },
 		{ type: 'number', min: -999999, max: 999999, message: '范围：-999999到999999', trigger: 'blur' }
@@ -19,6 +16,23 @@ export const baseRules = {
 	]
 }
 
+export const baseRules2 = {
+	purpose: [
+		{ max: 200, message: '200字以内', trigger: 'blur' }
+	],
+	r_nco: [
+		{ max: 100, message: '100字以内', trigger: 'blur' }
+	]
+}
+
+export const baseRules3 = {
+	conclusion: [
+		{ max: 500, message: '500字以内', trigger: 'blur' }
+	]
+}
+
 export default {
-	baseRules
+	baseRules,
+	baseRules2,
+	baseRules3
 }
