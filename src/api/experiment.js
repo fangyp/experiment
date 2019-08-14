@@ -124,7 +124,7 @@ export function listExperimentTesting(experimentId) {
 /**
  * 申请审核实验
  */
-export function addExperimentAudit(experimentId, params) {
+export function addAudit(experimentId, params) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/experiment-audit/save/' + experimentId,
 		params: params,
@@ -135,7 +135,7 @@ export function addExperimentAudit(experimentId, params) {
 /**
  * 撤回实验审核申请
  */
-export function revokeExperimentAudit(experimentId) {
+export function revokeAudit(experimentId) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/experiment-audit/revoke/' + experimentId,
 		successMsg: '审核请求已撤回'
@@ -145,7 +145,7 @@ export function revokeExperimentAudit(experimentId) {
 /**
  * 开始审核实验
  */
-export function startExperiment(experimentId) {
+export function startAudit(experimentId) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/experiment-audit/start/' + experimentId,
 		successMsg: '审核已开始'
@@ -155,9 +155,9 @@ export function startExperiment(experimentId) {
 /**
  * 完成实验审核(产生审核结果：通过、驳回)
  */
-export function auditExperiment(experimentId, params) {
+export function audit(experimentId, params) {
 	return webcore.admin.Service.requestAdmin({
-		url: '/experiment-audit/finish/' + experimentId,
+		url: '/experiment-audit/audit/' + experimentId,
 		params: params,
 		successMsg: '审核结果已提交'
 	})
@@ -166,7 +166,7 @@ export function auditExperiment(experimentId, params) {
 /**
  * 获得一个实验的审核记录
  */
-export function listExperimentAudit(experimentId) {
+export function listAudit(experimentId) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/experiment-audit/list/' + experimentId,
 		showSuccessMsg: false,
@@ -186,9 +186,9 @@ export default {
 	updateExperimentTesting,
 	getExperimentTesting,
 	listExperimentTesting,
-	addExperimentAudit,
-	revokeExperimentAudit,
-	startExperiment,
-	auditExperiment,
-	listExperimentAudit
+	addAudit,
+	revokeAudit,
+	startAudit,
+	audit,
+	listAudit
 }
