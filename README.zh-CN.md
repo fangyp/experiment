@@ -133,3 +133,78 @@ webcore.common.util.NetUtil.redirect('/auth/login')
 ```
 webcore.common.util.NetUtil.redirect('/user/info')
 ```
+
+
+## **自定义公用样式库**
+样式库文件：`src/styles/my_common.scss`
+
+### **边距**
+
+类名： `.mg-XX-YY`，XX为方向，YY为尺寸。
+
+根据方向共有5种：
+* 四周边距时，XX部分不写
+* `t`: 上边距
+* `b`: 下边距
+* `l`: 左边距
+* `r`: 右边距
+
+根据边距大小共有5种尺寸：
+* `xs`: 微小
+* `sm`: 小
+* `md`: 中等
+* `lg`: 大
+* `0`: 无边距
+
+例如： 
+```
+<div class="mg-xs">hellow</div> <!-- 四周微小边距 -->
+
+<div class="mg-0">hellow</div> <!-- 四周无边距 -->
+
+<div class="mg-t-md">hellow</div> <!-- 上侧中等边距 -->
+
+<div class="mg-l-0">hellow</div> <!-- 左侧无边距 -->
+```
+
+### **内留白(填充)**
+
+类名： `.pad-XX-YY`，XX为方向，YY为尺寸。
+
+根据方向共有5种：
+* 四周边距时，XX部分不写
+* `t`: 上边距
+* `b`: 下边距
+* `l`: 左边距
+* `r`: 右边距
+
+根据边距大小共有5种尺寸：
+* `xs`: 微小
+* `sm`: 小
+* `md`: 中等
+* `lg`: 大
+* `0`: 无边距
+
+例如： 
+```
+<div class="pad-xs">hellow</div> <!-- 四周微小边距 -->
+
+<div class="pad-0">hellow</div> <!-- 四周无边距 -->
+
+<div class="pad-t-md">hellow</div> <!-- 上侧中等边距 -->
+
+<div class="pad-l-0">hellow</div> <!-- 左侧无边距 -->
+```
+
+### **文字样式**
+
+* `.small`: 小尺寸号
+
+* `.text-left`: 文字水平左对齐
+* `.text-center`:  文字水平居中对齐
+* `.text-right`:  文字水平右对齐
+* `.text-major`: 主要颜色
+* `.text-general`: 一般颜色
+* `.text-minor`: 次要颜色
+* `.text-placeholder`: 占位颜色
+* `.text-ellipsis`: 省略文字。当文字较多时，不想显示全部，显示前几个字，其余用“...”代替
