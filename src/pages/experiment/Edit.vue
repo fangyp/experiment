@@ -22,7 +22,7 @@
 		</el-row>
 
 
-		<el-tabs type="card" tab-position="top" style="margin-top: 20px;">
+		<el-tabs type="card" tab-position="top" class="mg-t-md">
 
 			<!-- 基本信息 Tab -->
 			<el-tab-pane label="基本信息">
@@ -88,7 +88,8 @@
 
 							<thead>
 								<tr>
-									<td style="min-width:100px; width:19%">步骤</td>
+									<td style="min-width:20px; width:3%" />
+									<td style="min-width:100px; width:19%" class="first-col">步骤</td>
 									<td>试剂</td>
 									<td style="min-width:100px; width:14%">理论量/g</td>
 									<td style="min-width:100px; width:14%">实际量/g</td>
@@ -109,6 +110,7 @@
 							<tbody>
 								<template v-for="(procedure, index) in formProcedures">
 									<tr :key="'pro-' + index" :class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')">
+										<td :rowspan="procedure.experiment_parameters.length" class="seq-col">{{ index + 1 }}</td>
 										<!-- 步骤列 -->
 										<td :rowspan="procedure.experiment_parameters.length" class="first-col">
 											<el-form-item prop="procedure_title">
@@ -117,7 +119,6 @@
 
 											<!-- 工具栏 -->
 											<div style="position:absolute;padding-left: 15px;width:100%;text-align: right;bottom:5px;right:10px">
-												<span style="float: left;padding-top: 8px;color:#909399">{{ index + 1 }}.</span>
 												<el-button type="primary" size="mini" icon="el-icon-plus" @click="appendProcedure($event, index)" />
 												<el-button type="danger" size="mini" icon="el-icon-delete" @click="removeProcedure($event, index)" />
 											</div>
@@ -667,7 +668,7 @@ export default {
 			tr {
 				td {
 					text-align: center;
-					&:first-child {
+					&.first-col {
 						border-right: 1px solid #dfe6ec;
 					}
 					&:last-child {
@@ -681,6 +682,13 @@ export default {
 				td {
 					text-align: center;
 					padding: 6px 4px;
+					&.seq-col {
+						border-right: 1px solid #dfe6ec;
+						padding-left: 2px;
+						padding-right: 2px;
+						text-align: center;
+						color: #909399;
+					}
 					&.first-col {
 						border-right: 1px solid #dfe6ec;
 						vertical-align: top;
@@ -712,24 +720,6 @@ export default {
 
 .record-edit-box {
 	padding: 15px;
-}
-
-.text-ellipsis {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.text-center {
-	text-align: center !important
-}
-
-.text-muted {
-	color: #909399;
-}
-
-.small {
-	font-size: .85em;
 }
 
 </style>

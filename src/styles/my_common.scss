@@ -1,0 +1,67 @@
+/*================================================================================
+ * 自定义通用样式
+ *================================================================================*/
+
+@import './my_variables.scss';
+@import './my_mixin.scss';
+
+// 文字尺寸
+.small {
+	font-size: .85em;
+}
+
+// 文字对齐
+.text-left {
+	text-align: left !important
+}
+.text-center {
+	text-align: center !important
+}
+.text-right {
+	text-align: right !important
+}
+
+// 文字颜色
+.text-major { color: #303133; } // 主要颜色
+.text-general { color: #606266;} // 一般颜色
+.text-minor { color: #C0C4CC; } // 次要颜色
+.text-placeholder { color: #909399; } // 占位颜色
+
+
+// 文字样式
+.text-ellipsis {
+	@include text-ellipsis()
+}
+.text-strike {
+	text-decoration: line-through;
+}
+.note-block {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	color: #737373;
+}
+
+// ----- 自定义留白、边距类 -----
+$base-layout-mg-xs: 5px;
+$base-layout-mg-sm: 10px;
+$base-layout-mg-md: 15px;
+$base-layout-mg-lg: 25px;
+$base-layout-pad-xs: 5px;
+$base-layout-pad-sm: 10px;
+$base-layout-pad-md: 15px;
+$base-layout-pad-lg: 25px;
+.mg-xs {margin: $base-layout-mg-xs;} .mg-sm {margin: $base-layout-mg-sm;} .mg-md {margin: $base-layout-mg-md;} .mg-lg {margin: $base-layout-mg-lg;} .mg-0 {margin:  0px !important}
+.mg-t-xs {margin-top: $base-layout-mg-xs;} .mg-b-xs {margin-bottom: $base-layout-mg-xs;} .mg-l-xs {margin-left: $base-layout-mg-xs;} .mg-r-xs {margin-right: $base-layout-mg-xs;}
+.mg-t-sm {margin-top: $base-layout-mg-sm;} .mg-b-sm {margin-bottom: $base-layout-mg-sm;} .mg-l-sm {margin-left: $base-layout-mg-sm;} .mg-r-sm {margin-right: $base-layout-mg-sm;}
+.mg-t-md {margin-top: $base-layout-mg-md;} .mg-b-md {margin-bottom: $base-layout-mg-md;} .mg-l-md {margin-left: $base-layout-mg-md;} .mg-r-md {margin-right: $base-layout-mg-md;}
+.mg-t-lg {margin-top: $base-layout-mg-lg;} .mg-b-lg {margin-bottom: $base-layout-mg-lg;} .mg-l-lg {margin-left: $base-layout-mg-lg;} .mg-r-lg {margin-right: $base-layout-mg-lg;}
+.mg-t-0 {margin-top: 0px !important} .mg-b-0 {margin-bottom: 0px !important} .mg-l-0 {margin-left: 0px !important} .mg-r-0 {margin-right: 0px !important}
+.pad-xs {padding: $base-layout-pad-xs;} .pad-sm {padding: $base-layout-pad-sm;} .pad-md {padding: $base-layout-pad-md;} .pad-lg {padding: $base-layout-pad-lg;}
+.pad-t-xs {padding-top: $base-layout-pad-xs;} .pad-b-xs {padding-bottom: $base-layout-pad-xs;} .pad-l-xs {padding-left: $base-layout-pad-xs;} .pad-r-xs {padding-right: $base-layout-pad-xs;}
+.pad-t-sm {padding-top: $base-layout-pad-sm;} .pad-b-sm {padding-bottom: $base-layout-pad-sm;} .pad-l-sm {padding-left: $base-layout-pad-sm;} .pad-r-sm {padding-right: $base-layout-pad-sm;}
+.pad-t-md {padding-top: $base-layout-pad-md;} .pad-b-md {padding-bottom: $base-layout-pad-md;} .pad-l-md {padding-left: $base-layout-pad-md;} .pad-r-md {padding-right: $base-layout-pad-md;}
+.pad-t-lg {padding-top: $base-layout-pad-lg;} .pad-b-lg {padding-bottom: $base-layout-pad-lg;} .pad-l-lg {padding-left: $base-layout-pad-lg;} .pad-r-lg {padding-right: $base-layout-pad-lg;}
+.no-pad {
+	padding: 0 !important;
+}

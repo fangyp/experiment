@@ -1,9 +1,12 @@
 @import './variables.scss';
 @import './mixin.scss';
+@import './my_variables.scss';
+@import './my_mixin.scss';
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
 @import './btn.scss';
+@import './my_common.scss';
 
 body {
   height: 100%;
