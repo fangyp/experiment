@@ -1,6 +1,7 @@
 <template>
-	<div v-if="null === experiment" class="app-container">
+	<div v-if="null === experiment" class="app-container text-center">
 		<el-alert
+			v-if="loaded"
 			title="实验不存在！"
 			class="pad-lg"
 			type="error"
@@ -9,6 +10,7 @@
 			show-icon
 			:closable="false"
 		/>
+		<el-button v-if="loaded" type="info" plain class="mg-t-md" @click="gotoHome">返回首页</el-button>
 	</div>
 
 	<div v-else class="app-container">
@@ -18,16 +20,24 @@
 				<!-- 工具栏 -->
 				<el-card shadow="never">
 					<el-form :inline="true" size="mini" label-width="80px">
-						<el-form-item label="实验类型">{{ experiment ? experiment.experiment_type_formatted : '' }}</el-form-item>
-						<el-form-item label="实验员">{{ experiment ? experiment.user_name : '' }}</el-form-item>
-						<el-form-item label="日期">{{ experiment ? experiment.experiment_date : '' }}</el-form-item>
-						<el-form-item label="实验状态"><el-tag type="danger" size="medium">{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag></el-form-item>
+						<el-col :sm="24" :lg="10" :xl="10">
+							<el-form-item label="实验类型">{{ experiment ? experiment.experiment_type_formatted : '' }}</el-form-item>
+							<el-form-item label="实验员">{{ experiment ? experiment.user_name : '' }}</el-form-item>
+							<el-form-item label="日期">{{ experiment ? experiment.experiment_date : '' }}</el-form-item>
+						</el-col>
 
-						<el-form-item style="float:right">
-							<el-button type="primary" size="medium" @click="showSaveAll"><font-awesome-icon icon="save" /> 保 存 全 部</el-button>
-							<el-button plain size="medium" @click="showApplyAudit"><font-awesome-icon icon="user-check" /> 提交审核</el-button>
-							<el-button plain size="medium" @click="goback">返回</el-button>
-						</el-form-item>
+						<el-col :sm="24" :lg="14" :xl="14">
+							<el-form-item label="状态"><el-tag type="danger" size="small">{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag></el-form-item>
+							<el-form-item label="测试"><el-tag type="danger" size="small">{{ experiment && experiment.is_testing ? '已测试': '无测试' }}</el-tag></el-form-item>
+
+							<el-form-item style="float:right">
+								<el-button plain size="medium" @click="goback">返回</el-button>
+							</el-form-item>
+
+							<el-form-item style="float:right">
+								<el-button type="primary" size="medium" @click="showSaveAll"><font-awesome-icon icon="save" /> 保 存 全 部</el-button>
+							</el-form-item>
+						</el-col>
 					</el-form>
 
 				</el-card>
@@ -318,13 +328,19 @@
 
 <script>
 import poppyjs from 'poppyjs-elem'
-import { updateExperiment, getExperiment } from '@/api/experiment'
+import { mapGetters } from 'vuex'
+import experimentApi from '@/api/experiment'
 import { baseRules, baseRules2, baseRules3 } from './validation_rules'
+import experimentService from './experiment_service'
+
+// 自动保存间隔时间，单位：秒
+const AUTO_SAVE_INTERVAL = 30
 
 export default {
 	name: 'ExperimentEdit',
 	data() {
 		return {
+			loaded: false,
 			experimentId: null,
 			// 原始数据
 			experiment: null,
@@ -351,7 +367,9 @@ export default {
 
 			// other var
 			recordEditBox: false,
-			recordEditIndex: null
+			recordEditIndex: null,
+			isAutoSave: true,
+			autoSaveInerval: null
 		}
 	},
 
@@ -369,19 +387,38 @@ export default {
 		this.loadData()
 	},
 
-	mounted: function() {
-		// 触发自动保存任务
+	beforeDestroy() {
+		this.isAutoSave = false
+	},
+
+	computed: {
+		...mapGetters([
+			'permissions'
+		]),
+
+		experimentAbility() {
+			return experimentService.getExperimentAbility(this.permissions, this.experiment)
+		}
 	},
 
 	methods: {
 		loadData() {
 			// 加载实验数据
-			getExperiment(this.experimentId).then((resp) => {
+			experimentApi.getExperiment(this.experimentId).then((resp) => {
 				this.experiment = resp.data.experiment
 				this.procedures = resp.data.procedures
 				this.records = resp.data.records
 
 				this.initForm()
+
+				if (!this.experimentAbility.edit) {
+					this.isAutoSave = false
+					this.$router.push('/experiment/info/' + this.experimentId)
+				} else {
+					// 触发自动保存任务
+					this.isAutoSave = true
+					this.autoSave()
+				}
 			})
 		},
 
@@ -569,27 +606,47 @@ export default {
 			})
 		},
 
+		autoSave() {
+			const self = this
+			if (this.autoSaveInerval !== null) {
+				clearTimeout(this.autoSaveInerval)
+			}
+
+			if (this.isAutoSave) {
+				this.autoSaveInerval = setTimeout(() => {
+					self.autoSave()
+					self.submitUpdate(true)
+				}, AUTO_SAVE_INTERVAL * 1000)
+			}
+		},
+
 		// 提交保存的基本方法
 		submitUpdate(auto) {
 			const self = this
-			this.$refs['baseForm'].validate((valid) => {
-				if (!valid) {
-					return false
-				}
-
-				self.$refs['baseForm2'].validate((valid) => {
+			if (this.$refs['baseForm']) {
+				this.$refs['baseForm'].validate((valid) => {
 					if (!valid) {
 						return false
 					}
 
-					self.$refs['baseForm3'].validate((valid) => {
-						if (!valid) {
-							return false
-						}
-						self.submitUpdate0(auto)
-					})
+					if (self.$refs['baseForm2']) {
+						self.$refs['baseForm2'].validate((valid) => {
+							if (!valid) {
+								return false
+							}
+
+							if (self.$refs['baseForm3']) {
+								self.$refs['baseForm3'].validate((valid) => {
+									if (!valid) {
+										return false
+									}
+									self.submitUpdate0(auto)
+								})
+							}
+						})
+					}
 				})
-			})
+			}
 		},
 
 		// 提交保存的底层方法
@@ -649,19 +706,15 @@ export default {
 
 			console.log(params)
 
-			updateExperiment(self.experimentId, params, auto).then(function(resp) {
+			experimentApi.updateExperiment(self.experimentId, params, auto).then(function(resp) {
 			})
-		},
-
-		// 显示提交审核确认
-		showApplyAudit() {
-
 		},
 
 		// 返回上一页
 		goback() {
 			this.$router.go(-1)
 		}
+
 	}
 
 }

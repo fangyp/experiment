@@ -1,6 +1,7 @@
 <template>
-	<div v-if="null === experiment" class="app-container">
+	<div v-if="null === experiment" class="app-container text-center">
 		<el-alert
+			v-if="loaded"
 			title="实验不存在！"
 			class="pad-lg"
 			type="error"
@@ -9,6 +10,7 @@
 			show-icon
 			:closable="false"
 		/>
+		<el-button v-if="loaded" type="info" plain class="mg-t-md" @click="gotoHome">返回首页</el-button>
 	</div>
 
 	<div v-else class="app-container">
@@ -207,7 +209,7 @@
 
 				<el-form v-model="formTestings" label-position="left" class="demo-table-expand" size="mini">
 					<el-button
-						v-if="testingAbility.add"
+						v-if="experimentAbility.testingAdd"
 						type="primary"
 						size="mini"
 						icon="el-icon-plus"
@@ -238,8 +240,8 @@
 								<el-dropdown trigger="click" size="small" @command="handleTestingMenuClick">
 									<span class="el-dropdown-link">更多<i class="el-icon-arrow-down el-icon--right" /></span>
 									<el-dropdown-menu slot="dropdown">
-										<el-dropdown-item v-if="testingAbility.edit" :command="{cmd:'edit', row}">修 改</el-dropdown-item>
-										<el-dropdown-item v-if="testingAbility.delete" :command="{cmd:'delete', row}">删 除</el-dropdown-item>
+										<el-dropdown-item v-if="experimentAbility.testingEdit" :command="{cmd:'edit', row}">修 改</el-dropdown-item>
+										<el-dropdown-item v-if="experimentAbility.testingDelete" :command="{cmd:'delete', row}">删 除</el-dropdown-item>
 									</el-dropdown-menu>
 								</el-dropdown>
 							</template>
@@ -313,9 +315,10 @@
 
 <script>
 import poppyjs from 'poppyjs-elem'
-import experimentService from '@/api/experiment'
+import experimentApi from '@/api/experiment'
 import { mapGetters } from 'vuex'
 import { baseRules, baseRules2, baseRules3, testingRules } from './validation_rules'
+import experimentService from './experiment_service'
 import ExperimentAudit from './Audit'
 
 export default {
@@ -325,6 +328,7 @@ export default {
 	},
 	data() {
 		return {
+			loaded: false,
 			experimentId: null,
 			// 原始数据
 			experiment: null,
@@ -390,23 +394,7 @@ export default {
 		]),
 
 		experimentAbility() {
-			return {
-				edit: (this.permissions['experiment.update'] && this.experiment != null && this.experiment.can_edit),
-				invalid: (this.permissions['experiment.status'] && this.experiment != null && this.experiment.can_invalid),
-				delete: (this.permissions['experiment.delete'] && this.experiment != null && this.experiment.can_delete),
-				testing: (this.permissions['experiment.testing'] && this.experiment != null && this.experiment.can_testing),
-				auditAdd: (this.permissions['experiment.audit_apply'] && this.experiment != null && this.experiment.can_apply_audit),
-				auditRevoke: (this.permissions['experiment.audit_revoke'] && this.experiment != null && this.experiment.can_revoke_audit),
-				auditStart: (this.permissions['experiment.audit_start'] && this.experiment != null && this.experiment.can_start_audit),
-				auditAudit: (this.permissions['experiment.audit_finish'] && this.experiment != null && this.experiment.can_finish_audit)
-			}
-		},
-		testingAbility() {
-			return {
-				add: (this.permissions['experiment.testing.add'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
-				edit: (this.permissions['experiment.testing.edit'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
-				delete: (this.permissions['experiment.testing.delete'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing)
-			}
+			return experimentService.getExperimentAbility(this.permissions, this.experiment)
 		},
 
 		// 更多菜单
@@ -448,7 +436,8 @@ export default {
 
 		loadData() {
 			// 加载实验数据
-			experimentService.getExperiment(this.experimentId).then((resp) => {
+			experimentApi.getExperiment(this.experimentId).then((resp) => {
+				this.loaded = true
 				this.experiment = resp.data.experiment || null
 				this.procedures = resp.data.procedures || null
 				this.records = resp.data.records || null
@@ -525,6 +514,10 @@ export default {
 					self.formTestings.push(tmp)
 				})
 			}
+		},
+
+		gotoHome() {
+			this.$router.push('/')
 		},
 
 		// 跳转到编辑页面
@@ -608,12 +601,12 @@ export default {
 				console.log(params)
 
 				if (flag) {
-					experimentService.addExperimentTesting(self.experimentId, params).then(function(resp) {
+					experimentApi.addExperimentTesting(self.experimentId, params).then(function(resp) {
 						self.hideAddTesting()
 						self.loadData()
 					})
 				} else {
-					experimentService.updateExperimentTesting(self.formTesting.testing_id, params).then(function(resp) {
+					experimentApi.updateExperimentTesting(self.formTesting.testing_id, params).then(function(resp) {
 						self.hideAddTesting()
 						self.loadData()
 					})
@@ -627,7 +620,7 @@ export default {
 				title: '删除测试记录',
 				msg: '确定删除测试记录吗？',
 				yesCallback: () => {
-					experimentService.deleteExperimentTesting(item.testing_id).then((resp) => {
+					experimentApi.deleteExperimentTesting(item.testing_id).then((resp) => {
 						this.loadData()
 					})
 				}
@@ -647,79 +640,43 @@ export default {
 
 		// 显示开始测试确认
 		showTestingConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '测试开始',
-				msg: '开始测试后，可以添加测试数据。确定开始测试吗？',
-				yesCallback: () => {
-					experimentService.startExperimentTesting(this.experimentId).then((resp) => {
-						this.loadData()
-					})
-				}
+			experimentService.showTestingConfirm(this.experimentId, { status: 'invalid' }, (resp) => {
+				this.loadData()
 			})
 		},
 
 		// 显示作废确认
 		showInvaidConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '数据作废',
-				msg: '数据作废后，将不能恢复，确定将实验数据作废吗？',
-				yesCallback: () => {
-					experimentService.updateExperimentStatus(this.experimentId, { status: 'invalid' }).then((resp) => {
-						this.loadData()
-					})
-				}
+			experimentService.showInvaidConfirm(this.experimentId, { status: 'invalid' }, (resp) => {
+				this.loadData()
 			})
 		},
 
 		// 显示删除确认
 		showDeleteConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '删除实验数据',
-				msg: '数据删除后，将不能恢复，确定删除该实验数据吗？',
-				yesCallback: () => {
-					experimentService.deleteExperiment({ id: this.experimentId }).then((resp) => {
-						this.$router.go(-1)
-					})
-				}
+			experimentService.showDeleteConfirm(this.experimentId, (resp) => {
+				this.$router.go(-1)
 			})
 		},
 
 		// 显示提交审核申请确认
 		showApplyAuditConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '申请审核',
-				msg: '确定实验数据已经填写完好，申请审核吗？',
-				yesCallback: () => {
-					experimentService.addAudit(this.experimentId).then((resp) => {
-						this.loadData()
-					})
-				}
+			experimentService.showApplyAuditConfirm(this.experimentId, (resp) => {
+				this.loadData()
 			})
 		},
 
 		// 显示撤回审核确认
 		showRevokeAuditConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '审核撤回',
-				msg: '确定将实验审核申请撤回吗？',
-				yesCallback: () => {
-					experimentService.revokeAudit(this.experimentId).then((resp) => {
-						this.loadData()
-					})
-				}
+			experimentService.showRevokeAuditConfirm(this.experimentId, (resp) => {
+				this.loadData()
 			})
 		},
 
 		// 显示开始审核确认
 		showStartAuditConfirm() {
-			poppyjs.html.Dialog.showConfirm({
-				title: '开始审核',
-				msg: '将实验审核开始后，申请人将不能撤回。您可以在开始后，通过【完成审核】功能提交审核结果。确定将该实验的审核开始吗？',
-				yesCallback: () => {
-					experimentService.startAudit(this.experimentId).then((resp) => {
-						this.loadData()
-					})
-				}
+			experimentService.showStartAuditConfirm(this.experimentId, (resp) => {
+				this.loadData()
 			})
 		},
 
