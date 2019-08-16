@@ -31,8 +31,23 @@ export const baseRules3 = {
 	]
 }
 
+export const testingRules = {
+	testing_date: [
+		{ required: true, message: '该项目必须填写', trigger: 'blur' },
+		{ length: 10, message: '日期格式不正确', trigger: 'blur' }
+	],
+	testing_item: [
+		{ required: true, message: '该项目必须填写', trigger: 'blur' },
+		{ max: 100, message: '最多100字', trigger: 'blur' }
+	],
+	testing_result: [
+		{ max: 200, message: '最多200字', trigger: 'blur' }
+	]
+}
+
 export default {
 	baseRules,
 	baseRules2,
-	baseRules3
+	baseRules3,
+	testingRules
 }

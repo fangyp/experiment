@@ -80,7 +80,17 @@ export function updateExperimentStatus(experimentId, params) {
 }
 
 /**
- * 为一个实验添加测试记录(一个测试包含若干测试项目和测试结果)
+ * 开始实验测试
+ */
+export function startExperimentTesting(experimentId) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/testing/' + experimentId,
+		successMsg: '状态更改成功'
+	})
+}
+
+/**
+ * 为一个实验添加测试记录
  */
 export function addExperimentTesting(experimentId, params) {
 	return webcore.admin.Service.requestAdmin({
@@ -102,12 +112,12 @@ export function updateExperimentTesting(testingId, params) {
 }
 
 /**
- * 获取一个实验测试记录
+ * 删除一个测试记录
  */
-export function getExperimentTesting(testingId) {
+export function deleteExperimentTesting(testingId) {
 	return webcore.admin.Service.requestAdmin({
-		url: '/experiment-tesing/info/' + testingId,
-		successMsg: false
+		url: '/experiment-testing/delete/' + testingId,
+		successMsg: '测试记录已删除'
 	})
 }
 
@@ -182,9 +192,10 @@ export default {
 	updateExperiment,
 	deleteExperiment,
 	updateExperimentStatus,
+	startExperimentTesting,
 	addExperimentTesting,
 	updateExperimentTesting,
-	getExperimentTesting,
+	deleteExperimentTesting,
 	listExperimentTesting,
 	addAudit,
 	revokeAudit,

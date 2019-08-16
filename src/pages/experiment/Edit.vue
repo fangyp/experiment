@@ -14,6 +14,7 @@
 						<el-form-item style="float:right">
 							<el-button type="primary" size="medium" @click="showSaveAll"><font-awesome-icon icon="save" /> 保 存 全 部</el-button>
 							<el-button plain size="medium" @click="showApplyAudit"><font-awesome-icon icon="user-check" /> 提交审核</el-button>
+							<el-button plain size="medium" @click="goback">返回</el-button>
 						</el-form-item>
 					</el-form>
 
@@ -94,16 +95,8 @@
 									<td style="min-width:100px; width:14%">理论量/g</td>
 									<td style="min-width:100px; width:14%">实际量/g</td>
 									<td>备注</td>
-									<td style="max-width:55px; width:55px;">
-										<!-- 表头按钮 -->
-										<!--
-										<el-tooltip class="item" effect="dark" content="在末尾添加一个实验步骤" placement="top-start">
-											<el-button type="primary" size="small" icon="el-icon-plus" @click="appendProcedure" />
-										</el-tooltip>
-										-->
-									</td>
+									<td style="max-width:55px; width:55px;" />
 									<td style="min-width:100px; width:19%">实验记录</td>
-
 								</tr>
 							</thead>
 
@@ -319,7 +312,7 @@ import { updateExperiment, getExperiment } from '@/api/experiment'
 import { baseRules, baseRules2, baseRules3 } from './validation_rules'
 
 export default {
-	name: 'ExperimentAdd',
+	name: 'ExperimentEdit',
 	directives: { waves },
 	data() {
 		return {
@@ -655,6 +648,11 @@ export default {
 		// 显示提交审核确认
 		showApplyAudit() {
 
+		},
+
+		// 返回上一页
+		goback() {
+			this.$router.go(-1)
 		}
 	}
 
