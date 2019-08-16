@@ -1,5 +1,17 @@
 <template>
-	<div class="app-container">
+	<div v-if="null === experiment" class="app-container">
+		<el-alert
+			title="实验不存在！"
+			class="pad-lg"
+			type="error"
+			description="您可能查询了错误的实验，或者该实验已被删除"
+			center
+			show-icon
+			:closable="false"
+		/>
+	</div>
+
+	<div v-else class="app-container">
 		<!-- 页面主体 -->
 		<el-row>
 			<el-col :sm="24" :lg="24" :xl="24">
@@ -14,17 +26,15 @@
 
 						<el-col :sm="24" :lg="14" :xl="14">
 							<el-form-item label="状态"><el-tag type="danger" size="small">{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag></el-form-item>
-							<el-form-item label="测试"><el-tag type="danger" size="small">{{ experiment && experiment.is_testing ? '有测试': '无测试' }}</el-tag></el-form-item>
+							<el-form-item label="测试"><el-tag type="danger" size="small">{{ experiment && experiment.is_testing ? '已测试': '无测试' }}</el-tag></el-form-item>
 
-							<el-form-item style="float:right">
+							<el-form-item v-if="moreMenus.length > 0" style="float:right">
 								<el-dropdown trigger="click" size="medium" @command="handleMoreMenuClick">
 									<span class="el-dropdown-link">
 										<i class="el-icon-more text-minor pad-l-sm pad-r-sm" style="vertical-align: bottom;font-size: 18px;" />
 									</span>
 									<el-dropdown-menu slot="dropdown">
-										<el-dropdown-item v-if="experimentAbility.testing" icon="el-icon-odometer" command="testing">开始实验测试</el-dropdown-item>
-										<el-dropdown-item v-if="experimentAbility.invalid" divided icon="el-icon-s-release" command="invalid">作废实验</el-dropdown-item>
-										<el-dropdown-item v-if="experimentAbility.delete" divided icon="el-icon-delete" command="delete">删除实验</el-dropdown-item>
+										<el-dropdown-item v-for="(menu, index) in moreMenus" :key="index" :icon="menu.icon" :command="menu.cmd">{{ menu.title }}</el-dropdown-item>
 									</el-dropdown-menu>
 								</el-dropdown>
 							</el-form-item>
@@ -44,6 +54,10 @@
 
 							<el-form-item v-if="experimentAbility.edit" style="float:right">
 								<el-button plain size="medium" @click="gotoEdit"><font-awesome-icon icon="edit" /> 编 辑</el-button>
+							</el-form-item>
+
+							<el-form-item style="float:right">
+								<el-button plain size="medium" icon="el-icon-refresh-left" @click="loadData" />
 							</el-form-item>
 						</el-col>
 					</el-form>
@@ -300,6 +314,7 @@
 <script>
 import poppyjs from 'poppyjs-elem'
 import experimentService from '@/api/experiment'
+import { mapGetters } from 'vuex'
 import { baseRules, baseRules2, baseRules3, testingRules } from './validation_rules'
 import ExperimentAudit from './Audit'
 
@@ -315,6 +330,7 @@ export default {
 			experiment: null,
 			procedures: null,
 			records: null,
+			testings: null,
 
 			// 表单输入
 			baseForm: {
@@ -369,29 +385,48 @@ export default {
 	},
 
 	computed: {
-		// 是否显示实验测试tab页
-		hasTestingTab() {
-			return this.experiment != null && this.experiment.is_testing
-		},
+		...mapGetters([
+			'permissions'
+		]),
 
 		experimentAbility() {
 			return {
-				edit: (this.experiment != null && this.experiment.can_edit),
-				invalid: (this.experiment != null && this.experiment.can_invalid),
-				delete: (this.experiment != null && this.experiment.can_delete),
-				testing: (this.experiment != null && this.experiment.can_testing),
-				auditAdd: (this.experiment != null && this.experiment.can_apply_audit),
-				auditRevoke: (this.experiment != null && this.experiment.can_revoke_audit),
-				auditStart: (this.experiment != null && this.experiment.can_start_audit),
-				auditAudit: (this.experiment != null && this.experiment.can_finish_audit)
+				edit: (this.permissions['experiment.update'] && this.experiment != null && this.experiment.can_edit),
+				invalid: (this.permissions['experiment.status'] && this.experiment != null && this.experiment.can_invalid),
+				delete: (this.permissions['experiment.delete'] && this.experiment != null && this.experiment.can_delete),
+				testing: (this.permissions['experiment.testing'] && this.experiment != null && this.experiment.can_testing),
+				auditAdd: (this.permissions['experiment.audit_apply'] && this.experiment != null && this.experiment.can_apply_audit),
+				auditRevoke: (this.permissions['experiment.audit_revoke'] && this.experiment != null && this.experiment.can_revoke_audit),
+				auditStart: (this.permissions['experiment.audit_start'] && this.experiment != null && this.experiment.can_start_audit),
+				auditAudit: (this.permissions['experiment.audit_finish'] && this.experiment != null && this.experiment.can_finish_audit)
 			}
 		},
 		testingAbility() {
 			return {
-				add: (this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
-				edit: (this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
-				delete: (this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing)
+				add: (this.permissions['experiment.testing.add'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
+				edit: (this.permissions['experiment.testing.edit'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing),
+				delete: (this.permissions['experiment.testing.delete'] && this.experiment !== null && this.experimentAbility.edit && this.experiment.is_testing)
 			}
+		},
+
+		// 更多菜单
+		moreMenus() {
+			const menus = []
+			if (this.experimentAbility.testing) {
+				menus.push({ cmd: 'testing', title: '开始实验测试', icon: 'el-icon-odometer' })
+			}
+			if (this.experimentAbility.invalid) {
+				menus.push({ cmd: 'invalid', title: '作废实验', icon: 'el-icon-s-release' })
+			}
+			if (this.experimentAbility.delete) {
+				menus.push({ cmd: 'delete', title: '删除实验', icon: 'el-icon-delete' })
+			}
+			return menus
+		},
+
+		// 是否显示实验测试tab页
+		hasTestingTab() {
+			return this.experiment != null && this.experiment.is_testing
 		}
 	},
 
@@ -409,19 +444,15 @@ export default {
 		this.loadData()
 	},
 
-	mounted: function() {
-		// 触发自动保存任务
-	},
-
 	methods: {
 
 		loadData() {
 			// 加载实验数据
 			experimentService.getExperiment(this.experimentId).then((resp) => {
-				this.experiment = resp.data.experiment
-				this.procedures = resp.data.procedures
-				this.records = resp.data.records
-				this.testings = resp.data.testings
+				this.experiment = resp.data.experiment || null
+				this.procedures = resp.data.procedures || null
+				this.records = resp.data.records || null
+				this.testings = resp.data.testings || null
 
 				this.initForm()
 			})
@@ -646,7 +677,7 @@ export default {
 				title: '删除实验数据',
 				msg: '数据删除后，将不能恢复，确定删除该实验数据吗？',
 				yesCallback: () => {
-					experimentService.deleteExperiment(this.experimentId).then((resp) => {
+					experimentService.deleteExperiment({ id: this.experimentId }).then((resp) => {
 						this.$router.go(-1)
 					})
 				}
@@ -698,6 +729,7 @@ export default {
 		},
 		// 处理完成审核的确认操作
 		handleAuditConfirm() {
+			this.experimentAuditVisible = false
 			this.loadData()
 		},
 		// 处理完成审核的关闭操作

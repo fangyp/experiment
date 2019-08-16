@@ -1,4 +1,4 @@
-import { constantRoutes } from '@/router'
+import { asyncRoutes, constantRoutes } from '@/router'
 import Layout from '@/layout'
 
 /**
@@ -64,6 +64,12 @@ const actions = {
 	generateRoutes({ commit, state }, { roles, menus }) {
 		return new Promise(resolve => {
 			const accessedRoutes = dataArrayToRoutes(parseRouters(menus))
+			asyncRoutes.forEach((item) => {
+				accessedRoutes.push(item)
+			})
+
+			console.log(accessedRoutes)
+
 			commit('SET_ROUTES', accessedRoutes)
 			resolve(accessedRoutes)
 		})

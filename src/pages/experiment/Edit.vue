@@ -1,5 +1,17 @@
 <template>
-	<div class="app-container">
+	<div v-if="null === experiment" class="app-container">
+		<el-alert
+			title="实验不存在！"
+			class="pad-lg"
+			type="error"
+			description="您可能查询了错误的实验，或者该实验已被删除"
+			center
+			show-icon
+			:closable="false"
+		/>
+	</div>
+
+	<div v-else class="app-container">
 		<!-- 页面主体 -->
 		<el-row>
 			<el-col :sm="24" :lg="24" :xl="24">
@@ -306,14 +318,11 @@
 
 <script>
 import poppyjs from 'poppyjs-elem'
-import waves from '../../directive/waves'
-// import webcore from '@/webcore'
 import { updateExperiment, getExperiment } from '@/api/experiment'
 import { baseRules, baseRules2, baseRules3 } from './validation_rules'
 
 export default {
 	name: 'ExperimentEdit',
-	directives: { waves },
 	data() {
 		return {
 			experimentId: null,
@@ -365,7 +374,6 @@ export default {
 	},
 
 	methods: {
-
 		loadData() {
 			// 加载实验数据
 			getExperiment(this.experimentId).then((resp) => {

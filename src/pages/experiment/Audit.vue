@@ -8,12 +8,18 @@
 		:close-on-click-modal="false"
 		:close-on-press-escape="false"
 		:destroy-on-close="true"
+		:close="handleClose"
 	>
 		<el-form ref="auditForm" :rules="rules" :model="formData" label-position="left" label-width="80px">
+			<el-col v-if="formData.result !== null" :span="24">
+				<el-alert v-if="formData.result==='passed'" title="审核通过" type="success" center />
+				<el-alert v-else title="审核驳回" type="error" center />
+			</el-col>
+
 			<el-form-item label="审核结果" prop="result">
 				<el-radio-group v-model="formData.result">
-					<el-radio label="passed">审核通过</el-radio>
-					<el-radio label="reject">审核驳回</el-radio>
+					<el-radio label="passed">审核通过<i class="el-icon-s-flag" /></el-radio>
+					<el-radio label="reject">审核驳回<i class="el-icon-error" /></el-radio>
 				</el-radio-group>
 			</el-form-item>
 
@@ -88,12 +94,20 @@ export default {
 		},
 
 		handleCancel() {
-			this.$nextTick(() => {
-				this.$refs['auditForm'].clearValidate()
-			})
+			this.handleClose()
 			if (this.closeCallback != null) {
 				this.closeCallback()
 			}
+		},
+
+		handleClose() {
+			this.formData = {
+				result: null,
+				desc: ''
+			}
+			this.$nextTick(() => {
+				this.$refs['auditForm'].clearValidate()
+			})
 		},
 
 		// 提交保存的基本方法
@@ -115,6 +129,7 @@ export default {
 				console.log(params)
 
 				experimentService.audit(self.experiment.experiment_id, params).then(function(resp) {
+					self.handleClose()
 					if (self.confirmCallback != null) {
 						self.confirmCallback()
 					}

@@ -135,6 +135,54 @@ webcore.common.util.NetUtil.redirect('/user/info')
 ```
 
 
+## **用户的操作权限处理**
+
+> 在用户登录后，客户端从后台获取了菜单权限和功能操作权限数据，都缓存在了state(Vuex)中。
+> 对于页面中的功能操作，判断是否有权限，可以通过以下方法来实现。
+
+### 引入权限数据
+import { mapGetters } from 'vuex'
+
+computed: {
+ ...mapGetters([
+  'permissions'
+ ])
+},
+
+### 使用权限数据
+1. 标签中的用法
+```
+<div v-if="permissions['user.add']" >新增用户</div>
+```
+
+2. js中调用
+```
+methods: {
+    f1: function() {
+        if (this.permissions['user.add']) {
+            ...
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## **自定义公用样式库**
 样式库文件：`src/styles/my_common.scss`
 
