@@ -25,15 +25,24 @@ class NetUtil {
 			}
 			poppyjs.biz.Http.request(options).then(
 				(response) => {
-					const checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
+					let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
 						poppyjs.html.Dialog.closeLoading()
 						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
 							// 登录超时，跳转到登录页
-							// self.redirect('/auth/login')
-							console.log(removeToken())
+							removeToken()
 							router.push('/auth/login')
 						})
 					})
+					if (checkResult) {
+						checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
+							poppyjs.html.Dialog.closeLoading()
+							poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
+								// 权限错误，跳转到首页
+								router.push('/')
+							})
+						})
+					}
+
 					if (checkResult) {
 						resolve(response.data)
 					} else {
