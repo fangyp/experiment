@@ -2,10 +2,13 @@
 
 ## **目录说明**
 
+-----------------
+
 ## **如何编写基础api调用方法**
 调用服务端接口的方法单独封装在 `/src/api/` 下，按照数据的类型划分成单独文件，每个文件包含该数据的相关接口方法。
 > 参见： src/api/user.js
 
+-----------------
 
 ## **内部三方库 `poppyjs-elem`**
 参见package.json，`"poppyjs-elem": "0.1.0"`。 引用方法：
@@ -15,6 +18,8 @@ import poppyjs from 'poppyjs-elem'
 // 显示loading提示
 poppyjs.html.Dialog.showLoading()
 ```
+
+-----------------
 
 ## **内部二方库 `webcore`**
 库里共享了一些共用代码，位置： `/src/webcore`。 引用方法：
@@ -31,6 +36,7 @@ webcore.admin.Service.request({
 ```
 > 参见： src/api/user.js
 
+-----------------
 
 ## **如何编写页面**
 * 页面放在 `/src/pages/` 中
@@ -38,6 +44,7 @@ webcore.admin.Service.request({
   * xxxx_page.js ：全小写，用下划线分隔单词，文件名以"_page"结尾，编译时按照该结尾解析。
   * xxxxx.vue ：vue模板文件名参照vue官方标砖，按驼峰命名，例如： “UserInfo.vue”。
 
+-----------------
 
 ## **全局环境变量**
 ### env环境变量
@@ -49,6 +56,7 @@ webcore.admin.Service.request({
 * process.env.VUE_APP_BASE_API: api接口服务根url，相对路径
 * process.env.VUE_APP_AUTH_API: api接口服务权限认证url，相对路径
 
+-----------------
 
 ## **webcore库参考**
 > 引入：  import webcore from '@/webcore'
@@ -134,6 +142,7 @@ webcore.common.util.NetUtil.redirect('/auth/login')
 webcore.common.util.NetUtil.redirect('/user/info')
 ```
 
+-----------------
 
 ## **用户的操作权限处理**
 
@@ -166,22 +175,40 @@ methods: {
 }
 ```
 
+### 权限数据明细
 
+权限key|说明
+--|:--:
+***<实验人员相关>*** |
+`user.add` | 新增人员
+`user.update` | 修改人员信息
+`user.delete` | 删除人员
+`user.employ_status` | 修改人员状态
+`user.user_status` | 修改人员的用户状态
+`user.password` | 修改人员的密码
+***<实验组相关>*** |
+`lab_team.add` | 新增实验组
+`lab_team.update` | 修改实验组信息
+`lab_team.delete` | 删除实验组
+`lab_team.status` | 修改实验组状态
+***<实验相关>*** |
+`experiment.add` | 新增实验
+`experiment.update` | 修改实验信息
+`experiment.delete` | 删除实验
+`experiment.status` | 修改实验状态
+`experiment.testing` | 开始实验测试
+`experiment.audit_apply` | 申请审核
+`experiment.audit_revoke` | 撤回审核申请
+`experiment.audit_start` | 开始实验审核
+`experiment.audit_finish` | 完成实验审核(通过、驳回)
+`experiment.testing.add` | 添加实验测试记录
+`experiment.testing.update` | 修改实验测试记录
+`experiment.testing.delete` | 删除实验测试记录
+***<系统用户相关>*** |
+`admin_user.edit` | 修改系统用户信息
+`admin_user.password` | 修改系统用户密码
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-----------------
 
 ## **自定义公用样式库**
 样式库文件：`src/styles/my_common.scss`
