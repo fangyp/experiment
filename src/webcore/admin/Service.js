@@ -1,3 +1,4 @@
+import { Message } from 'element-ui'
 import poppyjs from 'poppyjs-elem'
 import NetUtil from '../common/utils/NetUtil'
 
@@ -46,7 +47,6 @@ class Service {
 			poppyjs.html.Dialog.showLoading()
 		}
 
-		/*
 		const reqOptions = {
 			url: url,
 			method: method,
@@ -60,12 +60,22 @@ class Service {
 			return new Promise((resolve, reject) => {
 				if (poppyjs.biz.Http.checkResponse(resp)) {
 					if (successMsg !== false) {
-						poppyjs.html.Dialog.showInfoMessage(successMsg)
+						// poppyjs.html.Dialog.showInfoMessage(successMsg)
+						Message.success({
+							message: successMsg,
+							duration: 0,
+							showClose: true
+						})
 					}
 					resolve(resp)
 				} else {
 					if (showErrorMsg && (resp.errmsg && resp.errmsg !== null)) {
-						poppyjs.html.Dialog.showErrorMessage(resp.errmsg)
+						// poppyjs.html.Dialog.showErrorMessage(resp.errmsg)
+						Message.error({
+							message: resp.errmsg,
+							duration: 0,
+							showClose: true
+						})
 					}
 					reject(resp)
 				}
@@ -75,13 +85,10 @@ class Service {
 			console.log('request error: ', resp)
 			poppyjs.html.Dialog.closeLoading()
 
-			return new Promise((resolve, reject) => {
-				reject(resp)
-			})
+			return Promise.reject(resp)
 		})
-		*/
 
-
+		/*
 		return new Promise((resolve, reject) => {
 			const reqOptions = {
 				url: url,
@@ -111,6 +118,7 @@ class Service {
 				}
 			)
 		}) // Promise
+		*/
 	}
 }
 
