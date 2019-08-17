@@ -34,7 +34,6 @@ router.beforeEach(async(to, from, next) => {
 			} else {
 				try {
 					// get user info
-					// note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
 					await store.dispatch('user/getInfo')
 
 					// lxb added: 如果已经登录(本地存有token)时，请求后台获取菜单数据
@@ -44,7 +43,7 @@ router.beforeEach(async(to, from, next) => {
 
 					// hack method to ensure that addRoutes is complete
 					// set the replace: true, so the navigation will not leave a history record
-					next({ ...to, replace: true })
+					await next({ ...to, replace: true })
 				} catch (error) {
 					// remove token and go to login page to re-login
 					// await store.dispatch('user/resetToken')

@@ -17,6 +17,50 @@ class NetUtil {
 	 * }
 	 */
 	static adminRequest(options) {
+		// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
+		options.headers = { 'X-ACCESS-TOKEN': getToken() }
+		if (options.autoRefresh) {
+			options.headers['X-AUTO-REFRESH'] = 1
+		}
+
+		/*
+		console.log('>>>>>>>>>> adminRequest')
+		return poppyjs.biz.Http.request(options).then(
+			(response) => {
+				console.log('>>>>>> poppyjs.biz.Http.request then')
+				let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
+					poppyjs.html.Dialog.closeLoading()
+					poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
+						// 登录超时，跳转到登录页
+						removeToken()
+						router.push('/auth/login')
+					})
+				})
+				if (checkResult) {
+					checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
+						poppyjs.html.Dialog.closeLoading()
+						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
+							// 权限错误，跳转到首页
+							router.push('/')
+						})
+					})
+				}
+
+				return new Promise((resolve, reject) => {
+					if (checkResult) {
+						resolve(response.data)
+					} else {
+						reject(response.data)
+					}
+				})
+			},
+			(response) => {
+				poppyjs.html.Dialog.showNetError()
+				return response.data
+			}
+		)
+		*/
+
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 			options.headers = { 'X-ACCESS-TOKEN': getToken() }
