@@ -23,44 +23,42 @@ class NetUtil {
 			options.headers['X-AUTO-REFRESH'] = 1
 		}
 
-		/*
-		console.log('>>>>>>>>>> adminRequest')
-		return poppyjs.biz.Http.request(options).then(
-			(response) => {
-				console.log('>>>>>> poppyjs.biz.Http.request then')
-				let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
-					poppyjs.html.Dialog.closeLoading()
-					poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
-						// 登录超时，跳转到登录页
-						removeToken()
+		return poppyjs.biz.Http.request(options).then((response) => {
+			let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
+				poppyjs.html.Dialog.closeLoading()
+				poppyjs.html.Dialog.showToast('未登录认证，正在跳转登录页面', () => {
+					// 登录超时，跳转到登录页
+					removeToken()
+					setTimeout(() => {
 						router.push('/auth/login')
-					})
+					}, 600)
 				})
-				if (checkResult) {
-					checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
-						poppyjs.html.Dialog.closeLoading()
-						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
-							// 权限错误，跳转到首页
+			})
+			if (checkResult) {
+				checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
+					poppyjs.html.Dialog.closeLoading()
+					poppyjs.html.Dialog.showToast('您没有权限操作该页面', () => {
+						// 权限错误，跳转到首页
+						setTimeout(() => {
 							router.push('/')
-						})
+						}, 600)
 					})
-				}
-
-				return new Promise((resolve, reject) => {
-					if (checkResult) {
-						resolve(response.data)
-					} else {
-						reject(response.data)
-					}
 				})
-			},
-			(response) => {
-				poppyjs.html.Dialog.showNetError()
-				return response.data
 			}
-		)
-		*/
 
+			return new Promise((resolve, reject) => {
+				if (checkResult) {
+					resolve(response.data)
+				} else {
+					reject(response.data)
+				}
+			})
+		}, (response) => {
+			// poppyjs.html.Dialog.showNetError()
+			return Promise.reject(response.data)
+		})
+
+		/*
 		return new Promise((resolve, reject) => {
 			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
 			options.headers = { 'X-ACCESS-TOKEN': getToken() }
@@ -99,6 +97,7 @@ class NetUtil {
 				}
 			)
 		}) // Promise
+		*/
 	}
 
 	// 基于全站根路径的页面跳转，例如： /auth/login
