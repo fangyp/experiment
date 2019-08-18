@@ -3,23 +3,28 @@
 		title="审核实验"
 		:visible.sync="visible"
 		:modal="true"
-		width="600px"
-		top="6vh"
 		:close-on-click-modal="false"
 		:close-on-press-escape="false"
 		:destroy-on-close="true"
 		:close="handleClose"
 	>
-		<el-form ref="auditForm" :rules="rules" :model="formData" label-position="left" label-width="80px">
-			<el-col v-if="formData.result !== null" :span="24">
-				<el-alert v-if="formData.result==='passed'" title="审核通过" type="success" center />
-				<el-alert v-else title="审核驳回" type="error" center />
-			</el-col>
-
+		<el-form
+			ref="auditForm"
+			:rules="rules"
+			:model="formData"
+			label-position="left"
+			label-width="80px"
+		>
 			<el-form-item label="审核结果" prop="result">
 				<el-radio-group v-model="formData.result">
-					<el-radio label="passed">审核通过<i class="el-icon-s-flag" /></el-radio>
-					<el-radio label="reject">审核驳回<i class="el-icon-error" /></el-radio>
+					<el-radio label="passed">
+						审核通过
+						<i class="el-icon-check" />
+					</el-radio>
+					<el-radio label="reject">
+						审核驳回
+						<i class="el-icon-close" />
+					</el-radio>
 				</el-radio-group>
 			</el-form-item>
 
@@ -33,6 +38,10 @@
 				class="small"
 				title="温馨提示：实验审核通过后，实验数据会变更为“完成”状态，数据内容不允许再修改。"
 			/>
+			<el-col v-if="formData.result !== null" :span="24">
+				<el-alert v-if="formData.result==='passed'" title="审核通过" type="success" center />
+				<el-alert v-else title="审核驳回" type="error" center />
+			</el-col>
 		</el-form>
 		<div slot="footer" class="dialog-footer">
 			<el-button size="medium" @click="handleCancel">取消</el-button>
@@ -49,7 +58,6 @@ export default {
 	name: 'ExperimentAudit',
 	directives: { waves },
 	props: {
-
 		visible: {
 			type: Boolean,
 			default: true
@@ -78,11 +86,14 @@ export default {
 			rules: {
 				result: [
 					{ required: true, message: '请选择审核结果', trigger: 'blur' },
-					{ type: 'enum', enum: ['passed', 'reject'], message: '审核结果选择不正确', trigger: 'blur' }
+					{
+						type: 'enum',
+						enum: ['passed', 'reject'],
+						message: '审核结果选择不正确',
+						trigger: 'blur'
+					}
 				],
-				desc: [
-					{ max: 100, message: '100字以内', trigger: 'blur' }
-				]
+				desc: [{ max: 100, message: '100字以内', trigger: 'blur' }]
 			}
 		}
 	},
@@ -113,7 +124,7 @@ export default {
 		// 提交保存的基本方法
 		submit() {
 			const self = this
-			this.$refs['auditForm'].validate((valid) => {
+			this.$refs['auditForm'].validate(valid => {
 				if (!valid) {
 					return false
 				}
@@ -128,16 +139,17 @@ export default {
 
 				console.log(params)
 
-				experimentService.audit(self.experiment.experiment_id, params).then(function(resp) {
-					self.handleClose()
-					if (self.confirmCallback != null) {
-						self.confirmCallback()
-					}
-				})
+				experimentService
+					.audit(self.experiment.experiment_id, params)
+					.then(function(resp) {
+						self.handleClose()
+						if (self.confirmCallback != null) {
+							self.confirmCallback()
+						}
+					})
 			})
 		}
 	}
-
 }
 </script>
 

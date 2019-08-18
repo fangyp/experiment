@@ -10,367 +10,345 @@
 			show-icon
 			:closable="false"
 		/>
+		<!-- 这个有需要吗？ -->
 		<el-button v-if="loaded" type="info" plain class="mg-t-md" @click="gotoHome">返回首页</el-button>
 	</div>
-
 	<div v-else class="app-container">
-		<!-- 页面主体 -->
-		<el-row>
-			<el-col :sm="24" :lg="24" :xl="24">
-				<!-- 工具栏 -->
-				<el-card shadow="never">
-					<el-form :inline="true" size="mini" label-width="75px">
-						<el-col :sm="24" :lg="10" :xl="10">
-							<el-form-item
-								label="实验类型"
-							>{{ experiment ? experiment.experiment_type_formatted : '' }}</el-form-item>
-							<el-form-item label="实验员">{{ experiment ? experiment.user_name : '' }}</el-form-item>
-							<el-form-item label="日期">{{ experiment ? experiment.experiment_date : '' }}</el-form-item>
-						</el-col>
+		<!-- fangyangping start -->
+		<!-- 操作栏 -->
+		<div style="display: flex;justify-content:flex-end">
+			<el-button v-if="experimentAbility.delete" type="danger" plain @click="showDeleteConfirm">删除</el-button>
+			<el-button v-if="experimentAbility.invalid" type="danger" plain @click="showInvaidConfirm">作废</el-button>
+			<el-button plain @click="loadData">刷新</el-button>
+			<el-button v-if="experimentAbility.testing" plain @click="showTestingConfirm">测试</el-button>
+			<el-button v-if="experimentAbility.edit" plain @click="gotoEdit">编辑</el-button>
+			<el-button
+				v-if="experimentAbility.auditStart"
+				type="primary"
+				plain
+				@click="showStartAuditConfirm"
+			>开始审核</el-button>
+			<el-button v-if="experimentAbility.auditAudit" type="primary" plain @click="showAudit">完成审核</el-button>
+			<el-button
+				v-if="experimentAbility.auditAdd"
+				type="primary"
+				plain
+				@click="showApplyAuditConfirm"
+			>提交审核</el-button>
+			<el-button
+				v-if="experimentAbility.auditRevoke"
+				type="primary"
+				plain
+				@click="showRevokeAuditConfirm"
+			>撤回审核</el-button>
 
-						<el-col :sm="24" :lg="14" :xl="14">
-							<el-form-item label="状态">
+		</div>
+		<!-- 基本信息-->
+		<el-row :gutter="20" style="margin-top:20px;">
+			<el-col :span="24">
+				<el-card shadow="never" class="box-card">
+					<div
+						slot="header"
+						class="clearfix"
+						style="display: flex;flex-direction: row;justify-content:space-between;"
+					>
+						<div class="card-title-text" style="width:50%;">基本信息</div>
+						<div style="display: flex;width:50%;flex-direction: row;justify-content:space-between;">
+							<div class="card-panel-box">
+								状态:
 								<el-tag
+									size="mini"
 									:type="experiment.experiment_status | expStatusFilter"
-									size="small"
 								>{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag>
-							</el-form-item>
-							<el-form-item label="测试">
+							</div>
+							<div class="card-panel-box">
+								测试:
 								<el-tag
-									type="danger"
+									:type="experiment.is_testing | testStatusFilter"
 									size="small"
 								>{{ experiment && experiment.is_testing ? '已测试': '无测试' }}</el-tag>
-							</el-form-item>
+							</div>
+						</div>
+					</div>
 
-							<el-form-item v-if="moreMenus.length > 0" style="float:right">
-								<el-dropdown trigger="click" size="medium" @command="handleMoreMenuClick">
-									<span class="el-dropdown-link">
-										<i
-											class="el-icon-more text-minor pad-l-sm pad-r-sm"
-											style="vertical-align: bottom;font-size: 18px;"
-										/>
-									</span>
-									<el-dropdown-menu slot="dropdown">
-										<el-dropdown-item
-											v-for="(menu, index) in moreMenus"
-											:key="index"
-											:icon="menu.icon"
-											:command="menu.cmd"
-										>{{ menu.title }}</el-dropdown-item>
-									</el-dropdown-menu>
-								</el-dropdown>
-							</el-form-item>
-
-							<el-form-item v-if="experimentAbility.auditStart" style="float:right">
-								<el-button plain size="medium" @click="showStartAuditConfirm">
-									<font-awesome-icon icon="user-check" />开始审核
-								</el-button>
-							</el-form-item>
-							<el-form-item v-if="experimentAbility.auditAudit" style="float:right">
-								<el-button plain size="medium" @click="showAudit">
-									<font-awesome-icon icon="user-check" />完成审核
-								</el-button>
-							</el-form-item>
-							<el-form-item v-if="experimentAbility.auditAdd" style="float:right">
-								<el-button plain size="medium" @click="showApplyAuditConfirm">
-									<font-awesome-icon icon="user-check" />提交审核
-								</el-button>
-							</el-form-item>
-							<el-form-item v-if="experimentAbility.auditRevoke" style="float:right">
-								<el-button plain size="medium" @click="showRevokeAuditConfirm">
-									<font-awesome-icon icon="user-check" />撤回审核
-								</el-button>
-							</el-form-item>
-
-							<el-form-item v-if="experimentAbility.edit" style="float:right">
-								<el-button plain size="medium" @click="gotoEdit">
-									<font-awesome-icon icon="edit" />编 辑
-								</el-button>
-							</el-form-item>
-
-							<el-form-item style="float:right">
-								<el-button plain size="medium" icon="el-icon-refresh-left" @click="loadData" />
-							</el-form-item>
-						</el-col>
-					</el-form>
+					<div style="display: flex;flex-direction: row;justify-content:space-around">
+						<div style="width:50%;display: flex;flex-direction: column">
+							<div class="card-panel-box" style="margin-bottom: 8px;">
+								实验名称:
+								<span class="card-panel-text">{{ experiment.experiment_name }}</span>
+							</div>
+							<div class="card-panel-box" style="margin-bottom: 8px;">
+								实验类型:
+								<span class="card-panel-text">{{ experiment.experiment_type_formatted }}</span>
+							</div>
+							<div class="card-panel-box">
+								实验员:
+								<span class="card-panel-text">{{ experiment.user_name }}</span>
+							</div>
+						</div>
+						<div style="width:50%;display: flex;flex-direction: column;">
+							<div class="card-panel-box" style="margin-bottom: 8px;">
+								温度:
+								<span class="card-panel-text">{{ experiment.temperature }} ℃</span>
+							</div>
+							<div class="card-panel-box" style="margin-bottom: 8px;">
+								湿度:
+								<span class="card-panel-text">{{ experiment.humidity }} RH%</span>
+							</div>
+							<div class="card-panel-box">
+								日期:
+								<span class="card-panel-text">{{ experiment.experiment_date }}</span>
+							</div>
+						</div>
+					</div>
 				</el-card>
 			</el-col>
 		</el-row>
 
-		<el-tabs type="card" tab-position="top" style="margin-top: 20px;">
-			<!-- 基本信息 Tab -->
-			<el-tab-pane label="基本信息">
-				<el-row style="margin-top: 15px;">
-					<el-col :sm="24" :lg="24" :xl="24">
+		<!-- 实验步骤-->
+		<el-row :gutter="20" style="margin-top:10px;">
+			<el-col :span="24">
+				<el-tabs type="card" tab-position="top" style="margin-top: 10px;">
+					<!-- 实验步骤和参数 Tab -->
+					<el-tab-pane label="实验步骤和参数">
 						<el-form
-							ref="baseForm"
-							:inline="true"
-							:model="baseForm"
-							:rules="baseRules"
-							label-position="top"
+							v-model="formProcedures"
+							label-position="left"
+							class="demo-table-expand"
 							size="mini"
-							label-width="80px"
 						>
-							<el-col :span="6">
-								<el-form-item label="实验名称" prop="experiment_name">{{ baseForm.experiment_name }}</el-form-item>
-							</el-col>
-							<el-col :span="6">
-								<el-form-item label="温度℃" prop="temperature">{{ baseForm.temperature }}</el-form-item>
-							</el-col>
-							<el-col :span="6">
-								<el-form-item label="湿度RH%" prop="humidity">{{ baseForm.humidity }}</el-form-item>
-							</el-col>
-						</el-form>
-					</el-col>
-				</el-row>
-
-				<el-divider />
-				<el-row :gutter="10">
-					<el-col :sm="24" :lg="24" :xl="24">
-						<el-form
-							ref="baseForm2"
-							:model="baseForm"
-							:rules="baseRules2"
-							label-position="top"
-							size="mini"
-							label-width="80px"
-						>
-							<el-col :sm="12" :lg="12" :xl="12">
-								<el-form-item label="实验目的" prop="purpose">
-									<pre class="text-box">{{ baseForm.purpose }}</pre>
-								</el-form-item>
-							</el-col>
-
-							<el-col :sm="12" :lg="12" :xl="12">
-								<el-form-item label="R值， NCO残留量" prop="r_nco">
-									<pre class="text-box">{{ baseForm.r_nco }}</pre>
-								</el-form-item>
-							</el-col>
-						</el-form>
-					</el-col>
-				</el-row>
-
-				<el-row>
-					<el-col :sm="24" :lg="16" :xl="16">
-						<el-form
-							ref="baseForm3"
-							:model="baseForm"
-							:rules="baseRules3"
-							label-position="top"
-							size="mini"
-							label-width="80px"
-						>
-							<el-form-item label="结果与结论" prop="conclusion">
-								<pre class="text-box">{{ baseForm.conclusion }}</pre>
-							</el-form-item>
-						</el-form>
-					</el-col>
-				</el-row>
-			</el-tab-pane>
-
-			<!-- 实验步骤和参数 Tab -->
-			<el-tab-pane label="实验步骤和参数">
-				<el-form
-					v-model="formProcedures"
-					label-position="left"
-					class="demo-table-expand"
-					size="mini"
-				>
-					<div
-						class="el-table el-table--fit el-table--striped el-table--enable-row-transition procedure-table"
-					>
-						<table
-							cellspacing="0"
-							cellpadding="0"
-							border="0"
-							class="el-table__body"
-							style="width:100%"
-						>
-							<thead>
-								<tr>
-									<td style="min-width:20px; width:3%" />
-									<td style="min-width:100px; width:19%">步骤</td>
-									<td>试剂</td>
-									<td style="min-width:100px; width:14%">理论量/g</td>
-									<td style="min-width:100px; width:14%">实际量/g</td>
-									<td>备注</td>
-									<td style="max-width:55px; width:55px;" />
-									<td style="min-width:100px; width:19%">实验记录</td>
-								</tr>
-							</thead>
-
-							<tbody>
-								<template v-for="(procedure, index) in formProcedures">
-									<tr
-										:key="'pro-' + index"
-										:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')"
-									>
-										<td
-											:rowspan="procedure.experiment_parameters.length"
-											class="seq-col"
-										>{{ index + 1 }}</td>
-										<!-- 步骤列 -->
-										<td
-											:rowspan="procedure.experiment_parameters.length"
-											class="first-col"
-										>{{ procedure.procedure_title }}</td>
-
-										<!-- 一个步骤的首行参数行 -->
-										<template
-											:if="procedure.experiment_parameters != null && procedure.experiment_parameters.length > 0"
-										>
-											<td>{{ procedure.experiment_parameters[0].reagent }}</td>
-											<td>{{ procedure.experiment_parameters[0].theoretical_volum }}</td>
-											<td>{{ procedure.experiment_parameters[0].actual_volum }}</td>
-											<td>{{ procedure.experiment_parameters[0].remark }}</td>
-											<td />
-										</template>
-
-										<!-- 实验记录列 -->
-										<td :rowspan="procedure.experiment_parameters.length" class="last-col">
-											<pre
-												class="text-box plain"
-												@click="showProcedureRecord($event, procedure.record_content)"
-											>{{ procedure.record_content }}</pre>
-										</td>
-									</tr>
-
-									<!-- 一个步骤的其他参数行 -->
-									<template v-for="(parameters, index2) in procedure.experiment_parameters">
-										<tr
-											v-if="index2 > 0"
-											:key="'par-' + index + '-' + index2"
-											:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')"
-										>
-											<td>{{ parameters.reagent }}</td>
-											<td>{{ parameters.theoretical_volum }}</td>
-											<td>{{ parameters.actual_volum }}</td>
-											<td>{{ parameters.remark }}</td>
-											<td />
-										</tr>
-									</template>
-								</template>
-							</tbody>
-						</table>
-					</div>
-				</el-form>
-			</el-tab-pane>
-
-			<!-- 更多实验记录 Tab -->
-			<el-tab-pane label="更多实验记录">
-				<el-form
-					v-model="formProcedures"
-					label-position="left"
-					class="demo-table-expand"
-					size="mini"
-				>
-					<div
-						class="el-table el-table--fit el-table--striped el-table--enable-row-transition record-table"
-					>
-						<table
-							cellspacing="0"
-							cellpadding="0"
-							border="0"
-							class="el-table__body"
-							style="width:100%"
-						>
-							<thead>
-								<tr>
-									<td style="min-width:20px; width:10%" class="text-center">序号</td>
-									<td style="min-width:300px;%" class="text-center">记录内容</td>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr
-									v-for="(record, index) in formRecords"
-									:key="'rec-' + index"
-									:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')"
+							<div
+								class="el-table el-table--fit el-table--striped el-table--enable-row-transition procedure-table"
+							>
+								<table
+									cellspacing="0"
+									cellpadding="0"
+									border="0.1"
+									class="el-table__body"
+									style="width:100%"
 								>
-									<td class="text-center">{{ index + 1 }}.</td>
-									<td>
-										<pre class="text-box plain">{{ record.content }}</pre>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</el-form>
-			</el-tab-pane>
-			<!-- 实验记录 Tab -->
+									<thead>
+										<tr>
+											<td style="min-width:20px; width:60px" class="text-center">序号</td>
+											<td style="min-width:100px; width:19%">步骤</td>
+											<td>试剂</td>
+											<td style="min-width:100px; width:14%">理论量/g</td>
+											<td style="min-width:100px; width:14%">实际量/g</td>
+											<td>备注</td>
+											<td style="max-width:55px; width:55px;" />
+											<td style="min-width:100px; width:19%">实验记录</td>
+										</tr>
+									</thead>
 
-			<!-- 实验测试记录 Tab -->
-			<el-tab-pane v-if="hasTestingTab" label="实验测试记录">
-				<el-form v-model="formTestings" label-position="left" class="demo-table-expand" size="mini">
-					<el-button
-						v-if="experimentAbility.testingAdd"
-						type="primary"
-						size="mini"
-						icon="el-icon-plus"
-						style="float:right"
-						class="mg-b-xs"
-						@click="showAddTesting"
-					/>
-					<el-table
-						:data="formTestings"
-						stripe
-						border
-						fit
-						highlight-current-row
-						size="mini"
-						style="width: 100%;"
-					>
-						<el-table-column label="No" min-width="45px" align="center" width="45px">
-							<template slot-scope="row">{{ row.$index + 1 }}</template>
-						</el-table-column>
+									<tbody>
+										<template v-for="(procedure, index) in formProcedures">
+											<tr
+												:key="'pro-' + index"
+												style="height:40px ;"
+												:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')"
+											>
+												<!-- el-table__row--striped -->
+												<td
+													:rowspan="procedure.experiment_parameters.length"
+													class="seq-col"
+												>{{ index + 1 }}</td>
+												<!-- 步骤列 -->
+												<td
+													:rowspan="procedure.experiment_parameters.length"
+													class="first-col"
+												>{{ procedure.procedure_title }}</td>
 
-						<el-table-column label="测试日期" prop="testing_date" width="86px" align="center" />
+												<!-- 一个步骤的首行参数行 -->
+												<template
+													:if="procedure.experiment_parameters != null && procedure.experiment_parameters.length > 0"
+												>
+													<td>{{ procedure.experiment_parameters[0].reagent }}</td>
+													<td>{{ procedure.experiment_parameters[0].theoretical_volum }}</td>
+													<td>{{ procedure.experiment_parameters[0].actual_volum }}</td>
+													<td>{{ procedure.experiment_parameters[0].remark }}</td>
+													<td />
+												</template>
 
-						<el-table-column label="测试项目" header-align="center" align="left">
-							<template slot-scope="{row}">
-								<pre>{{ row.testing_item }}</pre>
-							</template>
-						</el-table-column>
+												<!-- 实验记录列 -->
+												<td :rowspan="procedure.experiment_parameters.length" class="last-col">
+													<pre
+														class="text-box plain"
+														@click="showProcedureRecord($event, procedure.record_content)"
+													>{{ procedure.record_content }}</pre>
+												</td>
+											</tr>
 
-						<el-table-column label="测试结果" header-align="center" align="left">
-							<template slot-scope="{row}">
-								<pre>{{ row.testing_result }}</pre>
-							</template>
-						</el-table-column>
+											<!-- 一个步骤的其他参数行 -->
+											<template v-for="(parameters, index2) in procedure.experiment_parameters">
+												<tr
+													v-if="index2 > 0"
+													:key="'par-' + index + '-' + index2"
+													style="height:44px"
+													:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')"
+												>
+													<td>{{ parameters.reagent }}</td>
+													<td>{{ parameters.theoretical_volum }}</td>
+													<td>{{ parameters.actual_volum }}</td>
+													<td>{{ parameters.remark }}</td>
+													<td />
+												</tr>
+											</template>
+										</template>
+									</tbody>
+								</table>
+							</div>
+						</el-form>
+					</el-tab-pane>
 
-						<el-table-column label="添加时间" prop="created_at" width="90px" align="center" />
-
-						<el-table-column
-							label="操作"
-							align="center"
-							width="80px"
-							class-name="small-padding fixed-width"
+					<!-- 更多实验记录 Tab -->
+					<el-tab-pane label="更多实验记录">
+						<el-form
+							v-model="formProcedures"
+							label-position="left"
+							class="demo-table-expand"
+							size="mini"
 						>
-							<template slot-scope="{row}">
-								<el-dropdown trigger="click" size="small" @command="handleTestingMenuClick">
-									<span class="el-dropdown-link">
-										更多
-										<i class="el-icon-arrow-down el-icon--right" />
-									</span>
-									<el-dropdown-menu slot="dropdown">
-										<el-dropdown-item
-											v-if="experimentAbility.testingEdit"
-											:command="{cmd:'edit', row}"
-										>修 改</el-dropdown-item>
-										<el-dropdown-item
-											v-if="experimentAbility.testingDelete"
-											:command="{cmd:'delete', row}"
-										>删 除</el-dropdown-item>
-									</el-dropdown-menu>
-								</el-dropdown>
-							</template>
-						</el-table-column>
-					</el-table>
-				</el-form>
-			</el-tab-pane>
-			<!-- 实验测试 Tab -->
-		</el-tabs>
-		<!-- 页面主体 -->
+							<div
+								class="el-table el-table--fit el-table--striped el-table--enable-row-transition record-table"
+							>
+								<table
+									cellspacing="0"
+									cellpadding="0"
+									border="0"
+									class="el-table__body"
+									style="width:100%"
+								>
+									<thead>
+										<tr style="height:44px">
+											<td style="min-width:20px; width:60px" class="text-center">序号</td>
+											<td style="min-width:300px;%" class="text-left">记录内容</td>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr
+											v-for="(record, index) in formRecords"
+											:key="'rec-' + index"
+											style="height:40px"
+											:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')"
+										>
+											<!-- el-table__row--striped -->
+											<td class="text-center">{{ index + 1 }}.</td>
+											<td>
+												<pre class="text-box plain">{{ record.content }}</pre>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</el-form>
+					</el-tab-pane>
+					<!-- 实验记录 Tab -->
+
+					<!-- 实验测试记录 Tab -->
+					<el-tab-pane v-if="hasTestingTab" label="实验测试记录">
+						<el-form
+							v-model="formTestings"
+							label-position="left"
+							class="demo-table-expand"
+							size="mini"
+						>
+							<el-button
+								v-if="experimentAbility.testingAdd"
+								type="primary"
+								size="mini"
+								icon="el-icon-plus"
+								style="float:right"
+								class="mg-b-xs"
+								@click="showAddTesting"
+							/>
+							<el-table :data="formTestings" border fit highlight-current-row style="width: 100%;">
+								<el-table-column label="No" min-width="45px" align="center" width="45px">
+									<template slot-scope="row">{{ row.$index + 1 }}</template>
+								</el-table-column>
+								<el-table-column label="测试项目" header-align="center" align="left">
+									<template slot-scope="{row}">
+										<pre style="margin:0 auto;">{{ row.testing_item }}</pre>
+									</template>
+								</el-table-column>
+
+								<el-table-column label="测试结果" header-align="center" align="left">
+									<template slot-scope="{row}">
+										<pre style="margin:0 auto;">{{ row.testing_result }}</pre>
+									</template>
+								</el-table-column>
+
+								<el-table-column label="测试日期" prop="testing_date" min-width="90px" align="center" />
+
+								<el-table-column
+									label="操作"
+									align="center"
+									min-width="80px"
+									class-name="small-padding fixed-width"
+								>
+									<template slot-scope="{row}">
+										<el-dropdown trigger="click" size="small" @command="handleTestingMenuClick">
+											<span class="el-dropdown-link">
+												更多
+												<i class="el-icon-arrow-down el-icon--right" />
+											</span>
+											<el-dropdown-menu slot="dropdown">
+												<el-dropdown-item
+													v-if="experimentAbility.testingEdit"
+													:command="{cmd:'edit', row}"
+												>修 改</el-dropdown-item>
+												<el-dropdown-item
+													v-if="experimentAbility.testingDelete"
+													:command="{cmd:'delete', row}"
+												>删 除</el-dropdown-item>
+											</el-dropdown-menu>
+										</el-dropdown>
+									</template>
+								</el-table-column>
+							</el-table>
+						</el-form>
+					</el-tab-pane>
+					<!-- 实验测试 Tab -->
+				</el-tabs>
+			</el-col>
+		</el-row>
+		<!-- 实验目的 R值、NCO残留量-->
+		<el-row :gutter="20" style="margin-top:10px;">
+			<el-col :span="12">
+				<el-card shadow="never" class="box-card">
+					<div slot="header" class="clearfix">
+						<span class="card-title-text">实验目的</span>
+					</div>
+					<div style="display: flex;flex-direction: column;">
+						<pre class="card-text-box">{{ experiment.purpose }}</pre>
+					</div>
+				</el-card>
+			</el-col>
+			<el-col :span="12">
+				<el-card shadow="never" class="box-card">
+					<div slot="header" class="clearfix">
+						<span class="card-title-text">R值、NCO残留量</span>
+					</div>
+					<div style="display: flex;flex-direction: column;">
+						<pre class="card-text-box">{{ experiment.r_nco }}</pre>
+					</div>
+				</el-card>
+			</el-col>
+		</el-row>
+		<!-- 结果与讨论-->
+		<el-row :gutter="20" style="margin-top:10px;">
+			<el-col :span="24">
+				<el-card shadow="never" class="box-card">
+					<div slot="header" class="clearfix">
+						<span class="card-title-text">结果与讨论</span>
+					</div>
+					<div style="display: flex;flex-direction: column;">
+						<pre class="card-text-box">{{ experiment.conclusion }}</pre>
+					</div>
+				</el-card>
+			</el-col>
+		</el-row>
+		<!-- fangyangping end -->
 
 		<!-- 实验步骤的实验记录编辑框 -->
 		<el-drawer
@@ -388,22 +366,14 @@
 		</el-drawer>
 
 		<!-- 测试记录新增/编辑弹出框 -->
-		<el-dialog
-			:title="addTestingFlag?'添加测试记录':'编辑测试记录'"
-			:visible.sync="addTestingVisible"
-			:modal="true"
-			width="700px"
-			top="6vh"
-			:close-on-click-modal="false"
-			:close-on-press-escape="false"
-			:destroy-on-close="true"
-		>
+		<el-dialog :title="addTestingFlag?'添加测试记录':'编辑测试记录'" :visible.sync="addTestingVisible">
 			<el-form
 				ref="addTestingForm"
 				:rules="addTestingFormRules"
 				:model="formTesting"
 				label-position="left"
-				label-width="80px"
+				label-width="100px"
+				style="width: 400px; margin-left:10px;"
 			>
 				<el-form-item label="测试日期" prop="testing_date">
 					<el-col :span="8">
@@ -414,6 +384,7 @@
 							:picker-options="pickerOptions"
 							format="yyyy-MM-dd"
 							value-format="yyyy-MM-dd"
+							style="width: 220px;"
 						/>
 					</el-col>
 				</el-form-item>
@@ -422,8 +393,8 @@
 					<el-input
 						v-model="formTesting.testing_item"
 						type="textarea"
-						rows="4"
-						maxlength="100"
+						rows="6"
+						style="width: 220px;"
 						show-word-limit
 					/>
 				</el-form-item>
@@ -432,8 +403,8 @@
 					<el-input
 						v-model="formTesting.testing_result"
 						type="textarea"
-						rows="8"
-						maxlength="200"
+						rows="6"
+						style="width: 220px;"
 						show-word-limit
 					/>
 				</el-form-item>
@@ -486,10 +457,18 @@ export default {
 				'-1': 'info'
 			}
 			return stateOption[status]
+		},
+		testStatusFilter(status) {
+			const stateOption = {
+				'0': 'warning',
+				'1': 'success'
+			}
+			return stateOption[status]
 		}
 	},
 	data() {
 		return {
+			tableKey: 0,
 			loaded: false,
 			experimentId: null,
 			// 原始数据
@@ -616,6 +595,7 @@ export default {
 		loadData() {
 			// 加载实验数据
 			experimentApi.getExperiment(this.experimentId).then(resp => {
+				console.log(resp)
 				this.loaded = true
 				this.experiment = resp.data.experiment || null
 				this.procedures = resp.data.procedures || null
@@ -892,6 +872,29 @@ export default {
 </script>
 
 <style lang="scss">
+.card-title-text {
+  line-height: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 16px;
+  font-weight: bold;
+}
+.card-panel-box {
+  line-height: 16px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
+}
+.card-panel-text {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.card-text-box {
+  margin: 0;
+  color: #303133;
+  min-height: 100px;
+  width: 100%;
+}
+
 .el-table.procedure-table {
   table {
     thead {
