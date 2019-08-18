@@ -16,9 +16,7 @@
 	<div v-else class="app-container">
 		<!-- fangyangping start -->
 		<!-- 操作栏 -->
-		<div style="display: flex;justify-content:flex-end">
-			<el-button v-if="experimentAbility.delete" type="danger" plain @click="showDeleteConfirm">删除</el-button>
-			<el-button v-if="experimentAbility.invalid" type="danger" plain @click="showInvaidConfirm">作废</el-button>
+		<div style="display: flex;justify-content:flex-end;align-items:center;">
 			<el-button plain @click="loadData">刷新</el-button>
 			<el-button v-if="experimentAbility.testing" plain @click="showTestingConfirm">测试</el-button>
 			<el-button v-if="experimentAbility.edit" plain @click="gotoEdit">编辑</el-button>
@@ -41,7 +39,21 @@
 				plain
 				@click="showRevokeAuditConfirm"
 			>撤回审核</el-button>
-
+			<el-dropdown trigger="click" style="margin-left:5px">
+				<span class="el-dropdown-link">
+					<i
+						class="el-icon-more-outline el-icon--right"
+						style="font-size:28px;color:rgba(75,150,247,1)"
+					/>
+				</span>
+				<el-dropdown-menu slot="dropdown">
+					<el-dropdown-item
+						v-show="experimentAbility.invalid"
+						@click.native="showInvaidConfirm"
+					>作废实验</el-dropdown-item>
+					<el-dropdown-item v-show="experimentAbility.delete" @click.native="showDeleteConfirm">删除实验</el-dropdown-item>
+				</el-dropdown-menu>
+			</el-dropdown>
 		</div>
 		<!-- 基本信息-->
 		<el-row :gutter="20" style="margin-top:20px;">
