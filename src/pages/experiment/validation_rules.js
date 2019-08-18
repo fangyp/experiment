@@ -8,11 +8,11 @@ export const baseRules = {
 	],
 	temperature: [
 		{ type: 'number', message: '温度必须为数值', trigger: 'blur' },
-		{ type: 'number', min: -999999, max: 999999, message: '范围：-999999到999999', trigger: 'blur' }
+		{ type: 'number', min: -1000, max: 1000, message: '温度范围 -1000℃ ~ +1000℃', trigger: 'blur' }
 	],
 	humidity: [
 		{ type: 'number', message: '湿度必须为数值', trigger: 'blur' },
-		{ type: 'number', min: 0, max: 999999, message: '范围：0到999999', trigger: 'blur' }
+		{ type: 'number', min: 0, max: 100, message: '温度范围 0% ~ 100%', trigger: 'blur' }
 	]
 }
 

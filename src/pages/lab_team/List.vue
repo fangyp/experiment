@@ -18,6 +18,7 @@
 				@click="searchAction"
 			>搜索</el-button>
 			<el-button
+				v-show="permissionValid().add"
 				class="filter-item"
 				style="margin-left:10px; width: 120px"
 				type="primary"
@@ -75,14 +76,33 @@
 			>
 				<template slot-scope="{row}">
 					<el-dropdown trigger="click">
-						<span class="el-dropdown-link">
+						<span
+							v-show="permissionValid().add || permissionValid().update || permissionValid().delete || permissionValid().status"
+							class="el-dropdown-link"
+						>
 							更多
 							<i class="el-icon-arrow-down el-icon--right" />
 						</span>
+						<span
+							v-show="!permissionValid().add ||
+								!permissionValid().update ||
+								!permissionValid().delete ||
+								!permissionValid().status"
+							class="el-dropdown-normal"
+						>更多</span>
 						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
-							<el-dropdown-item @click.native="changeState(row)">{{ row.enabled|stateMenuFilter }}</el-dropdown-item>
-							<el-dropdown-item @click.native="onDeleteAction(row)">删除用户</el-dropdown-item>
+							<el-dropdown-item
+								v-show="permissionValid().update"
+								@click.native="modifyInfo(row)"
+							>修改信息</el-dropdown-item>
+							<el-dropdown-item
+								v-show="permissionValid().status"
+								@click.native="changeState(row)"
+							>{{ row.enabled|stateMenuFilter }}</el-dropdown-item>
+							<el-dropdown-item
+								v-show="permissionValid().delete"
+								@click.native="onDeleteAction(row)"
+							>删除用户</el-dropdown-item>
 						</el-dropdown-menu>
 					</el-dropdown>
 				</template>
@@ -162,7 +182,7 @@ const showConfirm = poppyjs.html.Dialog.showConfirm
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
 	name: 'LabTeam',
@@ -194,6 +214,7 @@ export default {
 	},
 
 	computed: {
+		...mapGetters(['permissions']),
 		...mapState({
 			createNew: state => state.labteam.createNew,
 			validation: state => state.labteam.validation,
@@ -244,6 +265,14 @@ export default {
 	},
 
 	methods: {
+		permissionValid() {
+			return {
+				add: this.permissions['lab_team.add'],
+				update: this.permissions['lab_team.update'],
+				delete: this.permissions['lab_team.delete'],
+				status: this.permissions['lab_team.status']
+			}
+		},
 		/**
      * 获取列表
      */

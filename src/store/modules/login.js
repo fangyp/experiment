@@ -41,40 +41,8 @@ const login = {
 		setChecked(state, isChecked) {
 			state.checked = isChecked
 		},
-		showLoading(state) {
-			state.loading = true
-		},
-		submitLogin(state) {
-			return new Promise((resolve, reject) => {
-				state.loading = false
-				const params = {
-					login_name: state.account,
-					password: state.password
-				}
-
-				loginUrl(params)
-					.then(response => {
-						const { access_token = '' } = response.data || {}
-						setToken(access_token)
-						const saveUser = {
-							account: state.account || '',
-							password: state.password || '',
-							checked: state.checked || false, // 记住密码
-							token: access_token || ''
-						}
-						if (state.checked) {
-							setUserInfo(saveUser)
-						} else {
-							removeUserInfo()
-						}
-						resolve()
-					})
-					.catch(error => {
-						removeUserInfo()
-						removeToken()
-						reject(error)
-					})
-			})
+		showLoading(state, loading) {
+			state.loading = loading
 		}
 	},
 	/**
@@ -93,11 +61,40 @@ const login = {
 		setChecked(context, isChecked) {
 			context.commit('setChecked', isChecked)
 		},
-		showLoading(context) {
-			context.commit('showLoading')
+		showLoading(context, loading) {
+			context.commit('showLoading', loading)
 		},
-		submitLogin(context) {
-			context.commit('submitLogin')
+		submitLogin(context, payload = {}) {
+			return new Promise((resolve, reject) => {
+				context.commit('showLoading', false)
+				const params = {
+					login_name: payload.account,
+					password: payload.password
+				}
+
+				loginUrl(params)
+					.then(response => {
+						const { access_token = '' } = response.data || {}
+						setToken(access_token)
+						const saveUser = {
+							account: payload.account || '',
+							password: payload.password || '',
+							checked: payload.checked || false, // 记住密码
+							token: access_token || ''
+						}
+						if (payload.checked) {
+							setUserInfo(saveUser)
+						} else {
+							removeUserInfo()
+						}
+						resolve()
+					})
+					.catch(error => {
+						removeUserInfo()
+						removeToken()
+						reject(error)
+					})
+			})
 		}
 	}
 

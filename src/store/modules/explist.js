@@ -4,9 +4,9 @@
 import { addExperiment as saveDataRequest, getDataList as getDataListRequest } from '../../api/experiment'
 import { updateExperiment as updateDataRequest, auditExperiment as auditExperimentRequest } from '../../api/experiment'
 import { preloadData as preloadDataRequest, deleteExperiment as deleteDataRequest } from '../../api/experiment'
+import { updateExperimentStatus as updateExperimentStatusRequest } from '../../api/experiment'
 import { isNumber } from '../../utils/validate'
 import { page } from '../../utils/page'
-
 /**
 * 实验类型
 */
@@ -43,18 +43,19 @@ const formTitles = {
 }
 /**
  * 验证表单
+ *
  */
 const validation = {
-	/** 新建验证*/
 	create: {
 		experiment_name: [
-			{ required: true, message: '请填写实验名称', trigger: 'blur' }
+			{ required: true, message: '请填写实验名称', trigger: 'blur' },
+			{ max: 20, message: '最多20个字', trigger: 'blur' }
 		],
 		experiment_type: [{ required: true, message: '请选择实验类型', trigger: 'blur' }],
 		temperature: [
 			{ required: true, message: '请填写实验温度', trigger: 'blur' },
 			{ validator: isNumber, trigger: 'blur' },
-			{ min: -1000, max: 1000, message: '实验温度范围 -1000℃ ~ +1000℃', trigger: 'blur' }
+			{ min: -1000, max: 1000, message: '温度范围 -1000℃ ~ +1000℃', trigger: 'blur' }
 		],
 		humidity: [
 			{ required: true, message: '请填写实验湿度', trigger: 'blur' },
@@ -203,6 +204,15 @@ const explist = {
 				})
 		},
 
+
+		onUpdateExperimentStatusAction(state, payload) {
+			const { id, finishCallback = () => { } } = payload
+			const params = { status: 'invalid' }
+			updateExperimentStatusRequest(id, params)
+				.then(() => {
+					finishCallback()
+				})
+		},
 		// 删除用户
 		onDeleteAction(state, payload) {
 			const { id, finishCallback = () => { } } = payload
@@ -248,7 +258,11 @@ const explist = {
 		},
 		onDeleteAction(context, payload = {}) {
 			context.commit('onDeleteAction', payload)
+		},
+		onUpdateExperimentStatusAction(context, payload = {}) {
+			context.commit('onUpdateExperimentStatusAction', payload)
 		}
+
 
 	}
 }

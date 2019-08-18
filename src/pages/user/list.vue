@@ -10,6 +10,7 @@
 				@keyup.enter.native="searchAction"
 			/>
 			<el-select
+				v-show="permissionValid().add"
 				v-model="role_type"
 				placeholder="用户角色"
 				clearable
@@ -33,6 +34,7 @@
 				@click="searchAction"
 			>搜索</el-button>
 			<el-button
+				v-show="permissionValid().add"
 				class="filter-item"
 				style="margin-left:10px; width: 120px"
 				type="primary"
@@ -95,18 +97,50 @@
 			>
 				<template slot-scope="{row}">
 					<el-dropdown trigger="click">
-						<span class="el-dropdown-link">
+						<span
+							v-show="permissionValid().add ||
+								permissionValid().update ||
+								permissionValid().delete ||
+								permissionValid().employ_status ||
+								permissionValid().user_status ||
+								permissionValid().password
+							"
+							class="el-dropdown-link"
+						>
 							更多
 							<i class="el-icon-arrow-down el-icon--right" />
 						</span>
+						<span
+							v-show="!permissionValid().add &&
+								!permissionValid().update &&
+								!permissionValid().delete &&
+								!permissionValid().employ_status &&
+								!permissionValid().user_status &&
+								!permissionValid().password
+							"
+							class="el-dropdown-normal"
+						>更多</span>
 						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item @click.native="modifyInfo(row)">修改信息</el-dropdown-item>
 							<el-dropdown-item
+								v-show="permissionValid().update"
+								@click.native="modifyInfo(row)"
+							>修改信息</el-dropdown-item>
+							<el-dropdown-item
+								v-show="(row.can_lock ===1 || row.can_unlock ===1) && permissionValid().user_status"
 								@click.native="changeState(row)"
 							>{{ row.user_status|stateTextFilter }}</el-dropdown-item>
-							<el-dropdown-item v-show="row.user_status !==3" @click.native="stopAccount(row)">停用账户</el-dropdown-item>
-							<el-dropdown-item @click.native="modifyPassAction(row)">修改密码</el-dropdown-item>
-							<el-dropdown-item @click.native="deleteUser(row)">删除用户</el-dropdown-item>
+							<el-dropdown-item
+								v-show="row.can_stop ===1 && permissionValid().user_status"
+								@click.native="stopAccount(row)"
+							>停用账户</el-dropdown-item>
+							<el-dropdown-item
+								v-show="permissionValid().password"
+								@click.native="modifyPassAction(row)"
+							>修改密码</el-dropdown-item>
+							<el-dropdown-item
+								v-show="permissionValid().delete"
+								@click.native="deleteUser(row)"
+							>删除用户</el-dropdown-item>
 						</el-dropdown-menu>
 					</el-dropdown>
 				</template>
@@ -207,7 +241,7 @@ const showToast = poppyjs.html.Dialog.showMessage
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
 	name: 'List',
@@ -236,6 +270,7 @@ export default {
 		}
 	},
 	computed: {
+		...mapGetters(['permissions']),
 		...mapState({
 			user: state => state.consumer.user,
 			validation: state => state.consumer.validation,
@@ -280,11 +315,22 @@ export default {
 		}
 	},
 	created() {
-		this.$store.dispatch('consumer/onPreloadAction')
+		// this.$store.dispatch('consumer/onPreloadAction')
 		this.getDataList()
 	},
-
 	methods: {
+		permissionValid() {
+			console.log('permissionValid()')
+			console.log(this.permissions)
+			return {
+				add: this.permissions['user.add'], // 新增人员
+				update: this.permissions['user.update'], // 修改人员信息
+				delete: this.permissions['user.delete'], // 删除人员
+				employ_status: this.permissions['user.employ_status'], // 修改人员状态
+				user_status: this.permissions['user.user_status'], // 修改人员的用户状态
+				password: this.permissions['user.password'] // 修改人员的密码
+			}
+		},
 		/**
      * form 事件
      */
@@ -466,6 +512,10 @@ export default {
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
+}
+.el-dropdown-normal {
+  cursor: pointer;
+  color: #807a7acb;
 }
 .el-icon-arrow-down {
   font-size: 12px;

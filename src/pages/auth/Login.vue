@@ -9,14 +9,14 @@
 				<span class="svg-container">
 					<font-awesome-icon icon="user" />
 				</span>
-				<el-input type="password" style="position:fixed;bottom:-8000px" />
+				<!-- <el-input type="password" style="position:fixed;bottom:-8000px" /> -->
 				<el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
 			</el-form-item>
 			<el-form-item>
 				<span class="svg-container">
 					<font-awesome-icon icon="unlock" />
 				</span>
-				<el-input type="password" style="position:fixed;bottom:-9000px" />
+				<!-- <el-input type="password" style="position:fixed;bottom:-9000px" /> -->
 				<el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
 			</el-form-item>
 			<!-- <el-checkbox :checked="checked" @change="setChecked">记住密码</el-checkbox> -->
@@ -68,8 +68,12 @@ export default {
 			if (isEmpty(this.$store.state.login.password)) {
 				return showToast('请输入登录密码')
 			}
-			this.$store.dispatch('login/showLoading')
-			this.$store.dispatch('login/submitLogin').then(() => {
+			const params = {
+				account: this.$store.state.login.account,
+				password: this.$store.state.login.password
+			}
+			this.$store.dispatch('login/showLoading', true)
+			this.$store.dispatch('login/submitLogin', params).then(() => {
 				this.$router.push('/')
 			})
 		}

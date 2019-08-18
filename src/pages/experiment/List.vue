@@ -4,7 +4,7 @@
 			<el-input
 				v-model="keyword"
 				placeholder="请输入实验名称"
-				style="width: 200px; margin-right:10px;"
+				style="width: 180px; margin-right:10px;"
 				class="filter-item"
 				clearable
 				@keyup.enter.native="searchAction"
@@ -13,7 +13,7 @@
 				v-model="experiment_status"
 				placeholder="实验状态"
 				clearable
-				style="margin-right:10px; width: 200px"
+				style="margin-right:10px; width: 180px"
 				class="filter-item"
 			>
 				<el-option
@@ -24,11 +24,11 @@
 				/>
 			</el-select>
 			<el-select
-				v-show="searchBarOneLine"
+				v-show="lab_team_list.length >0"
 				v-model="team_id"
 				placeholder="实验小组"
 				clearable
-				style="margin-right:10px; width: 200px"
+				style="margin-right:10px; width: 180px"
 				class="filter-item"
 			>
 				<el-option
@@ -48,28 +48,13 @@
 				@click="searchAction"
 			>搜索</el-button>
 			<el-button
+				v-show="experimentAbility().expAdd"
 				class="filter-item"
 				style="margin-right:10px; width: 120px"
 				type="primary"
 				icon="el-icon-edit"
 				@click="createAction"
 			>新建实验</el-button>
-		</div>
-		<div v-show="!searchBarOneLine" class="filter-container">
-			<el-select
-				v-model="team_id"
-				placeholder="实验小组"
-				clearable
-				style="margin-right:10px; width: 200px"
-				class="filter-item"
-			>
-				<el-option
-					v-for="item in lab_team_list"
-					:key="item.key"
-					:label="item.value"
-					:value="item.key"
-				/>
-			</el-select>
 		</div>
 		<el-table
 			:key="tableKey"
@@ -123,14 +108,22 @@
 				<template slot-scope="{row}">
 					<el-button type="text" plain @click="detailAction(row)">实验详情</el-button>
 					<el-dropdown trigger="click" style="margin-left:5px">
-						<span class="el-dropdown-link">
+						<span
+							v-show="experimentAbility(row).invalid && experimentAbility(row).delete"
+							class="el-dropdown-link"
+						>
 							更多
 							<i class="el-icon-arrow-down el-icon--right" />
 						</span>
 						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item @click.native="modifyAction(row)">修改基本信息</el-dropdown-item>
-							<el-dropdown-item @click.native="auditAction(row)">审核实验</el-dropdown-item>
-							<el-dropdown-item @click.native="onDeleteAction(row)">删除实验</el-dropdown-item>
+							<el-dropdown-item
+								v-show="experimentAbility(row).invalid"
+								@click.native="auditAction(row)"
+							>作废实验</el-dropdown-item>
+							<el-dropdown-item
+								v-show="experimentAbility(row).delete"
+								@click.native="onDeleteAction(row)"
+							>删除实验</el-dropdown-item>
 						</el-dropdown-menu>
 					</el-dropdown>
 				</template>
@@ -232,9 +225,9 @@ import poppyjs from 'poppyjs-elem'
 const showConfirm = poppyjs.html.Dialog.showConfirm
 import waves from '../../directive/waves' // waves directive
 import Pagination from '../../components/Pagination' // secondary package based on el-pagination
-
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import { page } from '../../utils/page'
+import experimentService from './experiment_service'
 
 export default {
 	name: 'EmpList',
@@ -255,13 +248,8 @@ export default {
 			return stateOption[status]
 		}
 	},
-	data() {
-		return {
-			screenWidth: window.innerWidth, // 窗口宽度
-			searchBarOneLine: true // 搜索内容是否在一行显示
-		}
-	},
 	computed: {
+		...mapGetters(['permissions']),
 		...mapState({
 			createFormStatus: state => state.explist.createFormStatus,
 			typeOptions: state => state.explist.typeOptions, // 实验类型
@@ -316,32 +304,20 @@ export default {
 			}
 		}
 	},
-	watch: {
-		screenWidth(val) {
-			if (val <= 1000) {
-				this.searchBarOneLine = false
-			} else {
-				this.searchBarOneLine = true
-			}
-		}
-	},
-	mounted() {
-		window.onresize = () => {
-			return (() => {
-				window.screenWidth = window.innerWidth
-				if (window.screenWidth <= 1000) {
-					this.searchBarOneLine = false
-				} else {
-					this.searchBarOneLine = true
-				}
-			})()
-		}
-	},
 	created() {
 		this.$store.dispatch('explist/onPreloadAction')
 		this.getDataList()
 	},
 	methods: {
+		/**
+     * 权限
+     */
+		experimentAbility(experiment = {}) {
+			return experimentService.getExperimentAbility(
+				this.permissions,
+				experiment
+			)
+		},
 		/**
      * form 事件
      */
@@ -395,13 +371,9 @@ export default {
 		/**
      * 通往详情页面
      */
-		detailAction() {
-			this.$notify({
-				title: '小刘提示',
-				message: '点了这个要到实验详情的',
-				type: 'success',
-				duration: 2000
-			})
+		detailAction(row) {
+			const { experiment_id = '' } = row
+			this.$router.push(`/experiment/info/${experiment_id}`)
 		},
 		/**
      * 修改
@@ -450,13 +422,28 @@ export default {
 			showConfirm(options)
 		},
 		/**
-     * 审核实验
+     * 作废实验
      */
 		auditAction(row) {
-			this.$store.dispatch('explist/onAuditAction', row)
-			this.$nextTick(() => {
-				this.$refs['createForm'].clearValidate()
-			})
+			const options = {
+				title: '作废实验',
+				msg: '作废后不可恢复,您确定作废此实验吗?',
+				yesBtn: '确定',
+				noBtn: '取消',
+				yesCallback: () => {
+					const { experiment_id = '' } = row
+					const payload = {
+						id: experiment_id,
+						finishCallback: () => this.getDataList()
+					}
+					this.$store.dispatch(
+						'explist/onUpdateExperimentStatusAction',
+						payload
+					)
+				},
+				noCallback: () => {}
+			}
+			showConfirm(options)
 		},
 		/**
      * 审核实验

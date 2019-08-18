@@ -93,6 +93,7 @@ export function showStartAuditConfirm(experimentId, successCallback) {
 
 export function getExperimentAbility(permissions, experiment) {
 	return {
+		expAdd: (permissions['experiment.add']),
 		edit: (permissions['experiment.update'] && experiment != null && experiment.can_edit),
 		invalid: (permissions['experiment.status'] && experiment != null && experiment.can_invalid),
 		delete: (permissions['experiment.delete'] && experiment != null && experiment.can_delete),
