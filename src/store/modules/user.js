@@ -87,7 +87,6 @@ const mutations = {
 			password: password,
 			password_confirmation: password_confirmation
 		}
-		console.log(params)
 		modifyPassword(params)
 			.then(() => {
 				state.createFormVisible = false
@@ -124,9 +123,8 @@ const actions = {
 				}
 
 				const { info } = data
-				const { role_type_name, user_name, login_name } = info
-
-				commit('SET_ROLES', [role_type_name])
+				const { role_type, user_name, login_name } = info
+				commit('SET_ROLES', [role_type])
 				commit('SET_NAME', login_name)
 				// commit('SET_AVATAR', avatar) // 没有头像
 				commit('SET_INTRODUCTION', user_name)

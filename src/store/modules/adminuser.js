@@ -65,7 +65,6 @@ const labteam = {
 			}
 			getDataListRequest(params)
 				.then(response => {
-					console.log(response)
 					const { data = [], total = 0, per_page = 10, current_page = 1 } = response.data || {}
 					state.showFormLoading = false
 					state.dataList = data

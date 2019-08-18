@@ -112,7 +112,6 @@ const explist = {
 		onPreloadAction(state, payload = {}) {
 			preloadDataRequest()
 				.then(response => {
-					console.log(response)
 					const { experiment_status_list = [], lab_team_list = [] } = response.data || {}
 					state.experiment_status_list = experiment_status_list
 					state.lab_team_list = lab_team_list
@@ -129,7 +128,6 @@ const explist = {
 				page: payload.page,
 				page_size: payload.page_size
 			}
-			console.log(params)
 			getDataListRequest(params)
 				.then(response => {
 					const { data = [], total = 0, per_page = 10, current_page = 1 } = response.data || {}

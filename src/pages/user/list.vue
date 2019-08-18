@@ -320,8 +320,6 @@ export default {
 	},
 	methods: {
 		permissionValid() {
-			console.log('permissionValid()')
-			console.log(this.permissions)
 			return {
 				add: this.permissions['user.add'], // 新增人员
 				update: this.permissions['user.update'], // 修改人员信息
