@@ -1,15 +1,7 @@
 <template>
 	<div v-if="null === experiment" class="app-container text-center">
-		<el-alert
-			v-if="loaded"
-			title="实验不存在！"
-			class="pad-lg"
-			type="error"
-			center
-			show-icon
-			description="您可能查询了错误的实验，或者该实验已被删除"
-			:closable="false"
-		/>
+		<el-alert v-if="loaded" title="实验不存在！" class="pad-lg" type="error" center show-icon
+			description="您可能查询了错误的实验，或者该实验已被删除" :closable="false"/>
 		<el-button v-if="loaded" type="info" plain class="mg-t-md" @click="gotoHome">返回首页</el-button>
 	</div>
 	<div v-else class="app-container">
@@ -30,12 +22,8 @@
 							<i class="el-icon-more-outline el-icon--right text-placeholder pad-l-sm pad-r-sm" style="font-size: 28px;" />
 						</span>
 						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item
-								v-for="(menu, index) in moreMenus"
-								:key="index"
-								:icon="menu.icon"
-								:command="menu.cmd"
-							>{{ menu.title }}</el-dropdown-item>
+							<el-dropdown-item v-for="(menu, index) in moreMenus" :key="index" :icon="menu.icon"
+							:command="menu.cmd">{{ menu.title }}</el-dropdown-item>
 						</el-dropdown-menu>
 					</el-dropdown>
 				</div>
@@ -51,16 +39,12 @@
 						<div class="box-header-tools">
 							<el-col :span="12">
 								<label>状态：</label>
-								<el-tag
-									size="mini"
-									:type="experiment.experiment_status | expStatusFilter"
+								<el-tag size="mini" :type="experiment.experiment_status | expStatusFilter"
 								>{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag>
 							</el-col>
 							<el-col :span="12">
 								<label>测试：</label>
-								<el-tag
-									:type="experiment.is_testing | testStatusFilter"
-									size="small"
+								<el-tag :type="experiment.is_testing | testStatusFilter" size="small"
 								>{{ experiment && experiment.is_testing ? '已测试': '无测试' }}</el-tag>
 							</el-col>
 						</div>
@@ -142,21 +126,15 @@
 
 												<!-- 实验记录列 -->
 												<td :rowspan="procedure.experiment_parameters.length" class="last-col">
-													<pre
-														class="text-box plain"
-														@click="showProcedureRecord($event, procedure.record_content)"
-													>{{ procedure.record_content }}</pre>
+													<pre class="text-box plain"
+													@click="showProcedureRecord($event, procedure.record_content)" >{{ procedure.record_content }}</pre>
 												</td>
 											</tr>
 
 											<!-- 一个步骤的其他参数行 -->
 											<template v-for="(parameters, index2) in procedure.experiment_parameters">
-												<tr
-													v-if="index2 > 0"
-													:key="'par-' + index + '-' + index2"
-													style="height:44px"
-													:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')"
-												>
+												<tr v-if="index2 > 0" :key="'par-' + index + '-' + index2" style="height:44px"
+													:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')">
 													<td>{{ parameters.reagent }}</td>
 													<td>{{ parameters.theoretical_volum }}</td>
 													<td>{{ parameters.actual_volum }}</td>
@@ -186,12 +164,8 @@
 									</thead>
 
 									<tbody>
-										<tr
-											v-for="(record, index) in formRecords"
-											:key="'rec-' + index"
-											style="height:40px"
-											:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')"
-										>
+										<tr v-for="(record, index) in formRecords" :key="'rec-' + index" style="height:40px" 
+										:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')">
 											<td class="text-center">{{ index + 1 }}.</td>
 											<td><pre class="text-box plain">{{ record.content }}</pre></td>
 										</tr>
@@ -205,15 +179,8 @@
 					<!-- 实验测试记录 Tab -->
 					<el-tab-pane v-if="hasTestingTab" label="实验测试记录">
 						<el-form v-model="formTestings" label-position="left" class="demo-table-expand" size="mini">
-							<el-button
-								v-if="experimentAbility.testingAdd"
-								type="primary"
-								size="mini"
-								icon="el-icon-plus"
-								style="float:right"
-								class="mg-b-xs"
-								@click="showAddTesting"
-							/>
+							<el-button v-if="experimentAbility.testingAdd" type="primary" size="mini" icon="el-icon-plus"
+							style="float:right" class="mg-b-xs" @click="showAddTesting"/>
 							<el-table :data="formTestings" border fit highlight-current-row style="width: 100%;">
 								<el-table-column label="No" min-width="45px" align="center" width="45px">
 									<template slot-scope="row">{{ row.$index + 1 }}</template>
@@ -277,29 +244,17 @@
 		</el-row>
 
 		<!-- 实验步骤的实验记录编辑框 -->
-		<el-drawer
-			ref="drawer"
-			title="实验记录"
-			:visible.sync="recordBox"
-			direction="rtl"
-			:modal="true"
-			size="50%"
-			:before-close="handleProcedureRecordClose"
-		>
+		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="50%"
+		:before-close="handleProcedureRecordClose">
 			<div class="pad-md"><pre class="text-box">{{ showRecordContent }}</pre></div>
 		</el-drawer>
 
 		<!-- 实验审核弹框 -->
-		<experiment-audit :visible="experimentAuditVisible" :experiment="experiment" :close-callback="handleAuditClose" :confirm-callback="handleAuditConfirm" />
+		<experiment-audit :visible="experimentAuditVisible" :experiment="experiment" :close-callback="handleAuditClose" :confirm-callback="handleAuditConfirm"/>
 
 		<!-- 测试记录新增/编辑弹出框 -->
-		<experiment-testing-add
-			:visible="addTestingVisible"
-			:experiment-id="experimentId"
-			:testing="currentEditTesting"
-			:close-callback="handleTestingAddClose"
-			:confirm-callback="handleTestingAddConfirm"
-		/>
+		<experiment-testing-add :visible="addTestingVisible" :experiment-id="experimentId" :testing="currentEditTesting"
+		:close-callback="handleTestingAddClose" :confirm-callback="handleTestingAddConfirm"/>
 	</div>
 	<!-- /.app-container -->
 </template>
@@ -308,7 +263,7 @@
 import poppyjs from 'poppyjs-elem'
 import experimentApi from '@/api/experiment'
 import { mapGetters } from 'vuex'
-import { baseRules, baseRules2, baseRules3, testingRules } from './validation_rules'
+import { baseRules, baseRules2,	baseRules3, testingRules } from './validation_rules'
 import experimentService from './experiment_service'
 import ExperimentAudit from './ExperimentAudit'
 import ExperimentTestingAdd from './ExperimentTestingAdd'
@@ -317,7 +272,7 @@ export default {
 	name: 'ExperimentInfo',
 	components: {
 		ExperimentAudit,
-		ExperimentTestingAdd
+		ExperimentTestingAdd,
 	},
 	filters: {
 		// 用户获取状态颜色
@@ -394,10 +349,10 @@ export default {
 			// Other
 			pickerOptions: {
 				shortcuts: [{
-					text: '今天',
-					onClick(picker) {
-						picker.$emit('pick', new Date())
-					}
+						text: '今天',
+						onClick(picker) {
+							picker.$emit('pick', new Date())
+						}
 				}]
 			}
 		}
