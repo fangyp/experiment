@@ -6,25 +6,13 @@
 		:close-on-click-modal="false"
 		:close-on-press-escape="false"
 		:destroy-on-close="true"
-		:close="handleClose"
+		:before-close="handleClose"
 	>
-		<el-form
-			ref="auditForm"
-			:rules="rules"
-			:model="formData"
-			label-position="left"
-			label-width="80px"
-		>
+		<el-form ref="form" :rules="rules" :model="formData" label-position="left" label-width="80px">
 			<el-form-item label="审核结果" prop="result">
 				<el-radio-group v-model="formData.result">
-					<el-radio label="passed">
-						审核通过
-						<i class="el-icon-check" />
-					</el-radio>
-					<el-radio label="reject">
-						审核驳回
-						<i class="el-icon-close" />
-					</el-radio>
+					<el-radio label="passed">审核通过</el-radio>
+					<el-radio label="reject">审核驳回</el-radio>
 				</el-radio-group>
 			</el-form-item>
 
@@ -38,31 +26,28 @@
 				class="small"
 				title="温馨提示：实验审核通过后，实验数据会变更为“完成”状态，数据内容不允许再修改。"
 			/>
-			<el-col v-if="formData.result !== null" :span="24">
-				<el-alert v-if="formData.result==='passed'" title="审核通过" type="success" center />
+			<el-col v-if="undefined !== formData.result && formData.result !== null" :span="24" class="mg-t-sm">
+				<el-alert v-if="formData.result === 'passed'" title="审核通过" type="success" center />
 				<el-alert v-else title="审核驳回" type="error" center />
 			</el-col>
 		</el-form>
 		<div slot="footer" class="dialog-footer">
-			<el-button size="medium" @click="handleCancel">取消</el-button>
+			<el-button size="medium" @click="handleClose">取消</el-button>
 			<el-button size="medium" type="primary" @click="handleConfirm">确定</el-button>
 		</div>
 	</el-dialog>
 </template>
 
 <script>
-import waves from '../../directive/waves'
-import experimentService from '@/api/experiment'
+import experimentApi from '@/api/experiment'
 
 export default {
 	name: 'ExperimentAudit',
-	directives: { waves },
 	props: {
 		visible: {
 			type: Boolean,
 			default: true
 		},
-
 		experiment: {
 			type: Object,
 			default: null
@@ -78,6 +63,7 @@ export default {
 	},
 	data() {
 		return {
+			isSelfVisible: false,
 			formData: {
 				result: null,
 				desc: ''
@@ -104,27 +90,25 @@ export default {
 			this.submit()
 		},
 
-		handleCancel() {
-			this.handleClose()
+		handleClose() {
+			this.cleanup()
 			if (this.closeCallback != null) {
 				this.closeCallback()
 			}
 		},
 
-		handleClose() {
-			this.formData = {
-				result: null,
-				desc: ''
-			}
+		// 善后处理
+		cleanup() {
+			this.formData = {}
 			this.$nextTick(() => {
-				this.$refs['auditForm'].clearValidate()
+				this.$refs['form'].clearValidate()
 			})
 		},
 
 		// 提交保存的基本方法
 		submit() {
 			const self = this
-			this.$refs['auditForm'].validate(valid => {
+			this.$refs['form'].validate(valid => {
 				if (!valid) {
 					return false
 				}
@@ -137,16 +121,12 @@ export default {
 					desc: self.formData.desc
 				}
 
-				console.log(params)
-
-				experimentService
-					.audit(self.experiment.experiment_id, params)
-					.then(function(resp) {
-						self.handleClose()
-						if (self.confirmCallback != null) {
-							self.confirmCallback()
-						}
-					})
+				experimentApi.audit(self.experiment.experiment_id, params).then(function(resp) {
+					self.cleanup()
+					if (self.confirmCallback != null) {
+						self.confirmCallback()
+					}
+				})
 			})
 		}
 	}

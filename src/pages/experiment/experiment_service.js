@@ -103,7 +103,7 @@ export function getExperimentAbility(permissions, experiment) {
 		auditStart: (permissions['experiment.audit_start'] && experiment != null && experiment.can_start_audit),
 		auditAudit: (permissions['experiment.audit_finish'] && experiment != null && experiment.can_finish_audit),
 		testingAdd: (permissions['experiment.testing.add'] && experiment !== null && experiment.can_edit && experiment.is_testing),
-		testingEdit: (permissions['experiment.testing.edit'] && experiment !== null && experiment.can_edit && experiment.is_testing),
+		testingEdit: (permissions['experiment.testing.update'] && experiment !== null && experiment.can_edit && experiment.is_testing),
 		testingDelete: (permissions['experiment.testing.delete'] && experiment !== null && experiment.can_edit && experiment.is_testing)
 	}
 }

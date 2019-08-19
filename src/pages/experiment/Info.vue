@@ -5,140 +5,112 @@
 			title="实验不存在！"
 			class="pad-lg"
 			type="error"
-			description="您可能查询了错误的实验，或者该实验已被删除"
 			center
 			show-icon
+			description="您可能查询了错误的实验，或者该实验已被删除"
 			:closable="false"
 		/>
-		<!-- 这个有需要吗？ -->
 		<el-button v-if="loaded" type="info" plain class="mg-t-md" @click="gotoHome">返回首页</el-button>
 	</div>
 	<div v-else class="app-container">
-		<!-- fangyangping start -->
-		<!-- 操作栏 -->
-		<div style="display: flex;justify-content:flex-end;align-items:center;">
-			<el-button plain @click="loadData">刷新</el-button>
-			<el-button v-if="experimentAbility.testing" plain @click="showTestingConfirm">测试</el-button>
-			<el-button v-if="experimentAbility.edit" plain @click="gotoEdit">编辑</el-button>
-			<el-button
-				v-if="experimentAbility.auditStart"
-				type="primary"
-				plain
-				@click="showStartAuditConfirm"
-			>开始审核</el-button>
-			<el-button v-if="experimentAbility.auditAudit" type="primary" plain @click="showAudit">完成审核</el-button>
-			<el-button
-				v-if="experimentAbility.auditAdd"
-				type="primary"
-				plain
-				@click="showApplyAuditConfirm"
-			>提交审核</el-button>
-			<el-button
-				v-if="experimentAbility.auditRevoke"
-				type="primary"
-				plain
-				@click="showRevokeAuditConfirm"
-			>撤回审核</el-button>
-			<el-dropdown trigger="click" style="margin-left:5px">
-				<span class="el-dropdown-link">
-					<i
-						class="el-icon-more-outline el-icon--right"
-						style="font-size:28px;color:rgba(75,150,247,1)"
-					/>
-				</span>
-				<el-dropdown-menu slot="dropdown">
-					<el-dropdown-item
-						v-show="experimentAbility.invalid"
-						@click.native="showInvaidConfirm"
-					>作废实验</el-dropdown-item>
-					<el-dropdown-item v-show="experimentAbility.delete" @click.native="showDeleteConfirm">删除实验</el-dropdown-item>
-				</el-dropdown-menu>
-			</el-dropdown>
-		</div>
+		<el-row>
+			<el-col :sm="24" :lg="24" :xl="24">
+				<!-- 工具栏 -->
+				<div class="main-tool-bar">
+					<el-button plain @click="loadData">刷新</el-button>
+					<el-button v-if="experimentAbility.testing" plain @click="showTestingConfirm">测试</el-button>
+					<el-button v-if="experimentAbility.edit" plain @click="gotoEdit">编辑</el-button>
+					<el-button v-if="experimentAbility.auditStart" type="primary" plain @click="showStartAuditConfirm">开始审核</el-button>
+					<el-button v-if="experimentAbility.auditAudit" type="primary" plain @click="showAudit">完成审核</el-button>
+					<el-button v-if="experimentAbility.auditAdd" type="primary" plain @click="showApplyAuditConfirm">提交审核</el-button>
+					<el-button v-if="experimentAbility.auditRevoke" type="primary" plain @click="showRevokeAuditConfirm">撤回审核</el-button>
+
+					<el-dropdown trigger="click" size="medium" @command="handleMoreMenuClick">
+						<span class="el-dropdown-link">
+							<i class="el-icon-more-outline el-icon--right text-placeholder pad-l-sm pad-r-sm" style="font-size: 28px;" />
+						</span>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item
+								v-for="(menu, index) in moreMenus"
+								:key="index"
+								:icon="menu.icon"
+								:command="menu.cmd"
+							>{{ menu.title }}</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</div>
+			</el-col>
+		</el-row>
+
 		<!-- 基本信息-->
-		<el-row :gutter="20" style="margin-top:20px;">
+		<el-row :gutter="20" class="mg-t-lg">
 			<el-col :span="24">
 				<el-card shadow="never" class="box-card">
-					<div
-						slot="header"
-						class="clearfix"
-						style="display: flex;flex-direction: row;justify-content:space-between;"
-					>
-						<div class="card-title-text" style="width:50%;">基本信息</div>
-						<div style="display: flex;width:50%;flex-direction: row;justify-content:space-between;">
-							<div class="card-panel-box">
-								状态:
+					<div slot="header" class="clearfix box-header">
+						<div class="box-title">基本信息</div>
+						<div class="box-header-tools">
+							<el-col :span="12">
+								<label>状态：</label>
 								<el-tag
 									size="mini"
 									:type="experiment.experiment_status | expStatusFilter"
 								>{{ experiment ? experiment.experiment_status_formatted : '' }}</el-tag>
-							</div>
-							<div class="card-panel-box">
-								测试:
+							</el-col>
+							<el-col :span="12">
+								<label>测试：</label>
 								<el-tag
 									:type="experiment.is_testing | testStatusFilter"
 									size="small"
 								>{{ experiment && experiment.is_testing ? '已测试': '无测试' }}</el-tag>
-							</div>
+							</el-col>
 						</div>
 					</div>
 
-					<div style="display: flex;flex-direction: row;justify-content:space-around">
-						<div style="width:50%;display: flex;flex-direction: column">
-							<div class="card-panel-box" style="margin-bottom: 8px;">
-								实验名称:
-								<span class="card-panel-text">{{ experiment.experiment_name }}</span>
+					<el-row :gutter="20">
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>实验名称：</label><span class="card-panel-text">{{ experiment.experiment_name }}</span>
 							</div>
-							<div class="card-panel-box" style="margin-bottom: 8px;">
-								实验类型:
-								<span class="card-panel-text">{{ experiment.experiment_type_formatted }}</span>
+						</el-col>
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>实验类型：</label><span class="card-panel-text">{{ experiment.experiment_type_formatted }}</span>
 							</div>
-							<div class="card-panel-box">
-								实验员:
-								<span class="card-panel-text">{{ experiment.user_name }}</span>
+						</el-col>
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>温度：</label><span class="field-value">{{ experiment.temperature }} ℃</span>
 							</div>
-						</div>
-						<div style="width:50%;display: flex;flex-direction: column;">
-							<div class="card-panel-box" style="margin-bottom: 8px;">
-								温度:
-								<span class="card-panel-text">{{ experiment.temperature }} ℃</span>
+						</el-col>
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>湿度：</label><span class="card-panel-text">{{ experiment.humidity }} RH%</span>
 							</div>
-							<div class="card-panel-box" style="margin-bottom: 8px;">
-								湿度:
-								<span class="card-panel-text">{{ experiment.humidity }} RH%</span>
+						</el-col>
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>实验员：</label><span class="card-panel-text">{{ experiment.user_name }}</span>
 							</div>
-							<div class="card-panel-box">
-								日期:
-								<span class="card-panel-text">{{ experiment.experiment_date }}</span>
+						</el-col>
+						<el-col :sm="12" :lg="8">
+							<div class="field-item">
+								<label>日期：</label><span class="card-panel-text">{{ experiment.experiment_date }}</span>
 							</div>
-						</div>
-					</div>
+						</el-col>
+					</el-row>
 				</el-card>
 			</el-col>
 		</el-row>
 
 		<!-- 实验步骤-->
-		<el-row :gutter="20" style="margin-top:10px;">
+		<el-row :gutter="20" class="mg-t-lg">
 			<el-col :span="24">
-				<el-tabs type="card" tab-position="top" style="margin-top: 10px;">
+				<el-tabs type="card" tab-position="top">
 					<!-- 实验步骤和参数 Tab -->
 					<el-tab-pane label="实验步骤和参数">
-						<el-form
-							v-model="formProcedures"
-							label-position="left"
-							class="demo-table-expand"
-							size="mini"
-						>
-							<div
-								class="el-table el-table--fit el-table--striped el-table--enable-row-transition procedure-table"
-							>
-								<table
-									cellspacing="0"
-									cellpadding="0"
-									border="0.1"
-									class="el-table__body"
-									style="width:100%"
-								>
+						<el-form v-model="formProcedures" label-position="left" class="demo-table-expand" size="mini">
+							<div class="el-table el-table--fit el-table--striped el-table--enable-row-transition procedure-table">
+								<table cellspacing="0" cellpadding="0" class="el-table__body" style="width:100%">
 									<thead>
 										<tr>
 											<td style="min-width:20px; width:60px" class="text-center">序号</td>
@@ -154,26 +126,13 @@
 
 									<tbody>
 										<template v-for="(procedure, index) in formProcedures">
-											<tr
-												:key="'pro-' + index"
-												style="height:40px ;"
-												:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')"
-											>
-												<!-- el-table__row--striped -->
-												<td
-													:rowspan="procedure.experiment_parameters.length"
-													class="seq-col"
-												>{{ index + 1 }}</td>
+											<tr :key="'pro-' + index" style="height:40px ;" :class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')">
+												<td :rowspan="procedure.experiment_parameters.length" class="seq-col">{{ index + 1 }}</td>
 												<!-- 步骤列 -->
-												<td
-													:rowspan="procedure.experiment_parameters.length"
-													class="first-col"
-												>{{ procedure.procedure_title }}</td>
+												<td :rowspan="procedure.experiment_parameters.length" class="first-col">{{ procedure.procedure_title }}</td>
 
 												<!-- 一个步骤的首行参数行 -->
-												<template
-													:if="procedure.experiment_parameters != null && procedure.experiment_parameters.length > 0"
-												>
+												<template :if="procedure.experiment_parameters != null && procedure.experiment_parameters.length > 0">
 													<td>{{ procedure.experiment_parameters[0].reagent }}</td>
 													<td>{{ procedure.experiment_parameters[0].theoretical_volum }}</td>
 													<td>{{ procedure.experiment_parameters[0].actual_volum }}</td>
@@ -208,32 +167,21 @@
 										</template>
 									</tbody>
 								</table>
+								<div v-if="procedures.length == 0" class="pad-md text-center text-placeholder">没有实验步骤</div>
 							</div>
+							<!-- /.el-table -->
 						</el-form>
 					</el-tab-pane>
 
 					<!-- 更多实验记录 Tab -->
 					<el-tab-pane label="更多实验记录">
-						<el-form
-							v-model="formProcedures"
-							label-position="left"
-							class="demo-table-expand"
-							size="mini"
-						>
-							<div
-								class="el-table el-table--fit el-table--striped el-table--enable-row-transition record-table"
-							>
-								<table
-									cellspacing="0"
-									cellpadding="0"
-									border="0"
-									class="el-table__body"
-									style="width:100%"
-								>
+						<el-form v-model="formProcedures" label-position="left" class="demo-table-expand" size="mini">
+							<div class="el-table el-table--fit el-table--striped el-table--enable-row-transition record-table">
+								<table cellspacing="0" cellpadding="0" border="0" class="el-table__body" style="width:100%">
 									<thead>
-										<tr style="height:44px">
+										<tr>
 											<td style="min-width:20px; width:60px" class="text-center">序号</td>
-											<td style="min-width:300px;%" class="text-left">记录内容</td>
+											<td style="min-width:300px;" class="text-left">记录内容</td>
 										</tr>
 									</thead>
 
@@ -244,11 +192,8 @@
 											style="height:40px"
 											:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')"
 										>
-											<!-- el-table__row--striped -->
 											<td class="text-center">{{ index + 1 }}.</td>
-											<td>
-												<pre class="text-box plain">{{ record.content }}</pre>
-											</td>
+											<td><pre class="text-box plain">{{ record.content }}</pre></td>
 										</tr>
 									</tbody>
 								</table>
@@ -259,12 +204,7 @@
 
 					<!-- 实验测试记录 Tab -->
 					<el-tab-pane v-if="hasTestingTab" label="实验测试记录">
-						<el-form
-							v-model="formTestings"
-							label-position="left"
-							class="demo-table-expand"
-							size="mini"
-						>
+						<el-form v-model="formTestings" label-position="left" class="demo-table-expand" size="mini">
 							<el-button
 								v-if="experimentAbility.testingAdd"
 								type="primary"
@@ -279,40 +219,19 @@
 									<template slot-scope="row">{{ row.$index + 1 }}</template>
 								</el-table-column>
 								<el-table-column label="测试项目" header-align="center" align="left">
-									<template slot-scope="{row}">
-										<pre style="margin:0 auto;">{{ row.testing_item }}</pre>
-									</template>
+									<template slot-scope="{row}"><pre>{{ row.testing_item }}</pre></template>
 								</el-table-column>
-
 								<el-table-column label="测试结果" header-align="center" align="left">
-									<template slot-scope="{row}">
-										<pre style="margin:0 auto;">{{ row.testing_result }}</pre>
-									</template>
+									<template slot-scope="{row}"><pre>{{ row.testing_result }}</pre></template>
 								</el-table-column>
-
-								<el-table-column label="测试日期" prop="testing_date" min-width="90px" align="center" />
-
-								<el-table-column
-									label="操作"
-									align="center"
-									min-width="80px"
-									class-name="small-padding fixed-width"
-								>
+								<el-table-column label="测试日期" prop="testing_date" min-width="100px" align="center" />
+								<el-table-column label="操作" align="center" min-width="80px" class-name="small-padding">
 									<template slot-scope="{row}">
 										<el-dropdown trigger="click" size="small" @command="handleTestingMenuClick">
-											<span class="el-dropdown-link">
-												更多
-												<i class="el-icon-arrow-down el-icon--right" />
-											</span>
+											<span class="el-dropdown-link">更多<i class="el-icon-arrow-down el-icon--right" /></span>
 											<el-dropdown-menu slot="dropdown">
-												<el-dropdown-item
-													v-if="experimentAbility.testingEdit"
-													:command="{cmd:'edit', row}"
-												>修 改</el-dropdown-item>
-												<el-dropdown-item
-													v-if="experimentAbility.testingDelete"
-													:command="{cmd:'delete', row}"
-												>删 除</el-dropdown-item>
+												<el-dropdown-item v-if="experimentAbility.testingEdit" :command="{cmd:'edit', row}">修 改</el-dropdown-item>
+												<el-dropdown-item v-if="experimentAbility.testingDelete" :command="{cmd:'delete', row}">删 除</el-dropdown-item>
 											</el-dropdown-menu>
 										</el-dropdown>
 									</template>
@@ -324,43 +243,38 @@
 				</el-tabs>
 			</el-col>
 		</el-row>
+		<!-- 实验步骤 -->
+
 		<!-- 实验目的 R值、NCO残留量-->
-		<el-row :gutter="20" style="margin-top:10px;">
+		<el-row :gutter="20" class="mg-t-lg">
 			<el-col :span="12">
 				<el-card shadow="never" class="box-card">
-					<div slot="header" class="clearfix">
-						<span class="card-title-text">实验目的</span>
+					<div slot="header" class="clearfix box-header">
+						<div class="box-title">实验目的</div>
 					</div>
-					<div style="display: flex;flex-direction: column;">
-						<pre class="card-text-box">{{ experiment.purpose }}</pre>
-					</div>
+					<pre class="text-box plain">{{ experiment.purpose }}</pre>
 				</el-card>
 			</el-col>
 			<el-col :span="12">
 				<el-card shadow="never" class="box-card">
-					<div slot="header" class="clearfix">
-						<span class="card-title-text">R值、NCO残留量</span>
+					<div slot="header" class="clearfix box-header">
+						<span class="box-title">R值、NCO残留量</span>
 					</div>
-					<div style="display: flex;flex-direction: column;">
-						<pre class="card-text-box">{{ experiment.r_nco }}</pre>
-					</div>
+					<pre class="text-box plain">{{ experiment.r_nco }}</pre>
 				</el-card>
 			</el-col>
 		</el-row>
 		<!-- 结果与讨论-->
-		<el-row :gutter="20" style="margin-top:10px;">
+		<el-row :gutter="20" class="mg-t-md">
 			<el-col :span="24">
 				<el-card shadow="never" class="box-card">
-					<div slot="header" class="clearfix">
-						<span class="card-title-text">结果与讨论</span>
+					<div slot="header" class="clearfix box-header">
+						<span class="box-title">结果与讨论</span>
 					</div>
-					<div style="display: flex;flex-direction: column;">
-						<pre class="card-text-box">{{ experiment.conclusion }}</pre>
-					</div>
+					<pre class="text-box plain">{{ experiment.conclusion }}</pre>
 				</el-card>
 			</el-col>
 		</el-row>
-		<!-- fangyangping end -->
 
 		<!-- 实验步骤的实验记录编辑框 -->
 		<el-drawer
@@ -372,67 +286,19 @@
 			size="50%"
 			:before-close="handleProcedureRecordClose"
 		>
-			<div class="record-edit-box">
-				<pre class="text-box">{{ showRecordContent }}</pre>
-			</div>
+			<div class="pad-md"><pre class="text-box">{{ showRecordContent }}</pre></div>
 		</el-drawer>
 
-		<!-- 测试记录新增/编辑弹出框 -->
-		<el-dialog :title="addTestingFlag?'添加测试记录':'编辑测试记录'" :visible.sync="addTestingVisible">
-			<el-form
-				ref="addTestingForm"
-				:rules="addTestingFormRules"
-				:model="formTesting"
-				label-position="left"
-				label-width="100px"
-				style="width: 400px; margin-left:10px;"
-			>
-				<el-form-item label="测试日期" prop="testing_date">
-					<el-col :span="8">
-						<el-date-picker
-							v-model="formTesting.testing_date"
-							type="date"
-							placeholder="选择日期"
-							:picker-options="pickerOptions"
-							format="yyyy-MM-dd"
-							value-format="yyyy-MM-dd"
-							style="width: 220px;"
-						/>
-					</el-col>
-				</el-form-item>
-
-				<el-form-item label="测试项目" prop="testing_item">
-					<el-input
-						v-model="formTesting.testing_item"
-						type="textarea"
-						rows="6"
-						style="width: 220px;"
-						show-word-limit
-					/>
-				</el-form-item>
-
-				<el-form-item label="测试结果" prop="testing_result">
-					<el-input
-						v-model="formTesting.testing_result"
-						type="textarea"
-						rows="6"
-						style="width: 220px;"
-						show-word-limit
-					/>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button size="medium" @click="hideAddTesting">取消</el-button>
-				<el-button size="medium" type="primary" @click="submitTestingSave(addTestingFlag)">确定</el-button>
-			</div>
-		</el-dialog>
-
 		<!-- 实验审核弹框 -->
-		<experiment-audit
-			:visible="experimentAuditVisible"
-			:experiment="experiment"
-			:close-callback="handleAuditClose"
-			:confirm-callback="handleAuditConfirm"
+		<experiment-audit :visible="experimentAuditVisible" :experiment="experiment" :close-callback="handleAuditClose" :confirm-callback="handleAuditConfirm" />
+
+		<!-- 测试记录新增/编辑弹出框 -->
+		<experiment-testing-add
+			:visible="addTestingVisible"
+			:experiment-id="experimentId"
+			:testing="currentEditTesting"
+			:close-callback="handleTestingAddClose"
+			:confirm-callback="handleTestingAddConfirm"
 		/>
 	</div>
 	<!-- /.app-container -->
@@ -442,19 +308,16 @@
 import poppyjs from 'poppyjs-elem'
 import experimentApi from '@/api/experiment'
 import { mapGetters } from 'vuex'
-import {
-	baseRules,
-	baseRules2,
-	baseRules3,
-	testingRules
-} from './validation_rules'
+import { baseRules, baseRules2, baseRules3, testingRules } from './validation_rules'
 import experimentService from './experiment_service'
-import ExperimentAudit from './Audit'
+import ExperimentAudit from './ExperimentAudit'
+import ExperimentTestingAdd from './ExperimentTestingAdd'
 
 export default {
 	name: 'ExperimentInfo',
 	components: {
-		ExperimentAudit
+		ExperimentAudit,
+		ExperimentTestingAdd
 	},
 	filters: {
 		// 用户获取状态颜色
@@ -508,6 +371,8 @@ export default {
 				testing_item: null,
 				testing_result: null
 			},
+			// 临时缓存要编辑的测试记录数据
+			currentEditTesting: null,
 
 			// 校验规则
 			baseRules,
@@ -528,17 +393,12 @@ export default {
 
 			// Other
 			pickerOptions: {
-				disabledDate(time) {
-					return time.getTime() < Date.now()
-				},
-				shortcuts: [
-					{
-						text: '今天',
-						onClick(picker) {
-							picker.$emit('pick', new Date())
-						}
+				shortcuts: [{
+					text: '今天',
+					onClick(picker) {
+						picker.$emit('pick', new Date())
 					}
-				]
+				}]
 			}
 		}
 	},
@@ -547,35 +407,17 @@ export default {
 		...mapGetters(['permissions']),
 
 		experimentAbility() {
-			return experimentService.getExperimentAbility(
-				this.permissions,
-				this.experiment
-			)
+			return experimentService.getExperimentAbility(this.permissions, this.experiment)
 		},
 
 		// 更多菜单
-		moreMenus() {
+		moreMenus(event) {
 			const menus = []
-			if (this.experimentAbility.testing) {
-				menus.push({
-					cmd: 'testing',
-					title: '开始实验测试',
-					icon: 'el-icon-odometer'
-				})
-			}
 			if (this.experimentAbility.invalid) {
-				menus.push({
-					cmd: 'invalid',
-					title: '作废实验',
-					icon: 'el-icon-s-release'
-				})
+				menus.push({ cmd: 'invalid', title: '作废实验', icon: 'el-icon-s-release' })
 			}
 			if (this.experimentAbility.delete) {
-				menus.push({
-					cmd: 'delete',
-					title: '删除实验',
-					icon: 'el-icon-delete'
-				})
+				menus.push({ cmd: 'delete', title: '删除实验', icon: 'el-icon-delete' })
 			}
 			return menus
 		},
@@ -587,10 +429,7 @@ export default {
 	},
 
 	created: function() {
-		if (
-			this.$route.params.id !== undefined &&
-      !poppyjs.util.StringUtil.isEmpty(this.$route.params.id)
-		) {
+		if (this.$route.params.id !== undefined && !poppyjs.util.StringUtil.isEmpty(this.$route.params.id)) {
 			this.experimentId = this.$route.params.id
 		}
 		// 如果id不存在，则提示错误并返回上个页面
@@ -605,15 +444,12 @@ export default {
 
 	methods: {
 		loadData() {
-			// 加载实验数据
 			experimentApi.getExperiment(this.experimentId).then(resp => {
-				console.log(resp)
 				this.loaded = true
 				this.experiment = resp.data.experiment || null
 				this.procedures = resp.data.procedures || null
 				this.records = resp.data.records || null
 				this.testings = resp.data.testings || null
-
 				this.initForm()
 			})
 		},
@@ -643,13 +479,10 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
-						has_record: item.record_id != null
+						has_record: (item.record_id != null)
 					}
 
-					if (
-						item.experiment_parameters === null ||
-            item.experiment_parameters.length === 0
-					) {
+					if (item.experiment_parameters === null || item.experiment_parameters.length === 0) {
 						tmp.experiment_parameters.push(self.createEmptyParameter())
 					} else {
 						item.experiment_parameters.forEach(itemPara => {
@@ -690,6 +523,7 @@ export default {
 			}
 		},
 
+		// 返回首页
 		gotoHome() {
 			this.$router.push('/')
 		},
@@ -699,11 +533,12 @@ export default {
 			this.$router.push('/experiment/edit/' + this.experimentId)
 		},
 
+		// 显示一个实验步骤关联的实验记录内容
 		showProcedureRecord($event, recordContent) {
 			this.recordBox = true
 			this.showRecordContent = recordContent
 		},
-
+		// 处理：实验步骤关联的实验记录内容弹框的关闭
 		handleProcedureRecordClose() {
 			this.recordBox = false
 			this.showRecordContent = null
@@ -728,70 +563,6 @@ export default {
 			}
 		},
 
-		// 显示新增测试记录弹框
-		showAddTesting(event) {
-			this.addTestingFlag = true
-			this.addTestingVisible = true
-		},
-
-		// 显示编辑测试记录弹框
-		showEditTesting(item) {
-			this.addTestingFlag = false
-			this.formTesting = {
-				testing_id: item.testing_id,
-				testing_date: item.testing_date,
-				testing_item: item.testing_item,
-				testing_result: item.testing_result
-			}
-			this.addTestingVisible = true
-		},
-
-		// 显示编辑保存确认
-		hideAddTesting(isEdit) {
-			this.$nextTick(() => {
-				this.$refs['addTestingForm'].clearValidate()
-			})
-			this.addTestingVisible = false
-		},
-
-		// 提交保存的基本方法
-		submitTestingSave(flag) {
-			const self = this
-			this.$refs['addTestingForm'].validate(valid => {
-				if (!valid) {
-					return false
-				}
-
-				if (self.experiment === null) {
-					return
-				}
-
-				const params = {
-					testing_date: self.formTesting.testing_date,
-					testing_item: self.formTesting.testing_item,
-					testing_result: self.formTesting.testing_result
-				}
-
-				console.log(params)
-
-				if (flag) {
-					experimentApi
-						.addExperimentTesting(self.experimentId, params)
-						.then(function(resp) {
-							self.hideAddTesting()
-							self.loadData()
-						})
-				} else {
-					experimentApi
-						.updateExperimentTesting(self.formTesting.testing_id, params)
-						.then(function(resp) {
-							self.hideAddTesting()
-							self.loadData()
-						})
-				}
-			})
-		},
-
 		// 显示删除测试记录确认
 		showDeleteTestingConfirm(item) {
 			poppyjs.html.Dialog.showConfirm({
@@ -805,61 +576,72 @@ export default {
 			})
 		},
 
+		// 显示新增测试记录弹框
+		showAddTesting() {
+			this.currentEditTesting = null
+			this.addTestingVisible = true
+		},
+		// 显示编辑测试记录弹框
+		showEditTesting(item) {
+			this.currentEditTesting = item
+			this.addTestingVisible = true
+		},
+		// 处理完测试记录新增/编辑的确认操作
+		handleTestingAddConfirm() {
+			this.addTestingVisible = false
+			this.loadData()
+		},
+		// 处理测试记录新增/编辑的关闭操作
+		handleTestingAddClose() {
+			this.addTestingVisible = false
+			this.currentEditTesting = null
+		},
+
 		// 点击更多菜单时
 		handleMoreMenuClick(cmd) {
-			if (cmd === 'testing') {
-				this.showTestingConfirm()
-			} else if (cmd === 'invalid') {
+			if (cmd === 'invalid') {
 				this.showInvaidConfirm()
 			} else if (cmd === 'delete') {
 				this.showDeleteConfirm()
 			}
 		},
 
-		// 显示开始测试确认
+		// 显示实验的开始测试确认
 		showTestingConfirm() {
-			experimentService.showTestingConfirm(
-				this.experimentId,
-				{ status: 'invalid' },
-				resp => {
-					this.loadData()
-				}
-			)
+			experimentService.showTestingConfirm(this.experimentId, { status: 'invalid' }, resp => {
+				this.loadData()
+			})
 		},
 
-		// 显示作废确认
+		// 显示实验的作废确认
 		showInvaidConfirm() {
-			experimentService.showInvaidConfirm(
-				this.experimentId,
-				{ status: 'invalid' },
-				resp => {
-					this.loadData()
-				}
-			)
+			experimentService.showInvaidConfirm(this.experimentId, { status: 'invalid' }, resp => {
+				this.loadData()
+			})
 		},
 
-		// 显示删除确认
+		// 显示实验的删除确认
 		showDeleteConfirm() {
 			experimentService.showDeleteConfirm(this.experimentId, resp => {
 				this.$router.go(-1)
 			})
 		},
 
-		// 显示提交审核申请确认
+		// 显示实验的提交审核申请确认
 		showApplyAuditConfirm() {
 			experimentService.showApplyAuditConfirm(this.experimentId, resp => {
 				this.loadData()
 			})
 		},
 
-		// 显示撤回审核确认
+		// 显示实验的撤回审核确认
 		showRevokeAuditConfirm() {
 			experimentService.showRevokeAuditConfirm(this.experimentId, resp => {
 				this.loadData()
 			})
 		},
 
-		// 显示开始审核确认
+		// 显示实验的开始审核确认
 		showStartAuditConfirm() {
 			experimentService.showStartAuditConfirm(this.experimentId, resp => {
 				this.loadData()
@@ -879,107 +661,83 @@ export default {
 		handleAuditClose() {
 			this.experimentAuditVisible = false
 		}
+
 	}
 }
 </script>
 
 <style lang="scss">
-.card-title-text {
-  line-height: 16px;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 16px;
-  font-weight: bold;
-}
-.card-panel-box {
-  line-height: 16px;
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 15px;
-}
-.card-panel-text {
-  font-size: 15px;
-  color: rgba(0, 0, 0, 0.8);
-}
-
-.card-text-box {
-  margin: 0;
-  color: #303133;
-  min-height: 100px;
-  width: 100%;
-}
+@import '@/styles/my_variables.scss';
 
 .el-table.procedure-table {
-  table {
-    thead {
-      tr {
-        td {
-          text-align: center;
-          &.first-col {
-            border-right: 1px solid #dfe6ec;
-          }
-          &:last-child {
-            border-left: 1px solid #dfe6ec;
-          }
-        }
-      }
-    }
-    tbody {
-      tr {
-        td {
-          text-align: center;
-          padding: 6px 4px;
-          &.seq-col {
-            border-right: 1px solid #dfe6ec;
-            padding-left: 2px;
-            padding-right: 2px;
-            text-align: center;
-            color: #909399;
-          }
-          &.first-col {
-            border-right: 1px solid #dfe6ec;
-            vertical-align: top;
-          }
-          &.last-col {
-            border-left: 1px solid #dfe6ec;
-            vertical-align: middle;
-          }
-        }
-      }
-    }
-  }
+	table {
+		thead {
+			tr {
+				td {
+					text-align: center;
+					&.first-col {
+						border-right: 1px solid #dfe6ec;
+					}
+					&:last-child {
+						border-left: 1px solid #dfe6ec;
+					}
+				}
+			}
+		}
+		tbody {
+			tr {
+				td {
+					text-align: center;
+					padding: 6px 4px;
+					&.seq-col {
+						border-right: 1px solid #dfe6ec;
+						padding-left: 2px;
+						padding-right: 2px;
+						text-align: center;
+						color: #909399;
+					}
+					&.first-col {
+						border-right: 1px solid #dfe6ec;
+						vertical-align: top;
+					}
+					&.last-col {
+						border-left: 1px solid #dfe6ec;
+						vertical-align: middle;
+					}
+				}
+			}
+		}
+	}
 }
 
 .el-table.record-table {
-  table {
-    tbody {
-      tr {
-        td {
-          vertical-align: middle;
-        }
-      }
-    }
-  }
-}
-
-.record-edit-box {
-  padding: 15px;
+	table {
+		tbody {
+			tr {
+				td {
+					vertical-align: middle;
+				}
+			}
+		}
+	}
 }
 
 pre {
-  font-family: inherit;
+	margin: 0;
+	font-family: inherit;
 }
 
 .text-box {
-  padding: 5px 15px;
-  margin: 0;
-  border: 1px solid #e6ebf5;
-  border-radius: 4px;
-  color: #303133;
-  min-height: 100px;
+	padding: 5px 15px;
+	margin: 0;
+	border: 1px solid #e6ebf5;
+	border-radius: 4px;
+	color: $text-major;
+	min-height: 60px;
 
-  &.plain {
-    padding: 0;
-    border: none;
-    min-height: 0;
-  }
+	&.plain {
+		padding: 0;
+		border: none;
+	}
 }
 </style>

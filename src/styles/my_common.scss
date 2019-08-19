@@ -22,10 +22,10 @@
 }
 
 // 文字颜色
-.text-major { color: #303133; } // 主要颜色
-.text-general { color: #606266;} // 一般颜色
-.text-minor { color: #C0C4CC; } // 次要颜色
-.text-placeholder { color: #909399; } // 占位颜色
+.text-major { color: $text-major; } // 主要颜色
+.text-general { color: $text-general;} // 一般颜色
+.text-minor { color: $text-minor; } // 次要颜色
+.text-placeholder { color: $text-placeholder; } // 占位颜色
 
 
 // 文字样式

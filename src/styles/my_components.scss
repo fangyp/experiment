@@ -1,0 +1,57 @@
+/*================================================================================
+ * 自定义组件
+ *================================================================================*/
+ @import './my_variables.scss';
+ @import './my_mixin.scss';
+
+ /* 页面主工具栏 */
+.main-tool-bar {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+/* 基于box-car 的 box 组件 */
+.box-card {
+	// box的头
+	.box-header {
+		display: flex;
+		justify-content: space-between;
+
+		.box-title {
+			flex: 1;
+			line-height: 16px;
+			color: $text-minor;
+			font-size: 16px;
+			font-weight: 600;
+		}
+		.box-header-tools {
+			flex: 1;
+			label {
+				line-height: 16px;
+				color: $text-minor;
+				font-size: 15px;
+			}
+		}
+	}
+
+	// box体内元素
+	.field-item {
+		display: table;
+		width: 100%;
+		line-height: 1.6em;
+		margin-bottom: 5px;
+		label {
+			display: table-cell;
+			width: 100px;
+			text-align: left;
+			color: $text-minor;
+			font-size: 15px;
+		}
+		.field-value {
+			display: table-cell;
+			text-align: left;
+			color: $text-major;
+		}
+	}
+}
