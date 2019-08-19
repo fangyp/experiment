@@ -1,9 +1,4 @@
-import * as enums from './enums/index'
-import * as utils from './utils/index'
+import enums from './enums/index'
+import utils from './utils/index'
 
-var common = {
-    enums: enums,
-    utils: utils
-};
-
-export {common};
+export default { enums, utils }

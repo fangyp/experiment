@@ -261,8 +261,9 @@
 
 <script>
 import poppyjs from 'poppyjs-elem'
-import experimentApi from '@/api/experiment'
 import { mapGetters } from 'vuex'
+import experimentApi from '@/api/experiment'
+import { BoolEnum, ExperimentStatusEnum } from '@/webcore/common/enums'
 import { baseRules, baseRules2,	baseRules3, testingRules } from './validation_rules'
 import experimentService from './experiment_service'
 import ExperimentAudit from './ExperimentAudit'
@@ -277,22 +278,19 @@ export default {
 	filters: {
 		// 用户获取状态颜色
 		expStatusFilter(status) {
-			const stateOption = {
-				'0': '',
-				'1': 'warning',
-				'2': 'warning',
-				'3': 'warning',
-				'5': 'danger',
-				'6': 'success',
-				'-1': 'info'
-			}
+			const stateOption = {}
+			stateOption[ExperimentStatusEnum.Created] = ''
+			stateOption[ExperimentStatusEnum.AuditPending] = 'warning'
+			stateOption[ExperimentStatusEnum.Auditing] = 'warning'
+			stateOption[ExperimentStatusEnum.AuditRejected] = 'danger'
+			stateOption[ExperimentStatusEnum.Finished] = 'success'
+			stateOption[ExperimentStatusEnum.Invalid] = 'info'
 			return stateOption[status]
 		},
 		testStatusFilter(status) {
-			const stateOption = {
-				'0': 'warning',
-				'1': 'success'
-			}
+			const stateOption = {}
+			stateOption[BoolEnum.No] = 'warning'
+			stateOption[BoolEnum.Yes] = 'success'
 			return stateOption[status]
 		}
 	},
