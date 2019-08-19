@@ -91,7 +91,7 @@
 			<el-col :span="24">
 				<el-tabs type="card" tab-position="top">
 					<!-- 实验步骤和参数 Tab -->
-					<el-tab-pane label="实验步骤和参数">
+					<el-tab-pane label="实验步骤">
 						<el-form v-model="formProcedures" label-position="left" class="demo-table-expand" size="mini">
 							<div class="el-table el-table--fit el-table--striped el-table--enable-row-transition procedure-table">
 								<table cellspacing="0" cellpadding="0" class="el-table__body" style="width:100%">
@@ -110,7 +110,7 @@
 
 									<tbody>
 										<template v-for="(procedure, index) in formProcedures">
-											<tr :key="'pro-' + index" style="height:40px ;" :class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')">
+											<tr :key="'pro-' + index" style="height:40px ;" :class="'el-table__row' + (index%2 ==1 ? '--striped': '')">
 												<td :rowspan="procedure.experiment_parameters.length" class="seq-col">{{ index + 1 }}</td>
 												<!-- 步骤列 -->
 												<td :rowspan="procedure.experiment_parameters.length" class="first-col">{{ procedure.procedure_title }}</td>
@@ -134,7 +134,7 @@
 											<!-- 一个步骤的其他参数行 -->
 											<template v-for="(parameters, index2) in procedure.experiment_parameters">
 												<tr v-if="index2 > 0" :key="'par-' + index + '-' + index2" style="height:44px"
-													:class="'el-table__row' + (index%2 ==1 ? ' el-table__row--striped': '')">
+													:class="'el-table__row' + (index%2 ==1 ? '--striped': '')">
 													<td>{{ parameters.reagent }}</td>
 													<td>{{ parameters.theoretical_volum }}</td>
 													<td>{{ parameters.actual_volum }}</td>
@@ -152,7 +152,7 @@
 					</el-tab-pane>
 
 					<!-- 更多实验记录 Tab -->
-					<el-tab-pane label="更多实验记录">
+					<el-tab-pane label="实验记录">
 						<el-form v-model="formProcedures" label-position="left" class="demo-table-expand" size="mini">
 							<div class="el-table el-table--fit el-table--striped el-table--enable-row-transition record-table">
 								<table cellspacing="0" cellpadding="0" border="0" class="el-table__body" style="width:100%">
@@ -165,9 +165,9 @@
 
 									<tbody>
 										<tr v-for="(record, index) in formRecords" :key="'rec-' + index" style="height:40px" 
-										:class="'el-table__row' + (index%2 ==1 ? 'el-table__row': '')">
+										:class="'el-table__row' + (index%2 ==1 ? '--striped': '')">
 											<td class="text-center">{{ index + 1 }}.</td>
-											<td><pre class="text-box plain">{{ record.content }}</pre></td>
+											<td class="text-left"><pre class="text-box plain" style="min-height:20px;">{{ record.content }}</pre></td>
 										</tr>
 									</tbody>
 								</table>
@@ -177,11 +177,10 @@
 					<!-- 实验记录 Tab -->
 
 					<!-- 实验测试记录 Tab -->
-					<el-tab-pane v-if="hasTestingTab" label="实验测试记录">
+					<el-tab-pane v-if="hasTestingTab" label="测试记录">
 						<el-form v-model="formTestings" label-position="left" class="demo-table-expand" size="mini">
-							<el-button v-if="experimentAbility.testingAdd" type="primary" size="mini" icon="el-icon-plus"
-							style="float:right" class="mg-b-xs" @click="showAddTesting"/>
-							<el-table :data="formTestings" border fit highlight-current-row style="width: 100%;">
+							
+							<el-table :data="formTestings" border fit style="width: 100%;">
 								<el-table-column label="No" min-width="45px" align="center" width="45px">
 									<template slot-scope="row">{{ row.$index + 1 }}</template>
 								</el-table-column>
@@ -193,6 +192,10 @@
 								</el-table-column>
 								<el-table-column label="测试日期" prop="testing_date" min-width="100px" align="center" />
 								<el-table-column label="操作" align="center" min-width="80px" class-name="small-padding">
+									<template slot="header">
+     									<el-button v-if="experimentAbility.testingAdd" type="primary" size="mini" icon="el-icon-plus"
+										 class="mg-b-xs" @click="showAddTesting" plain>添加</el-button>
+     								 </template>
 									<template slot-scope="{row}">
 										<el-dropdown trigger="click" size="small" @command="handleTestingMenuClick">
 											<span class="el-dropdown-link">更多<i class="el-icon-arrow-down el-icon--right" /></span>
@@ -651,7 +654,6 @@ export default {
 					}
 					&.first-col {
 						border-right: 1px solid #dfe6ec;
-						vertical-align: top;
 					}
 					&.last-col {
 						border-left: 1px solid #dfe6ec;

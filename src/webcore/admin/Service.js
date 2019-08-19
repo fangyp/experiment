@@ -53,7 +53,7 @@ class Service {
 			params: params
 		}
 		return NetUtil.adminRequest(reqOptions).then((resp) => {
-			// console.log('request: ', reqOptions, resp)
+			console.log('request: ', reqOptions, resp)
 			poppyjs.html.Dialog.closeLoading()
 
 			return new Promise((resolve, reject) => {
