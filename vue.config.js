@@ -6,6 +6,10 @@ function resolve(dir) {
 	return path.join(__dirname, dir)
 }
 
+if (process.env.NODE_ENV === 'development') {
+	console.log('current envionment variables: ', process.env)
+}
+
 const name = defaultSettings.title || 'vue Element Admin' // page title
 
 // If your port is set to 80,
@@ -24,10 +28,11 @@ module.exports = {
 	 * In most cases please use '/' !!!
 	 * Detail: https://cli.vuejs.org/config/#publicpath
 	 */
-	publicPath: '/',
+	publicPath: (process.env.NODE_ENV === 'development' ? '/' : '/'),
 	outputDir: 'dist',
 	assetsDir: 'static',
 	filenameHashing: true,
+	indexPath: 'index.blade.php',
 	// pages: getPages(pagesPath),
 	lintOnSave: process.env.NODE_ENV === 'development',
 	runtimeCompiler: false,
@@ -131,6 +136,7 @@ module.exports = {
 					config
 						.optimization.splitChunks({
 							chunks: 'all',
+							maxSize: 4496000,
 							cacheGroups: {
 								libs: {
 									name: 'chunk-libs',

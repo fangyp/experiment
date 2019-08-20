@@ -13,7 +13,7 @@
 				mode="vertical"
 			>
 				<!-- 首页菜单项 -->
-				<app-link :to="'/dashboard'">
+				<app-link :to="'/'">
 					<el-menu-item :index="'0'">
 						<item :icon="'dashboard'" :title="'首页'" />
 					</el-menu-item>

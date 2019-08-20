@@ -21,7 +21,6 @@ export default {
 		}
 	},
 	mounted: function() {
-		console.log(this.$route.query)
 		return this.$route.path
 	}
 }

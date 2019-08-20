@@ -36,7 +36,8 @@ class Service {
 	 */
 	static request(options) {
 		// 解析选项
-		const url = options.url
+		const host = (process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_API_HOST)
+		const url = host + options.url
 		const method = (undefined === options.method || options.method === null) ? 'post' : options.method
 		const params = (undefined === options.params) ? null : options.params
 		const successMsg = (undefined === options.successMsg || options.successMsg === null) ? false : options.successMsg
@@ -53,7 +54,6 @@ class Service {
 			params: params
 		}
 		return NetUtil.adminRequest(reqOptions).then((resp) => {
-			console.log('request: ', reqOptions, resp)
 			poppyjs.html.Dialog.closeLoading()
 
 			return new Promise((resolve, reject) => {
@@ -86,38 +86,6 @@ class Service {
 
 			return Promise.reject(resp)
 		})
-
-		/*
-		return new Promise((resolve, reject) => {
-			const reqOptions = {
-				url: url,
-				method: method,
-				params: params
-			}
-			NetUtil.adminRequest(reqOptions).then(
-				(resp) => {
-					console.log('request success: ', resp)
-					poppyjs.html.Dialog.closeLoading()
-					if (poppyjs.biz.Http.checkResponse(resp)) {
-						if (successMsg !== false) {
-							poppyjs.html.Dialog.showInfoMessage(successMsg)
-						}
-						resolve(resp)
-					} else {
-						if (showErrorMsg && (resp.errmsg && resp.errmsg !== null)) {
-							poppyjs.html.Dialog.showErrorMessage(resp.errmsg)
-						}
-						reject(resp)
-					}
-				},
-				(resp) => {
-					console.log('request error: ', resp)
-					poppyjs.html.Dialog.closeLoading()
-					reject(resp)
-				}
-			)
-		}) // Promise
-		*/
 	}
 }
 

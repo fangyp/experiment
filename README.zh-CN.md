@@ -1,4 +1,8 @@
-# **框架使用说明**
+<p align="center" style="text-aign:center;font-size: 32px;">
+	框架使用说明
+</p>
+
+简体中文 | 
 
 ## **目录说明**
 

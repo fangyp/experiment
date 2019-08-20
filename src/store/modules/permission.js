@@ -68,8 +68,6 @@ const actions = {
 				accessedRoutes.push(item)
 			})
 
-			console.log(accessedRoutes)
-
 			commit('SET_ROUTES', accessedRoutes)
 			resolve(accessedRoutes)
 		})
@@ -97,12 +95,13 @@ function dataArrayToRoutes(data) {
 // 将后端发来的菜单权限数据解析为框架的route结构
 function parseRouters(menuList) {
 	const allRouters = []
+	const base = `${process.env.VUE_APP_BASE_URL}`
 	menuList.forEach((value, index, array) => {
 		const childrenList = []
 		value.sub_menus.forEach((value, index, array) => {
 			childrenList.push({
 				id: value.menu_id + '',
-				path: value.uri,
+				path: `${base}/${value.uri}`,
 				component: (value.extend !== null && value.extend !== '' ? value.extend : 'Layout'),
 				name: '' + value.menu_id,
 				isMenu: (value.main_nav === 1),
@@ -113,7 +112,7 @@ function parseRouters(menuList) {
 
 		allRouters.push({
 			id: value.menu_id + '',
-			path: value.uri,
+			path: `${base}/${value.uri}`,
 			component: 'Layout',
 			redirect: 'noRedirect',
 			name: '' + value.menu_id,
@@ -126,8 +125,6 @@ function parseRouters(menuList) {
 			children: childrenList
 		})
 	})
-
-	console.log(allRouters)
 
 	return allRouters
 }

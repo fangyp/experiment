@@ -102,12 +102,10 @@ class NetUtil {
 
 	// 基于全站根路径的页面跳转，例如： /auth/login
 	static redirect(uri) {
-		poppyjs.util.NetUtil.redirect(Vue.$store.state.app.config.baseUrl + uri)
 	}
 
 	// 基于admin板块的跳转，例如： /admin/user/user-info
 	static adminRedirect(uri) {
-		poppyjs.util.NetUtil.redirect(Vue.$store.state.app.config.adminUrl + uri)
 	}
 }
 
