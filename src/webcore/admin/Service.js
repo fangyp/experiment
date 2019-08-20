@@ -35,6 +35,9 @@ class Service {
 	 * }
 	 */
 	static request(options) {
+		if (process.env.NODE_ENV === 'development') {
+			console.log('service request options: ', options)
+		}
 		// 解析选项
 		const host = (process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_API_HOST)
 		const url = host + options.url
