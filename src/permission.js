@@ -8,7 +8,7 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
+const whiteList = ['/h5/login', '/auth-redirect'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
 	console.log('the to route: ', to)
@@ -22,7 +22,7 @@ router.beforeEach(async(to, from, next) => {
 	// determine whether the user has logged in
 	const hasToken = getToken()
 	if (hasToken) {
-		if (to.path === '/auth/login') {
+		if (to.path === '/h5/login') {
 			// if is logged in, redirect to the home page
 			next({ path: '/' })
 			NProgress.done()
@@ -61,7 +61,7 @@ router.beforeEach(async(to, from, next) => {
 			next()
 		} else {
 			// other pages that do not have permission to access are redirected to the login page.
-			next(`/login?redirect=${to.path}`)
+			next(`/h5/login?redirect=${to.path}`)
 			NProgress.done()
 		}
 	}
