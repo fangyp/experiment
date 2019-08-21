@@ -1,8 +1,8 @@
 <template>
 	<div class="dashboard-editor-container" style="min-height: 800px;">
-		<panel-group :data="summaryData"/>
+		<panel-group :summary="summaryData"/>
 
-		<el-row :gutter="8" v-if="false">
+		<el-row :gutter="8" v-if="null !== auditPendingList">
 			<el-col
 				:xs="{span: 24}"
 				:sm="{span: 24}"
@@ -11,7 +11,7 @@
 				:xl="{span: 12}"
 				style="padding-right:8px;margin-bottom:30px;"
 			>
-				<transaction-table/>
+				<transaction-table :list="auditPendingList"/>
 			</el-col>
 		</el-row>
 	</div>
@@ -30,15 +30,22 @@ export default {
 	},
 	data() {
 		return {
-			summaryData: {}
+			summaryData: {},
+			auditPendingList: null,
 		};
 	},
 	created() {
 		dashboardApi.getSummary().then(resp => {
-			this.summaryData = resp.data;
-		});
-	},
-	methods: {}
+			this.summaryData = resp.data.summary;
+			this.auditPendingList = resp.data.audit_pending_list;
+			/*
+			this.auditPendingList = [
+				{experiment_id: 1001, experiment_name: '实验一二三四五六七'},
+				{experiment_id: 1002, experiment_name: '实验一二三四五六222七'},
+			]
+			*/
+		})
+	}
 };
 </script>
 

@@ -4,11 +4,9 @@ import Layout from '@/layout'
 
 Vue.use(Router)
 
-const base = `${process.env.VUE_APP_BASE_URL}`
-
 export const constantRoutes = [
 	{
-		path: `${base}/redirect`,
+		path: '/redirect',
 		component: Layout,
 		children: [
 			{
@@ -18,30 +16,30 @@ export const constantRoutes = [
 		]
 	},
 	{
-		path: `${base}/login`,
+		path: '/login',
 		name: 'login',
 		component: () => import('@/pages/auth/Login')
 	},
 	{
-		path: `${base}/auth-redirect`,
+		path: '/auth-redirect',
 		component: () => import('@/pages/auth/auth-redirect')
 	},
 	{
-		path: `${base}/404`,
+		path: '/404',
 		component: () => import('@/pages/error-page/404')
 	},
 	{
-		path: `${base}/401`,
+		path: '/401',
 		component: () => import('@/pages/error-page/401')
 	},
 	{
 		path: '/',
 		name: 'index',
 		component: Layout,
-		redirect: `${base}/dashboard`,
+		redirect: '/dashboard',
 		children: [
 			{
-				path: `${base}/dashboard`,
+				path: '/dashboard',
 				component: () => import('@/pages/dashboard/index'),
 				name: 'Dashboard',
 				meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
@@ -62,7 +60,7 @@ export const asyncRoutes = [
 const createRouter = () => new Router({
 	mode: 'history', // require service support
 	// scrollBehavior: () => ({ y: 0 }),
-	// base: `${process.env.VUE_APP_BASE_URL}/`,
+	base: `${process.env.VUE_APP_BASE_URL}/`,
 	scrollBehavior: () => ({ y: 0 }),
 	routes: constantRoutes
 })

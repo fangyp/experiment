@@ -1,57 +1,41 @@
 <template>
-	<el-table :data="list" style="width: 100%;padding-top: 15px;">
-		<el-table-column label="Order_No" min-width="200">
-			<template slot-scope="scope">
-				{{ scope.row.order_no | orderNoFilter }}
-			</template>
-		</el-table-column>
-		<el-table-column label="Price" width="195" align="center">
-			<template slot-scope="scope">
-				¥{{ scope.row.price | toThousandFilter }}
-			</template>
-		</el-table-column>
-		<el-table-column label="Status" width="100" align="center">
-			<template slot-scope="{row}">
-				<el-tag :type="row.status | statusFilter">
-					{{ row.status }}
-				</el-tag>
-			</template>
-		</el-table-column>
-	</el-table>
+	<el-card shadow="never" class="box-card">
+		<div slot="header" class="clearfix box-header">
+			<div class="box-title">待审核实验</div>
+		</div>
+		<el-table :data="list" style="width: 100%;" :show-header="false">
+			<el-table-column label="实验编号" prop="experiment_id" min-width="100" width="100" />
+			<el-table-column label="实验名称" prop="experiment_name" min-with="300" align="left" />
+			<el-table-column width="100" align="center">
+				<template slot-scope="scope">
+					<el-button type="success" plain @click="showInfo($event, scope.row.experiment_id)">处 理</el-button>
+				</template>
+			</el-table-column>
+		</el-table>
+	</el-card>
 </template>
 
 <script>
-// import { transactionList } from '@/api/remote-search'
-
 export default {
-	filters: {
-		statusFilter(status) {
-			const statusMap = {
-				success: 'success',
-				pending: 'danger'
-			}
-			return statusMap[status]
+	props: {
+		list: {
+			type: Array,
+			default: null
 		},
-		orderNoFilter(str) {
-			return str.substring(0, 30)
-		}
 	},
-	data() {
-		return {
-			list: null
+	watch: {
+		list: function() {
+			console.log(this.data)
 		}
-	},
-	created() {
-		this.fetchData()
 	},
 	methods: {
-		fetchData() {
-			/*
-			transactionList().then(response => {
-				this.list = response.data.items.slice(0, 8)
-			})
-			*/
+		showInfo(event, id) {
+			this.$router.push('/experiment/info/' + id)
 		}
 	}
-}
+};
 </script>
+
+<style lang="scss" scoped>
+
+</style>

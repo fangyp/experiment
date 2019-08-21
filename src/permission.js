@@ -8,8 +8,7 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const base = `${process.env.VUE_APP_BASE_URL}`
-const whiteList = [`${base}/login`, '/auth-redirect'] // no redirect whitelist
+const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
 	console.log('the to route: ', to)
@@ -23,7 +22,7 @@ router.beforeEach(async(to, from, next) => {
 	// determine whether the user has logged in
 	const hasToken = getToken()
 	if (hasToken) {
-		if (to.path === `${base}/login`) {
+		if (to.path === '/login') {
 			// if is logged in, redirect to the home page
 			next({ path: '/' })
 			NProgress.done()
@@ -46,6 +45,7 @@ router.beforeEach(async(to, from, next) => {
 					// set the replace: true, so the navigation will not leave a history record
 					await next({ ...to, replace: true })
 				} catch (error) {
+					console.log(error)
 					// remove token and go to login page to re-login
 					// await store.dispatch('user/resetToken')
 					Message.error(error || 'Has Error')
@@ -62,7 +62,7 @@ router.beforeEach(async(to, from, next) => {
 			next()
 		} else {
 			// other pages that do not have permission to access are redirected to the login page.
-			next(`${base}/login?redirect=${to.path}`)
+			next(`/login?redirect=${to.path}`)
 			NProgress.done()
 		}
 	}
