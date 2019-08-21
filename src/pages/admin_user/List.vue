@@ -247,7 +247,7 @@ export default {
 				status: status,
 				statuskey: statuskey,
 				formatted: formatted,
-				finishCallback: () => this.getDataList()
+				finishCallback: () => this.getDataList(this.pageMap)
 			}
 
 			this.$store.dispatch('adminuser/onChangeStateAction', payload)
@@ -266,7 +266,7 @@ export default {
 						status: -1,
 						statuskey: 'invalid',
 						formatted: '停用',
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch('adminuser/onChangeStateAction', payload)
 				},
@@ -315,7 +315,7 @@ export default {
 					const { user_id = '' } = row
 					const payload = {
 						id: user_id,
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch('adminuser/onDeleteAction', payload)
 				},

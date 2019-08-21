@@ -352,7 +352,7 @@ export default {
 			this.$refs['createForm'].validate(valid => {
 				if (valid) {
 					const payload = {
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.commit('explist/onSaveAction', payload)
 				}
@@ -394,7 +394,7 @@ export default {
 						this.$refs['createForm'].clearValidate()
 					})
 					const payload = {
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.commit('explist/onUpdateAction', payload)
 				}
@@ -413,7 +413,7 @@ export default {
 					const { experiment_id = '' } = row
 					const payload = {
 						id: experiment_id,
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch('explist/onDeleteAction', payload)
 				},
@@ -434,7 +434,7 @@ export default {
 					const { experiment_id = '' } = row
 					const payload = {
 						id: experiment_id,
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch(
 						'explist/onUpdateExperimentStatusAction',
@@ -455,7 +455,7 @@ export default {
 						this.$refs['createForm'].clearValidate()
 					})
 					const payload = {
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.commit('explist/onSaveAuditResult', payload)
 				}

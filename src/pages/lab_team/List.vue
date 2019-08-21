@@ -298,7 +298,7 @@ export default {
             this.$refs["createForm"].clearValidate();
           });
           const payload = {
-            finishCallback: () => this.getDataList()
+            finishCallback: () => this.getDataList(this.pageMap)
           };
           this.$store.commit("labteam/onSaveAction", payload);
         }
@@ -339,7 +339,7 @@ export default {
             this.$refs["createForm"].clearValidate();
           });
           const payload = {
-            finishCallback: () => this.getDataList()
+            finishCallback: () => this.getDataList(this.pageMap)
           };
           this.$store.commit("labteam/onUpdateAction", payload);
         }
@@ -354,7 +354,7 @@ export default {
       const payload = {
         id: team_id,
         status: status,
-        finishCallback: () => this.getDataList()
+        finishCallback: () => this.getDataList(this.pageMap)
       };
 
       this.$store.dispatch("labteam/onChangeStateAction", payload);
@@ -373,7 +373,7 @@ export default {
           const { team_id = "" } = row;
           const payload = {
             id: team_id,
-            finishCallback: () => this.getDataList()
+            finishCallback: () => this.getDataList(this.pageMap)
           };
           this.$store.dispatch("labteam/onDeleteAction", payload);
         },

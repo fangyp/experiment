@@ -369,7 +369,7 @@ export default {
 							this.$refs['createForm'].clearValidate()
 						})
 						const payload = {
-							finishCallback: () => this.getDataList()
+							finishCallback: () => this.getDataList(this.pageMap)
 						}
 						this.$store.commit('consumer/onSaveAction', payload)
 					}
@@ -393,7 +393,7 @@ export default {
 						this.$refs['createForm'].clearValidate()
 					})
 					const payload = {
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.commit('consumer/onUpdateAction', payload)
 				}
@@ -433,7 +433,7 @@ export default {
 				status: status,
 				statuskey: statuskey,
 				formatted: formatted,
-				finishCallback: () => this.getDataList()
+				finishCallback: () => this.getDataList(this.pageMap)
 			}
 
 			this.$store.dispatch('consumer/onChangeStateAction', payload)
@@ -454,7 +454,7 @@ export default {
 						status: -1,
 						statuskey: 'invalid',
 						formatted: '停用',
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch('consumer/onChangeStateAction', payload)
 				},
@@ -495,7 +495,7 @@ export default {
 					const { user_id = '' } = row
 					const payload = {
 						id: user_id,
-						finishCallback: () => this.getDataList()
+						finishCallback: () => this.getDataList(this.pageMap)
 					}
 					this.$store.dispatch('consumer/onDeleteAction', payload)
 				},
