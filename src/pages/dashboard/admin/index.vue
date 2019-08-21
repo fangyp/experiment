@@ -1,5 +1,5 @@
 <template>
-	<div class="dashboard-editor-container" style="min-height: 800px;">
+	<div class="dashboard-editor-container" style="min-height: 700px;">
 		<panel-group :summary="summaryData"/>
 
 		<el-row :gutter="8" v-if="this.roles.includes('team_leader')">
