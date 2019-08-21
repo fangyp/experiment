@@ -32,7 +32,6 @@ module.exports = {
 	outputDir: 'dist',
 	assetsDir: 'static',
 	filenameHashing: true,
-	indexPath: 'index.blade.php',
 	// pages: getPages(pagesPath),
 	lintOnSave: process.env.NODE_ENV === 'development',
 	runtimeCompiler: false,

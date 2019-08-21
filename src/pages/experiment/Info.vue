@@ -564,7 +564,7 @@ export default {
 
 		// 显示实验的开始测试确认
 		showTestingConfirm() {
-			experimentService.showTestingConfirm(this.experimentId, { status: 'invalid' }, resp => {
+			experimentService.showTestingConfirm(this.experimentId, resp => {
 				this.loadData()
 			})
 		},
