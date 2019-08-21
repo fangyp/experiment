@@ -153,8 +153,9 @@ const explist = {
 
 			const params = state.createNew
 			saveDataRequest(params)
-				.then(() => {
-					finishCallback()
+				.then((response) => {
+					const {experiment_id = ''} = response.data || {};
+					finishCallback(experiment_id)
 					state.createFormVisible = false
 				})
 		},

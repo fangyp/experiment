@@ -688,7 +688,7 @@ pre {
 	border: 1px solid #e6ebf5;
 	border-radius: 4px;
 	color: $text-major;
-	min-height: 60px;
+	min-height: 32px;
 
 	&.plain {
 		padding: 0;
