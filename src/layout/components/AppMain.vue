@@ -1,9 +1,10 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <keep-alive :include="cachedViews">
+      <!-- 临时去掉tag view页面缓存，等解决页面刷新问题后再恢复 -->
+      <!-- <keep-alive :include="cachedViews"> -->
         <router-view :key="key" />
-      </keep-alive>
+      <!-- </keep-alive> -->
     </transition>
   </section>
 </template>
