@@ -2,7 +2,7 @@
 	<div class="dashboard-editor-container" style="min-height: 800px;">
 		<panel-group :summary="summaryData"/>
 
-		<el-row :gutter="8" v-if="null !== auditPendingList">
+		<el-row :gutter="8" v-if="this.roles.includes('team_leader')">
 			<el-col
 				:xs="{span: 24}"
 				:sm="{span: 24}"
@@ -21,6 +21,7 @@
 import dashboardApi from "@/api/dashboard";
 import PanelGroup from "./components/PanelGroup";
 import TransactionTable from "./components/TransactionTable";
+import { mapGetters } from 'vuex'
 
 export default {
 	name: "DashboardAdmin",
@@ -36,15 +37,12 @@ export default {
 	},
 	created() {
 		dashboardApi.getSummary().then(resp => {
-			this.summaryData = resp.data.summary;
-			this.auditPendingList = resp.data.audit_pending_list;
-			/*
-			this.auditPendingList = [
-				{experiment_id: 1001, experiment_name: '实验一二三四五六七'},
-				{experiment_id: 1002, experiment_name: '实验一二三四五六222七'},
-			]
-			*/
+			this.summaryData = resp.data.summary
+			this.auditPendingList = resp.data.audit_pending_list
 		})
+	},
+	computed: {
+		...mapGetters(['roles'])
 	}
 };
 </script>

@@ -65,7 +65,7 @@ class Service {
 						// poppyjs.html.Dialog.showInfoMessage(successMsg)
 						Message.success({
 							message: successMsg,
-							duration: 0,
+							duration: 5000,
 							showClose: true
 						})
 					}
@@ -75,7 +75,7 @@ class Service {
 						// poppyjs.html.Dialog.showErrorMessage(resp.errmsg)
 						Message.error({
 							message: resp.errmsg,
-							duration: 0,
+							duration: 5000,
 							showClose: true
 						})
 					}

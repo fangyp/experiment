@@ -23,11 +23,6 @@ export default {
 			default: null
 		},
 	},
-	watch: {
-		list: function() {
-			console.log(this.data)
-		}
-	},
 	methods: {
 		showInfo(event, id) {
 			this.$router.push('/experiment/info/' + id)
