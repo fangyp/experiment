@@ -95,7 +95,7 @@
 			</el-table-column>
 			<el-table-column label="日期" min-width="95px" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+					<span>{{ row.created_at }}</span>
 				</template>
 			</el-table-column>
 
@@ -246,7 +246,8 @@ export default {
 				'-1': 'info'
 			}
 			return stateOption[status]
-		}
+		},
+
 	},
 	computed: {
 		...mapGetters(['permissions']),

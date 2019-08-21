@@ -9,6 +9,7 @@
  * @returns {string}
  */
 export function parseTime(time, cFormat) {
+
   if (arguments.length === 0) {
     return null
   }
@@ -24,6 +25,7 @@ export function parseTime(time, cFormat) {
       time = time * 1000
     }
     date = new Date(time)
+    console.log(date);
   }
   const formatObj = {
     y: date.getFullYear(),
@@ -34,6 +36,7 @@ export function parseTime(time, cFormat) {
     s: date.getSeconds(),
     a: date.getDay()
   }
+
   const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
     let value = formatObj[key]
     // Note: getDay() returns 0 on Sunday

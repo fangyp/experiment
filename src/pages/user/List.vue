@@ -80,7 +80,7 @@
 			</el-table-column>
 			<el-table-column label="创建日期" min-width="95px" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.reg_time | parseTime('{y}-{m}-{d}') }}</span>
+					<span>{{ row.reg_time  }}</span>
 				</template>
 			</el-table-column>
 			<el-table-column label="状态" class-name="status-col" min-width="70px">
