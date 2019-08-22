@@ -48,6 +48,7 @@ class NetUtil {
 
 			return new Promise((resolve, reject) => {
 				if (checkResult) {
+					console.log(response);
 					resolve(response.data)
 				} else {
 					reject(response.data)

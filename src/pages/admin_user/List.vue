@@ -4,7 +4,7 @@
 			<el-input
 				v-model="keyword"
 				placeholder="请输入姓名或账号"
-				style="width: 240px;"
+				style="width: 200px;"
 				class="filter-item"
 				clearable
 				@keyup.enter.native="searchAction"
@@ -28,17 +28,17 @@
 			highlight-current-row
 			style="width: 100%;"
 		>
-			<el-table-column label="编号" prop="id" align="center" min-width="60px">
+			<el-table-column label="编号" prop="id" align="center" min-width="40px">
 				<template slot-scope="{row}">
 					<span>{{ row.user_id }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="姓名" min-width="80px" align="center">
+			<el-table-column label="姓名" min-width="75px" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.user_name }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="账户" min-width="80px" align="center">
+			<el-table-column label="账户" min-width="75px" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.login_name }}</span>
 				</template>
@@ -48,7 +48,7 @@
 					<span>{{ row.groups }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="最后登录日期" min-width="95px" align="center">
+			<el-table-column label="最后登录日期" min-width="120px" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.last_login_time}}</span>
 				</template>

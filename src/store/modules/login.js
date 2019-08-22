@@ -87,6 +87,8 @@ const login = {
 						} else {
 							removeUserInfo()
 						}
+						context.commit('setAccount', '')
+						context.commit('setPassword', '')
 						resolve()
 					})
 					.catch(error => {
