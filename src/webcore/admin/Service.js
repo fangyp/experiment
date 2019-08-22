@@ -46,6 +46,7 @@ class Service {
 		const successMsg = (undefined === options.successMsg || options.successMsg === null) ? false : options.successMsg
 		const showErrorMsg = (undefined === options.showErrorMsg || options.showErrorMsg === null) ? true : options.showErrorMsg
 		const showLoading = (undefined === options.showLoading || options.showLoading === null) ? true : options.showLoading
+		const autoRefresh = (undefined === options.autoRefresh || options.autoRefresh === null) ? false : options.autoRefresh
 		// 提示loading
 		if (showLoading) {
 			poppyjs.html.Dialog.showLoading()
@@ -54,7 +55,8 @@ class Service {
 		const reqOptions = {
 			url: url,
 			method: method,
-			params: params
+			params: params,
+			autoRefresh
 		}
 		return NetUtil.adminRequest(reqOptions).then((resp) => {
 			poppyjs.html.Dialog.closeLoading()

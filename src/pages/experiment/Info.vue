@@ -9,6 +9,7 @@
 			<el-col :sm="24" :lg="24" :xl="24">
 				<!-- 工具栏 -->
 				<div class="main-tool-bar">
+					<el-button plain @click="goback">返回</el-button>
 					<el-button plain @click="loadData">刷新</el-button>
 					<el-button v-if="experimentAbility.testing" plain @click="showTestingConfirm">测试</el-button>
 					<el-button v-if="experimentAbility.edit" plain @click="gotoEdit">编辑</el-button>
@@ -210,6 +211,12 @@
 						</el-form>
 					</el-tab-pane>
 					<!-- 实验测试 Tab -->
+
+					<!-- 审核记录 Tab -->
+					<el-tab-pane v-if="hasTestingTab" label="审核记录">
+						<audit-list :experiment-id="experimentId" ref="auditList"/>
+					</el-tab-pane>
+
 				</el-tabs>
 			</el-col>
 		</el-row>
@@ -269,14 +276,16 @@ import experimentApi from '@/api/experiment'
 import { BoolEnum, ExperimentStatusEnum } from '@/webcore/common/enums'
 import { baseRules, baseRules2,	baseRules3, testingRules } from './validation_rules'
 import experimentService from './experiment_service'
-import ExperimentAudit from './ExperimentAudit'
-import ExperimentTestingAdd from './ExperimentTestingAdd'
+import ExperimentAudit from './components/ExperimentAudit'
+import ExperimentTestingAdd from './components/ExperimentTestingAdd'
+import AuditList from './components/AuditList'
 
 export default {
 	name: 'ExperimentInfo',
 	components: {
 		ExperimentAudit,
 		ExperimentTestingAdd,
+		AuditList
 	},
 	filters: {
 		// 用户获取状态颜色
@@ -407,6 +416,10 @@ export default {
 				this.records = resp.data.records || null
 				this.testings = resp.data.testings || null
 				this.initForm()
+
+				if (this.$refs.auditList) {
+					this.$refs.auditList.loadData()
+				}
 			})
 		},
 
@@ -484,6 +497,11 @@ export default {
 			this.$router.push('/')
 		},
 
+		// 返回上一页
+		goback() {
+			this.$router.go(-1)
+		},
+
 		// 跳转到编辑页面
 		gotoEdit() {
 			this.$router.push('/experiment/edit/' + this.experimentId)
@@ -491,8 +509,10 @@ export default {
 
 		// 显示一个实验步骤关联的实验记录内容
 		showProcedureRecord($event, recordContent) {
-			this.recordBox = true
-			this.showRecordContent = recordContent
+			if (! poppyjs.util.StringUtil.isEmpty(recordContent)) {
+				this.recordBox = true
+				this.showRecordContent = recordContent
+			}
 		},
 		// 处理：实验步骤关联的实验记录内容弹框的关闭
 		handleProcedureRecordClose() {

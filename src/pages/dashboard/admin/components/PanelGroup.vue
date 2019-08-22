@@ -1,5 +1,5 @@
 <template>
-	<el-row :gutter="40" class="panel-group">
+	<el-row :gutter="40" class="panel-group" v-if="null !== summary">
 		<el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="summary['experiment_num'] !== undefined && summary['experiment_num'] !== null">
 			<div class="card-panel">
 				<div class="card-panel-icon-wrapper icon-people">

@@ -49,7 +49,7 @@
 
 <script>
 import experimentApi from '@/api/experiment'
-import { testingRules } from './validation_rules'
+import { testingRules } from '../validation_rules'
 
 export default {
 	name: 'ExperimentTesting',

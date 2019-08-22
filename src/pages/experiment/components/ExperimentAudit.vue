@@ -20,12 +20,7 @@
 				<el-input v-model="formData.desc" type="textarea" rows="4" maxlength="100" show-word-limit />
 			</el-form-item>
 
-			<el-alert
-				type="info"
-				:closable="false"
-				class="small"
-				title="温馨提示：实验审核通过后，实验数据会变更为“完成”状态，数据内容不允许再修改。"
-			/>
+			<div class="note-block">温馨提示：实验审核通过后，实验数据会变更为“完成”状态，数据内容不允许再修改。</div>
 			<el-col v-if="undefined !== formData.result && formData.result !== null" :span="24" class="mg-t-sm">
 				<el-alert v-if="formData.result === 'passed'" title="审核通过" type="success" center />
 				<el-alert v-else title="审核驳回" type="error" center />

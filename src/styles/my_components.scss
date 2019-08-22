@@ -4,6 +4,14 @@
  @import './my_variables.scss';
  @import './my_mixin.scss';
 
+.loading-default {
+	.el-loading-spinner {
+		.el-icon-loading, .el-loading-text {
+			color: #0067eb;
+		}
+	}
+}
+
  /* 页面主工具栏 */
 .main-tool-bar {
 	display: flex;

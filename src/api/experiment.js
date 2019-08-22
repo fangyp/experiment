@@ -176,7 +176,7 @@ export function audit(experimentId, params) {
 /**
  * 获得一个实验的审核记录
  */
-export function listAudit(experimentId) {
+export function listAudits(experimentId) {
 	return webcore.admin.Service.requestAdmin({
 		url: '/experiment-audit/list/' + experimentId,
 		showSuccessMsg: false,
@@ -201,5 +201,5 @@ export default {
 	revokeAudit,
 	startAudit,
 	audit,
-	listAudit
+	listAudits
 }
