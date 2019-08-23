@@ -213,7 +213,7 @@
 					<!-- 实验测试 Tab -->
 
 					<!-- 审核记录 Tab -->
-					<el-tab-pane v-if="hasTestingTab" label="审核记录">
+					<el-tab-pane label="审核记录">
 						<audit-list :experiment-id="experimentId" ref="auditList"/>
 					</el-tab-pane>
 
