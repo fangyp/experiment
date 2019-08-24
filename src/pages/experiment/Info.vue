@@ -103,7 +103,6 @@
 											<td>试剂</td>
 											<td style="min-width:100px; width:14%">理论量/g</td>
 											<td style="min-width:100px; width:14%">实际量/g</td>
-											<td>备注</td>
 											<td style="max-width:55px; width:55px;" />
 											<td style="min-width:100px; width:19%">实验记录</td>
 										</tr>
@@ -121,7 +120,6 @@
 													<td>{{ procedure.experiment_parameters[0].reagent }}</td>
 													<td>{{ procedure.experiment_parameters[0].theoretical_volum }}</td>
 													<td>{{ procedure.experiment_parameters[0].actual_volum }}</td>
-													<td>{{ procedure.experiment_parameters[0].remark }}</td>
 													<td />
 												</template>
 

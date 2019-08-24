@@ -354,7 +354,7 @@ export default {
           const payload = {
             finishCallback: (experiment_id) => {
               this.getDataList(this.pageMap);
-              this.$router.push(`/experiment/info/${experiment_id}`);
+              this.$router.push(`/experiment/edit/${experiment_id}`);
             }
           };
           this.$store.commit("explist/onSaveAction", payload);
