@@ -189,8 +189,8 @@
 								<el-table-column label="测试结果" header-align="center" align="left">
 									<template slot-scope="{row}"><pre>{{ row.testing_result }}</pre></template>
 								</el-table-column>
-								<el-table-column label="测试日期" prop="testing_date" min-width="100px" align="center" />
-								<el-table-column label="操作" align="center" min-width="80px" class-name="small-padding">
+								<el-table-column label="测试日期" prop="testing_date" min-width="100px" align="center" width="100px" />
+								<el-table-column label="操作" align="center" min-width="80px" class-name="small-padding" width="80px">
 									<template slot="header">
      									<el-button v-if="experimentAbility.testingAdd" type="primary" size="mini" icon="el-icon-plus"
 										 class="mg-b-xs" @click="showAddTesting" plain>添加</el-button>
