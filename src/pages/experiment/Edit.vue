@@ -465,6 +465,7 @@ export default {
 				next(false)
 			}
 		}
+		next()
 	},
 
 	computed: {
