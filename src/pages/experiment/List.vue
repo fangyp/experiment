@@ -93,11 +93,7 @@
           >{{ row.experiment_status_formatted }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="日期" min-width="95px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="日期" prop="experiment_date" min-width="95px" align="center" />
 
       <el-table-column
         label="操作"
