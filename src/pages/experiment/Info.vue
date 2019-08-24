@@ -698,6 +698,7 @@ export default {
 pre {
 	margin: 0;
 	font-family: inherit;
+	word-break: break-word;
 }
 
 .text-box {
