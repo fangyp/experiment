@@ -433,6 +433,7 @@ export default {
 			isAutoSave: true, // 标示是否开启自动保存功能
 			autoSaveInerval: null,
 			autoSaveLock: false, // true代表处于自动保存中，需要锁定相关输入项
+			isErrorBack: false, // 当返回上一页时，标志是否是发生了错误返回的
 		}
 	},
 
@@ -455,12 +456,14 @@ export default {
 	},
 
 	beforeRouteLeave(to, from, next) {
-		const answer = window.confirm('如果有内容未保存，离开后将丢失，您确定要离开编辑页面吗？')
-		if (answer) {
-			this.stopAutoSave()
-			next()
-		} else {
-			next(false)
+		if (! this.isErrorBack) {
+			const answer = window.confirm('如果有内容未保存，离开后将丢失，您确定要离开编辑页面吗？')
+			if (answer) {
+				this.stopAutoSave()
+				next()
+			} else {
+				next(false)
+			}
 		}
 	},
 
@@ -480,7 +483,10 @@ export default {
 
 				if (!this.experimentAbility.edit) {
 					this.isAutoSave = false
-					this.$router.push('/experiment/info/' + this.experimentId)
+					poppyjs.html.Dialog.showErrorMessage('该实验当前不允许编辑', () => {
+						this.isErrorBack = true
+						this.$router.push('/experiment/info/' + this.experimentId)
+					})
 				} else {
 					// 触发自动保存任务
 					if (this.isAutoSave) {
