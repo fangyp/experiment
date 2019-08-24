@@ -49,7 +49,10 @@
       </el-table-column>
       <el-table-column label="实验组⻓" min-width="90px" align="center">
         <template slot-scope="{row}">
-          <el-tag size="small">{{ findLeaderName(row.team_leader_id) }}</el-tag>
+          <el-tag
+            v-show="findLeaderName(row.team_leader_id)"
+            size="small"
+          >{{ findLeaderName(row.team_leader_id) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="实验员" min-width="240px">
@@ -102,7 +105,7 @@
               <el-dropdown-item
                 v-show="permissionValid().delete"
                 @click.native="onDeleteAction(row)"
-              >删除用户</el-dropdown-item>
+              >删除组</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -176,45 +179,45 @@
 </template>
 
 <script>
-import { page } from "../../utils/page";
-import poppyjs from "poppyjs-elem";
-const showConfirm = poppyjs.html.Dialog.showConfirm;
-import waves from "../../directive/waves"; // waves directive
-import Pagination from "../../components/Pagination"; // secondary package based on el-pagination
+import { page } from '../../utils/page'
+import poppyjs from 'poppyjs-elem'
+const showConfirm = poppyjs.html.Dialog.showConfirm
+import waves from '../../directive/waves' // waves directive
+import Pagination from '../../components/Pagination' // secondary package based on el-pagination
 
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters } from 'vuex'
 
 export default {
-  name: "LabTeam",
+  name: 'LabTeam',
   components: { Pagination },
   directives: { waves },
   filters: {
     // 状态颜色
     stateColorFilter(status) {
       const stateOption = {
-        0: "danger",
-        1: "success"
-      };
-      return stateOption[status];
+        0: 'danger',
+        1: 'success',
+      }
+      return stateOption[status]
     },
     stateTextFilter(status) {
       const stateOption = {
-        0: "停用",
-        1: "启用"
-      };
-      return stateOption[status];
+        0: '停用',
+        1: '启用',
+      }
+      return stateOption[status]
     },
     stateMenuFilter(status) {
       const stateOption = {
-        0: "启用实验组",
-        1: "停用实验组"
-      };
-      return stateOption[status];
-    }
+        0: '启用实验组',
+        1: '停用实验组',
+      }
+      return stateOption[status]
+    },
   },
 
   computed: {
-    ...mapGetters(["permissions"]),
+    ...mapGetters(['permissions']),
     ...mapState({
       createNew: state => state.labteam.createNew,
       validation: state => state.labteam.validation,
@@ -224,140 +227,142 @@ export default {
       formTitles: state => state.labteam.formTitles,
       tableKey: state => state.labteam.tableKey,
       team_leaders: state => state.labteam.team_leaders,
-      lab_staffs: state => state.labteam.lab_staffs
+      lab_staffs: state => state.labteam.lab_staffs,
     }),
     createFormVisible: {
       get() {
-        return this.$store.state.labteam.createFormVisible;
+        return this.$store.state.labteam.createFormVisible
       },
       set(val) {
-        this.$store.state.labteam.createFormVisible = val;
-      }
+        this.$store.state.labteam.createFormVisible = val
+      },
     },
     keyword: {
       get() {
-        return this.$store.state.labteam.keyword;
+        return this.$store.state.labteam.keyword
       },
       set(val) {
-        this.$store.state.labteam.keyword = val;
-      }
+        this.$store.state.labteam.keyword = val
+      },
     },
     role_type: {
       get() {
-        return this.$store.state.labteam.role_type;
+        return this.$store.state.labteam.role_type
       },
       set(val) {
-        this.$store.state.labteam.role_type = val;
-      }
+        this.$store.state.labteam.role_type = val
+      },
     },
     pageMap: {
       get() {
-        return this.$store.state.labteam.pageMap;
+        return this.$store.state.labteam.pageMap
       },
       set(val) {
-        this.$store.state.labteam.pageMap = val;
-      }
-    }
+        this.$store.state.labteam.pageMap = val
+      },
+    },
   },
   created() {
-    this.$store.dispatch("labteam/onPreloadAction");
-    this.getDataList();
+    this.$store.dispatch('labteam/onPreloadAction')
+    this.getDataList()
   },
 
   methods: {
     permissionValid() {
       return {
-        add: this.permissions["lab_team.add"],
-        update: this.permissions["lab_team.update"],
-        delete: this.permissions["lab_team.delete"],
-        status: this.permissions["lab_team.status"]
-      };
+        add: this.permissions['lab_team.add'],
+        update: this.permissions['lab_team.update'],
+        delete: this.permissions['lab_team.delete'],
+        status: this.permissions['lab_team.status'],
+      }
     },
     /**
      * 获取列表
      */
     getDataList(pageMap = page) {
-      this.pageMap = { ...this.pageMap, ...pageMap };
-      this.$store.dispatch("labteam/getDataArray", {
+      this.pageMap = { ...this.pageMap, ...pageMap }
+      this.$store.dispatch('labteam/getDataArray', {
         page: this.pageMap.page,
-        page_size: this.pageMap.page_size
-      });
+        page_size: this.pageMap.page_size,
+      })
     },
     // 新建动作
     createAction() {
-      this.$store.dispatch("labteam/onCreateAction");
+      this.$store.dispatch('labteam/onCreateAction')
       this.$nextTick(() => {
-        this.$refs["createForm"].clearValidate();
-      });
+        this.$refs['createForm'].clearValidate()
+      })
     },
     // 新建保存
     onSaveAction() {
-      this.$refs["createForm"].validate(valid => {
+      this.$refs['createForm'].validate(valid => {
         if (valid) {
           this.$nextTick(() => {
-            this.$refs["createForm"].clearValidate();
-          });
+            this.$refs['createForm'].clearValidate()
+          })
           const payload = {
-            finishCallback: () => this.getDataList(this.pageMap)
-          };
-          this.$store.commit("labteam/onSaveAction", payload);
+            finishCallback: () => this.getDataList(this.pageMap),
+          }
+          this.$store.commit('labteam/onSaveAction', payload)
         }
-      });
+      })
     },
     // 过滤名字
     findLeaderName(team_leader_id) {
       for (const item of this.team_leaders) {
-        const { user_id = "", user_name = "" } = item;
+        const { user_id = '', user_name = '' } = item
         if (team_leader_id === user_id) {
-          return user_name;
+          return user_name
         }
       }
+      return false
     },
     /**
      * 搜索
      */
     searchAction() {
-      this.$store.dispatch("labteam/getDataArray", {
+      this.$store.dispatch('labteam/getDataArray', {
         page: this.pageMap.page,
-        page_size: this.pageMap.page_size
-      });
+        page_size: this.pageMap.page_size,
+      })
     },
     /**
      * 修改
      */
     modifyInfo(row) {
-      this.$store.dispatch("labteam/onModifyAction", row);
+      console.log(row);
+      this.$store.dispatch('labteam/onModifyAction', row)
       this.$nextTick(() => {
-        this.$refs["createForm"].clearValidate();
-      });
+        this.$refs['createForm'].clearValidate()
+      })
     },
     // 修改保存
     updateData() {
-      this.$refs["createForm"].validate(valid => {
+      this.$refs['createForm'].validate(valid => {
         if (valid) {
           this.$nextTick(() => {
-            this.$refs["createForm"].clearValidate();
-          });
+            this.$refs['createForm'].clearValidate()
+          })
           const payload = {
-            finishCallback: () => this.getDataList(this.pageMap)
-          };
-          this.$store.commit("labteam/onUpdateAction", payload);
+            finishCallback: () => this.getDataList(this.pageMap),
+          }
+          this.$store.commit('labteam/onUpdateAction', payload)
         }
-      });
+      })
     },
     /**
      * 改变状态
      */
     changeState(row) {
-      const { team_id = "", enabled = 0 } = row;
-      const status = enabled === 0 ? "open" : "stop";
+      const { team_id = '', enabled = 0 } = row
+      const status = enabled === 0 ? 'open' : 'stop'
       const payload = {
         id: team_id,
         status: status,
-        finishCallback: () => this.getDataList(this.pageMap)
-      };
+        finishCallback: () => this.getDataList(this.pageMap),
+      }
 
-      this.$store.dispatch("labteam/onChangeStateAction", payload);
+      this.$store.dispatch('labteam/onChangeStateAction', payload)
     },
 
     /**
@@ -365,24 +370,24 @@ export default {
      */
     onDeleteAction(row) {
       const options = {
-        title: "删除实验组",
-        msg: "删除后不可恢复,您确定删除此实验组吗?",
-        yesBtn: "确定",
-        noBtn: "取消",
+        title: '删除实验组',
+        msg: '删除后不可恢复,您确定删除此实验组吗?',
+        yesBtn: '确定',
+        noBtn: '取消',
         yesCallback: () => {
-          const { team_id = "" } = row;
+          const { team_id = '' } = row
           const payload = {
             id: team_id,
-            finishCallback: () => this.getDataList(this.pageMap)
-          };
-          this.$store.dispatch("labteam/onDeleteAction", payload);
+            finishCallback: () => this.getDataList(this.pageMap),
+          }
+          this.$store.dispatch('labteam/onDeleteAction', payload)
         },
-        noCallback: () => {}
-      };
-      showConfirm(options);
-    }
-  }
-};
+        noCallback: () => {},
+      }
+      showConfirm(options)
+    },
+  },
+}
 </script>
 
 <style>

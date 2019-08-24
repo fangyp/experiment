@@ -99,7 +99,6 @@ const labteam = {
 		// 新建保存
 		onSaveAction(state, payload) {
 			const { finishCallback = () => { } } = payload
-
 			const params = { ...state.createNew, member_ids: state.createNew.member_ids.join(',') }
 			saveDataRequest(params)
 				.then(() => {
@@ -111,7 +110,7 @@ const labteam = {
 		onModifyAction(state, payload) {
 			state.createFormVisible = true
 			state.createFormStatus = 'update'
-			const { team_id = 0, team_name = '', team_leader_id = 0, user_list = [] } = payload
+			const { team_id = 0, team_name = '', team_leader_id = '', user_list = [] } = payload
 			const member_ids = []
 
 			for (const user of user_list) {
@@ -121,7 +120,7 @@ const labteam = {
 			state.createNew = {
 				id: team_id,
 				team_name: team_name,
-				leader_id: team_leader_id,
+				leader_id: team_leader_id === 0 ? '' : team_leader_id,
 				member_ids: member_ids
 			}
 		},
