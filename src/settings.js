@@ -1,5 +1,5 @@
 module.exports = {
-	title: '蒂姆数据管理平台',
+	title: '蒂姆实验管理平台',
 
 	/**
    * @type {boolean} true | false
