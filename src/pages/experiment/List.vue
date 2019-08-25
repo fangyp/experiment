@@ -363,7 +363,7 @@ export default {
      */
     searchAction() {
       this.$store.dispatch("explist/getDataArray", {
-        page: this.pageMap.page,
+        page: page,
         page_size: this.pageMap.page_size
       });
     },

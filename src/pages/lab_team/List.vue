@@ -322,7 +322,7 @@ export default {
      */
     searchAction() {
       this.$store.dispatch('labteam/getDataArray', {
-        page: this.pageMap.page,
+        page: page,
         page_size: this.pageMap.page_size,
       })
     },
