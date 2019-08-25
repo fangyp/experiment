@@ -24,7 +24,7 @@ export default {
 	},
 	data() {
 		return {
-			title: '数据管理平台',
+			title: this.$store.state.settings.title,
 			logo: true
 		}
 	}

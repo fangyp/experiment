@@ -2,7 +2,7 @@
 	<div id="login" class="login-container">
 		<div class="title-container">
 			<img src="../../icons/logo/logotbf.png">
-			<span>数据管理平台</span>
+			<span>{{this.$store.state.settings.title}}</span>
 		</div>
 		<el-form class="login-form">
 			<el-form-item prop="username">
