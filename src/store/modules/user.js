@@ -43,6 +43,7 @@ const state = {
 	avatar: '',
 	introduction: '',
 	roles: [],
+	roleNames: [],
 	permissions: {},
 	/** 密码修改相关 */
 	createFormVisible: false, /** 新建弹出层的显示或隐藏 */
@@ -67,6 +68,9 @@ const mutations = {
 	},
 	SET_ROLES: (state, roles) => {
 		state.roles = roles
+	},
+	SET_ROLE_NAMES: (state, roleNames) => {
+		state.roleNames = roleNames
 	},
 	SET_MENUS: (state, menus) => { // 这里是新增的
 		state.menus = menus
@@ -123,8 +127,9 @@ const actions = {
 				}
 
 				const { info } = data
-				const { role_type, user_name, login_name } = info
+				const { role_type, user_name, login_name, role_name } = info
 				commit('SET_ROLES', [role_type])
+				commit('SET_ROLE_NAMES', [role_name])
 				commit('SET_NAME', login_name)
 				// commit('SET_AVATAR', avatar) // 没有头像
 				commit('SET_INTRODUCTION', user_name)

@@ -61,7 +61,7 @@
 			<el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
 				<div class="avatar-wrapper">
 					<span class="welcome">欢迎您:</span>
-					<span class="name">{{ username }}</span>
+					<span class="name">{{ username }}<span class="role-name">({{roleName}})</span></span>
 					<i class="el-icon-caret-bottom" />
 				</div>
 				<el-dropdown-menu slot="dropdown">
@@ -96,6 +96,7 @@ export default {
 	computed: {
 		...mapState({
 			username: state => state.user.introduction,
+			roleName: state => state.user.roleNames[0] || '',
 			createNew: state => state.user.createNew,
 			validation: state => state.user.validation,
 			createFormStatus: state => state.user.createFormStatus,
@@ -148,6 +149,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/my_variables.scss';
+
 .navbar {
   height: 50px;
   overflow: hidden;
@@ -216,6 +219,11 @@ export default {
           font-size: 25px;
           font-weight: bold;
         }
+		.role-name {
+			font-size: 14px;
+			font-weight: 400;
+			color: $text-minor;
+		}
         .user-avatar {
           cursor: pointer;
           width: 40px;
