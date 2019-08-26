@@ -170,6 +170,9 @@
 										</tr>
 									</tbody>
 								</table>
+								<div class="el-table__empty-block" v-if="null === formRecords || formRecords.length == 0">
+									<span class="el-table__empty-text">没有实验记录</span>
+								</div>
 							</div>
 						</el-form>
 					</el-tab-pane>
