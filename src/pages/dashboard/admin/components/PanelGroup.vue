@@ -155,7 +155,9 @@ export default {
 			}
 
 			.card-panel-num {
+				display: block;
 				font-size: 20px;
+				text-align: right;
 			}
 		}
 	}
