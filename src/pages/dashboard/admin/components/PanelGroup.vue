@@ -1,48 +1,56 @@
 <template>
 	<el-row :gutter="40" class="panel-group" v-if="null !== summary">
 		<el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="summary['experiment_num'] !== undefined && summary['experiment_num'] !== null">
-			<div class="card-panel">
-				<div class="card-panel-icon-wrapper icon-people">
-					<font-awesome-icon icon="flask" class="card-panel-icon"/>
+			<router-link to="/experiment/list">
+				<div class="card-panel">
+					<div class="card-panel-icon-wrapper icon-people">
+						<font-awesome-icon icon="flask" class="card-panel-icon"/>
+					</div>
+					<div class="card-panel-description">
+						<div class="card-panel-text">实验总数</div>
+						<count-to :start-val="0" :end-val="summary['experiment_num']" :duration="2600" class="card-panel-num"/>
+					</div>
 				</div>
-				<div class="card-panel-description">
-					<div class="card-panel-text">实验总数</div>
-					<count-to :start-val="0" :end-val="summary['experiment_num']" :duration="2600" class="card-panel-num"/>
-				</div>
-			</div>
+			</router-link>
 		</el-col>
 		<el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="summary['experiment_processing_num'] !== undefined && summary['experiment_processing_num'] !== null">
-			<div class="card-panel">
-				<div class="card-panel-icon-wrapper icon-message">
-					<font-awesome-icon icon="vial" class="card-panel-icon"/>
+			<router-link to="/experiment/list">
+				<div class="card-panel">
+					<div class="card-panel-icon-wrapper icon-message">
+						<font-awesome-icon icon="vial" class="card-panel-icon"/>
+					</div>
+					<div class="card-panel-description">
+						<div class="card-panel-text">进行中实验</div>
+						<count-to :start-val="0" :end-val="summary['experiment_processing_num']" :duration="3000" class="card-panel-num"/>
+					</div>
 				</div>
-				<div class="card-panel-description">
-					<div class="card-panel-text">进行中实验</div>
-					<count-to :start-val="0" :end-val="summary['experiment_processing_num']" :duration="3000" class="card-panel-num"/>
-				</div>
-			</div>
+			</router-link>
 		</el-col>
 		<el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="summary['user_num'] !== undefined && summary['user_num'] !== null">
-			<div class="card-panel">
-				<div class="card-panel-icon-wrapper icon-money">
-					<svg-icon icon-class="user" class-name="card-panel-icon"/>
+			<router-link to="/user/list">
+				<div class="card-panel">
+					<div class="card-panel-icon-wrapper icon-money">
+						<svg-icon icon-class="user" class-name="card-panel-icon"/>
+					</div>
+					<div class="card-panel-description">
+						<div class="card-panel-text">人 员</div>
+						<count-to :start-val="0" :end-val="summary['user_num']" :duration="3200" class="card-panel-num"/>
+					</div>
 				</div>
-				<div class="card-panel-description">
-					<div class="card-panel-text">人 员</div>
-					<count-to :start-val="0" :end-val="summary['user_num']" :duration="3200" class="card-panel-num"/>
-				</div>
-			</div>
+			</router-link>
 		</el-col>
 		<el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="summary['team_num'] !== undefined && summary['team_num'] !== null">
-			<div class="card-panel">
-				<div class="card-panel-icon-wrapper icon-shopping">
-					<svg-icon icon-class="peoples" class-name="card-panel-icon"/>
-				</div>
-				<div class="card-panel-description">
-					<div class="card-panel-text">实验组</div>
-					<count-to :start-val="0" :end-val="summary['team_num']" :duration="3600" class="card-panel-num"/>
-				</div>
+			<router-link to="/lab-team/list">
+				<div class="card-panel">
+					<div class="card-panel-icon-wrapper icon-shopping">
+						<svg-icon icon-class="peoples" class-name="card-panel-icon"/>
+					</div>
+					<div class="card-panel-description">
+						<div class="card-panel-text">实验组</div>
+						<count-to :start-val="0" :end-val="summary['team_num']" :duration="3600" class="card-panel-num"/>
+					</div>
 			</div>
+			</router-link>
 		</el-col>
 	</el-row>
 </template>
