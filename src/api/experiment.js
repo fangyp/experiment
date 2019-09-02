@@ -184,6 +184,39 @@ export function listAudits(experimentId) {
 	})
 }
 
+/**
+ * 分配实验人员
+ */
+export function assign(experimentId, userId) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/assign/' + experimentId,
+		params: { user_id: userId },
+		successMsg: '已分配实验负责人'
+	})
+}
+
+/**
+ * 解除已分配的实验人员
+ */
+export function unassign(experimentId) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/unassign/' + experimentId,
+		successMsg: '已解除分配'
+	})
+}
+
+/**
+ * 获取可分配的实验人员
+ */
+export function listaAssignableUsers(experimentId) {
+	return webcore.admin.Service.requestAdmin({
+		url: '/experiment/assignable-users/' + experimentId,
+		showSuccessMsg: false,
+		showLoading: true,
+		redirectInNoPermission: false
+	})
+}
+
 export default {
 	getExperiment,
 	preloadData,
@@ -201,5 +234,8 @@ export default {
 	revokeAudit,
 	startAudit,
 	audit,
-	listAudits
+	listAudits,
+	assign,
+	unassign,
+	listaAssignableUsers
 }

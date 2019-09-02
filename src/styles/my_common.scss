@@ -21,12 +21,13 @@
 	text-align: right !important
 }
 
-// 文字颜色
+// 文字颜色(中性色)
 .text-major { color: $text-major; } // 主要颜色
 .text-general { color: $text-general;} // 一般颜色
 .text-minor { color: $text-minor; } // 次要颜色
 .text-placeholder { color: $text-placeholder; } // 占位颜色
-
+// 文字颜色(业务色)
+.text-danger { color: #ff4949; } // 主要颜色
 
 // 文字样式
 .text-ellipsis {
@@ -41,6 +42,7 @@
 	margin-bottom: 5px;
 	color: $text-minor;
 	font-size: .75em;
+	line-height: 1.2;
 }
 
 // ----- 自定义留白、边距类 -----

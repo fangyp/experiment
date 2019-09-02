@@ -46,10 +46,10 @@
 									<el-input v-model="baseForm.experiment_name" maxlength="20" style="min-width:200px" :readonly="autoSaveLock"/>
 								</el-form-item>
 								<el-form-item label="温度℃ :" prop="temperature">
-									<el-input v-model.number="baseForm.temperature" type="number" style="min-width:200px" :readonly="autoSaveLock"/>
+									<el-input v-model="baseForm.temperature" style="min-width:200px" :readonly="autoSaveLock"/>
 								</el-form-item>
 								<el-form-item label="湿度RH% :" prop="humidity">
-									<el-input v-model.number="baseForm.humidity" type="number" style="min-width:200px" :readonly="autoSaveLock"/>
+									<el-input v-model="baseForm.humidity" style="min-width:200px" :readonly="autoSaveLock"/>
 								</el-form-item>
 							</el-form>
 						</el-col>
@@ -413,8 +413,8 @@ export default {
 			baseForm: {
 				experiment_name: '',
 				experiment_type: '',
-				temperature: 0,
-				humidity: 0,
+				temperature: '',
+				humidity: '',
 				purpose: '',
 				r_nco: '',
 				conclusion: '',
@@ -510,8 +510,8 @@ export default {
 			if (this.experiment !== null) {
 				this.baseForm = {
 					experiment_name: this.experiment.experiment_name,
-					temperature: Number(this.experiment.temperature),
-					humidity: Number(this.experiment.humidity),
+					temperature: this.experiment.temperature,
+					humidity: this.experiment.humidity,
 					purpose: this.experiment.purpose,
 					r_nco: this.experiment.r_nco,
 					conclusion: this.experiment.conclusion,
@@ -685,7 +685,6 @@ export default {
 				msg: '确定保存实验全部数据吗？',
 				title: '保存实验',
 				yesCallback: function() {
-					console.log('yesCallback')
 					self.submitUpdate(false)
 				},
 			})
@@ -724,21 +723,18 @@ export default {
 			if (this.$refs['baseForm']) {
 				this.$refs['baseForm'].validate(valid => {
 					if (!valid) {
-						console.log('baseForm')
 						return false
 					}
 
 					if (self.$refs['baseForm2']) {
 						self.$refs['baseForm2'].validate(valid => {
 							if (!valid) {
-								console.log('baseForm2')
 								return false
 							}
 
 							if (self.$refs['baseForm3']) {
 								self.$refs['baseForm3'].validate(valid => {
 									if (!valid) {
-										console.log('baseForm3')
 										return false
 									}
 									try {

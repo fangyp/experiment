@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import poppyjs from 'poppyjs-elem'
 // import store from '@/store'
 import { getToken } from '@/utils/auth'
@@ -24,7 +23,7 @@ class NetUtil {
 		}
 
 		return poppyjs.biz.Http.request(options).then((response) => {
-			let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
+			const checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
 				poppyjs.html.Dialog.closeLoading()
 				poppyjs.html.Dialog.showToast('未登录认证，正在跳转登录页面', () => {
 					// 登录超时，跳转到登录页
@@ -34,21 +33,8 @@ class NetUtil {
 					}, 600)
 				})
 			})
-			if (checkResult) {
-				checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
-					poppyjs.html.Dialog.closeLoading()
-					poppyjs.html.Dialog.showToast('您没有权限操作该页面', () => {
-						// 权限错误，跳转到首页
-						setTimeout(() => {
-							router.push('/')
-						}, 600)
-					})
-				})
-			}
-
 			return new Promise((resolve, reject) => {
 				if (checkResult) {
-					console.log(response);
 					resolve(response.data)
 				} else {
 					reject(response.data)
@@ -58,47 +44,6 @@ class NetUtil {
 			// poppyjs.html.Dialog.showNetError()
 			return Promise.reject(response.data)
 		})
-
-		/*
-		return new Promise((resolve, reject) => {
-			// 这里的getMenus是调用request方法从服务端获得路由菜单数据的Promise，类似getInfo
-			options.headers = { 'X-ACCESS-TOKEN': getToken() }
-			if (options.autoRefresh) {
-				options.headers['X-AUTO-REFRESH'] = 1
-			}
-			poppyjs.biz.Http.request(options).then(
-				(response) => {
-					let checkResult = poppyjs.biz.Http.handleNoAuth(response.data, () => {
-						poppyjs.html.Dialog.closeLoading()
-						poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
-							// 登录超时，跳转到登录页
-							removeToken()
-							router.push('/auth/login')
-						})
-					})
-					if (checkResult) {
-						checkResult = poppyjs.biz.Http.handleNoPermission(response.data, () => {
-							poppyjs.html.Dialog.closeLoading()
-							poppyjs.html.Dialog.showToast('正在跳转登录页面..', () => {
-								// 权限错误，跳转到首页
-								router.push('/')
-							})
-						})
-					}
-
-					if (checkResult) {
-						resolve(response.data)
-					} else {
-						reject(response.data)
-					}
-				},
-				(response) => {
-					poppyjs.html.Dialog.showNetError()
-					reject(response.data)
-				}
-			)
-		}) // Promise
-		*/
 	}
 
 	// 基于全站根路径的页面跳转，例如： /auth/login

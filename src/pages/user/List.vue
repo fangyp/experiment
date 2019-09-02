@@ -211,6 +211,7 @@
             show-password
             placeholder="设置登录密码"
           />
+		  <div class="note-block">温馨提示：密码必须由字母和数字组成，且必须以大写字母开头</div>
         </el-form-item>
         <el-form-item
           v-show="createFormStatus==='create'|| createFormStatus==='password'"

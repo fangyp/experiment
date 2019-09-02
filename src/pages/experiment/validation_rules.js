@@ -1,3 +1,17 @@
+function numericValidator(rule, value, callback) {
+	if (!rule.required && (value === null || value === '')) {
+		return callback()
+	}
+	if (/^-?([1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0)$/.test(value) || /^-?[1-9]\d*$/.test(value)) {
+		return callback()
+	}
+	const temp = Number(value)
+	if (temp < rule.min || temp > rule.max) {
+		return callback('')
+	}
+	return callback()
+}
+
 // 实验数据基本校验规则
 export const baseRules = {
 	experiment_name: [
@@ -6,14 +20,8 @@ export const baseRules = {
 	experiment_type: [
 		{ required: true, message: '请选择实验类型', trigger: 'change' }
 	],
-	temperature: [
-		{ type: 'number', message: '温度必须为数值', trigger: 'blur' },
-		{ type: 'number', min: -1000, max: 1000, message: '温度范围 -1000℃ ~ +1000℃', trigger: 'blur' }
-	],
-	humidity: [
-		{ type: 'number', message: '湿度必须为数值', trigger: 'blur' },
-		{ type: 'number', min: 0, max: 100, message: '温度范围 0% ~ 100%', trigger: 'blur' }
-	]
+	temperature: { min: -1000, max: 1000, validator: numericValidator, message: '必须为数值，范围 -1000℃ ~ +1000℃', trigger: 'blur' },
+	humidity: { min: 0, max: 100, validator: numericValidator, message: '必须为数值，范围 0% ~ 100%', trigger: 'blur' }
 }
 
 export const baseRules2 = {

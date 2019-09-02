@@ -74,7 +74,16 @@
 						</el-col>
 						<el-col :sm="12" :lg="8">
 							<div class="field-item">
-								<label>实验员：</label><span class="card-panel-text">{{ experiment.user_name }}</span>
+								<label>实验员：</label>
+								<!-- 已分配了人员时 -->
+								<span class="card-panel-text" v-if="experiment.user_id > 0">{{ experiment.user_name }}
+									<el-button type="text" @click="unassignMember"><i class="el-icon-close text-danger" /></el-button>
+								</span>
+								<!-- 未分配人员时 -->
+								<span class="card-panel-text text-placeholder" v-else>
+									<font-awesome-icon icon="user-plus" v-if="experimentAbility.assign" @click="showAssignMember" />
+									<font-awesome-icon icon="user" v-else />
+								</span>
 							</div>
 						</el-col>
 						<el-col :sm="12" :lg="8">
@@ -266,6 +275,10 @@
 		<!-- 测试记录新增/编辑弹出框 -->
 		<experiment-testing-add :visible="addTestingVisible" :experiment-id="experimentId" :testing="currentEditTesting"
 		:close-callback="handleTestingAddClose" :confirm-callback="handleTestingAddConfirm"/>
+
+		<!-- 分配人员弹框 -->
+		<assigning-member :visible="assigningMemberVisible" :experiment-id="experimentId" 
+		:close-callback="handleAssignMemberClose" :confirm-callback="handleAssignMemberConfirm"/>
 	</div>
 	<!-- /.app-container -->
 </template>
@@ -280,13 +293,15 @@ import experimentService from './experiment_service'
 import ExperimentAudit from './components/ExperimentAudit'
 import ExperimentTestingAdd from './components/ExperimentTestingAdd'
 import AuditList from './components/AuditList'
+import AssigningMember from './components/AssigningMember'
 
 export default {
 	name: 'ExperimentInfo',
 	components: {
 		ExperimentAudit,
 		ExperimentTestingAdd,
-		AuditList
+		AuditList,
+		AssigningMember,
 	},
 	filters: {
 		// 用户获取状态颜色
@@ -356,6 +371,9 @@ export default {
 
 			// 实验审核弹框
 			experimentAuditVisible: false,
+
+			// 分配实验人员
+			assigningMemberVisible: false,
 
 			// Other
 			pickerOptions: {
@@ -637,6 +655,25 @@ export default {
 		// 处理完成审核的关闭操作
 		handleAuditClose() {
 			this.experimentAuditVisible = false
+		},
+
+		// 显示分配实验负责人
+		showAssignMember() {
+			this.assigningMemberVisible = true
+		},
+		// 解除实验负责人
+		unassignMember() {
+			experimentService.showUnsignMemberConfirm(this.experimentId, resp => {
+				this.loadData()
+			})
+		},
+		// 分配实验负责人完成后的操作
+		handleAssignMemberConfirm(user) {
+			this.assigningMemberVisible = false
+			this.loadData()
+		},
+		handleAssignMemberClose() {
+			this.assigningMemberVisible = false
 		}
 
 	}

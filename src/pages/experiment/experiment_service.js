@@ -91,6 +91,21 @@ export function showStartAuditConfirm(experimentId, successCallback) {
 	})
 }
 
+// 显示解除人员分配的确认
+export function showUnsignMemberConfirm(experimentId, successCallback) {
+	poppyjs.html.Dialog.showConfirm({
+		title: '解除人员分配',
+		msg: '确定将本实验已分配的人员解除吗？',
+		yesCallback: () => {
+			experimentApi.unassign(experimentId).then((resp) => {
+				if (undefined !== successCallback && typeof successCallback === 'function') {
+					successCallback(resp)
+				}
+			})
+		}
+	})
+}
+
 export function getExperimentAbility(permissions, experiment) {
 	return {
 		expAdd: (permissions['experiment.add']),
@@ -104,7 +119,9 @@ export function getExperimentAbility(permissions, experiment) {
 		auditAudit: (permissions['experiment.audit_finish'] && experiment != null && experiment.can_finish_audit),
 		testingAdd: (permissions['experiment.testing.add'] && experiment !== null && experiment.can_edit && experiment.is_testing),
 		testingEdit: (permissions['experiment.testing.update'] && experiment !== null && experiment.can_edit && experiment.is_testing),
-		testingDelete: (permissions['experiment.testing.delete'] && experiment !== null && experiment.can_edit && experiment.is_testing)
+		testingDelete: (permissions['experiment.testing.delete'] && experiment !== null && experiment.can_edit && experiment.is_testing),
+		assign: (permissions['experiment.user.assign'] && experiment !== null && experiment.can_edit),
+		unassign: (permissions['experiment.user.unassign'] && experiment !== null && experiment.can_edit)
 	}
 }
 
@@ -115,5 +132,6 @@ export default {
 	showApplyAuditConfirm,
 	showRevokeAuditConfirm,
 	showStartAuditConfirm,
-	getExperimentAbility
+	getExperimentAbility,
+	showUnsignMemberConfirm
 }

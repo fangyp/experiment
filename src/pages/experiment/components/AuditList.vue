@@ -23,12 +23,12 @@ export default {
 	props: {
 		experimentId: {
 			type: String,
-			default: null,
-		},
+			default: null
+		}
 	},
 	data() {
 		return {
-			list: [],
+			list: []
 		}
 	},
 	filters: {
@@ -52,7 +52,7 @@ export default {
 		loadData() {
 			experimentApi.listAudits(this.experimentId).then(resp => {
 				this.list = resp.data
-		})
+			})
 		}
 	}
 }
