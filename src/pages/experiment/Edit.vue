@@ -591,8 +591,8 @@ export default {
 		removeParameter(event, index, procedure) {
 			if (procedure.experiment_parameters && procedure.experiment_parameters.length > 1) {
 				poppyjs.html.Dialog.showConfirm({
-					msg: '确定移除本行实验步骤吗？',
-					title: '移除实验步骤',
+					msg: '确定移除本行实验参数吗？',
+					title: '移除实验参数',
 					yesBtn: '移除',
 					yesCallback: function() {
 						procedure.experiment_parameters.splice(index, 1)
