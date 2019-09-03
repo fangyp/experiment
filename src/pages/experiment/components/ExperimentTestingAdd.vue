@@ -10,6 +10,7 @@
 		:close-on-press-escape="false"
 		:destroy-on-close="true"
 		:before-close="handleClose"
+		v-el-drag-dialog
 	>
 		<el-form
 			ref="form"
@@ -48,11 +49,13 @@
 </template>
 
 <script>
+import elDragDialog from '@/directive/el-drag-dialog'
 import experimentApi from '@/api/experiment'
 import { testingRules } from '../validation_rules'
 
 export default {
 	name: 'ExperimentTesting',
+	directives: { elDragDialog },
 	props: {
 		visible: {
 			type: Boolean,

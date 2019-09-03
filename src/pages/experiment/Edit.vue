@@ -241,7 +241,7 @@
 									<td>{{ index + 1 }}.</td>
 									<td>
 										<el-form-item prop="content">
-											<el-input v-model="record.content" type="textarea" maxlength="200" rows="2" placeholder="输入实验记录内容" show-word-limit
+											<el-input v-model="record.content" type="textarea" maxlength="200" rows="3" placeholder="输入实验记录内容" show-word-limit
 											:readonly="autoSaveLock"/>
 										</el-form-item>
 									</td>
@@ -340,6 +340,7 @@
 				</el-card>
 			</el-col>
 		</el-row>
+
 		<!-- 实验步骤的实验记录编辑框 -->
 		<el-drawer
 			ref="drawer"
@@ -347,40 +348,76 @@
 			:visible.sync="recordEditBox"
 			direction="rtl"
 			:modal="true"
-			size="45%"
+			size="60%"
 			:before-close="handleRecordEditBoxClose"
 		>
 			<div v-if="null !== recordEditIndex && recordEditIndex >= 0" class="record-edit-box">
 				<el-form :model="formProcedures[recordEditIndex]">
 					<el-form-item prop="record_content">
+						<el-button-group class="mg-b-sm">
+							<!-- 快捷输入栏 -->
+							<el-button type="default" size="small"
+							v-for="(ch, index) in [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ]" :key="index"
+							@click="insertChemChar(ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ch[1]}}</sub></el-button>
+						</el-button-group>
+						<el-button-group class="mg-b-sm">
+							<!-- 元素周期元素输入栏 -->
+							<el-button type="default" size="small" v-for="(ch, index) in periodicTop" :key="index" style="min-width:75px;"
+							@click="insertChemChar(ch[0], false)">{{ch[0]}}<sup> {{ch[1]}}</sup></el-button>
+
+							<el-button type="primary" size="small" class="mg-l-xs" @click="periodicVisible = true">更多</el-button>
+						</el-button-group>
 						<el-input
+							ref="record_content"
 							v-model="formProcedures[recordEditIndex].record_content"
 							type="textarea"
-							rows="8"
+							rows="12"
 							placeholder="输入实验记录"
 							maxlength="200"
 							show-word-limit
+							style="font-size: 1.5em;letter-spacing: 0.13em;"
 						/>
 					</el-form-item>
 				</el-form>
 			</div>
 		</el-drawer>
+		<!-- 元素周期键盘 -->
+		<el-dialog
+			title="元素符号输入"
+			:visible.sync="periodicVisible"
+			:modal="true"
+			:destroy-on-close="true"
+			width="80%"
+			top="6vh"
+			v-el-drag-dialog
+		>
+			<el-button-group>
+				<!-- 元素周期元素输入栏 -->
+				<el-button type="default" size="small" style="min-width:75px;"
+				v-for="(ch, index) in periodic" :key="index"
+				@click="insertChemChar(ch[0], true)">{{ch[0]}} <sup>{{ch[1]}}</sup></el-button>
+			</el-button-group>
+		</el-dialog>
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
 import poppyjs from 'poppyjs-elem'
+import elDragDialog from '@/directive/el-drag-dialog'
 import { mapGetters } from 'vuex'
 import experimentApi from '@/api/experiment'
 import { baseRules, baseRules2, baseRules3 } from './validation_rules'
 import experimentService from './experiment_service'
 import { BoolEnum, ExperimentStatusEnum } from '@/webcore/common/enums'
+import periodic from './periodic'
+
 // 自动保存间隔时间，单位：秒
 const AUTO_SAVE_INTERVAL = 60
 
 export default {
 	name: 'ExperimentEdit',
+	directives: { elDragDialog },
 	filters: {
 		// 用户获取状态颜色
 		expStatusFilter(status) {
@@ -434,6 +471,11 @@ export default {
 			autoSaveInerval: null,
 			autoSaveLock: false, // true代表处于自动保存中，需要锁定相关输入项
 			isErrorBack: false, // 当返回上一页时，标志是否是发生了错误返回的
+
+			// 元素周期表数据
+			periodic: periodic,
+			periodicTop: periodic.slice(0, 20),
+			periodicVisible: false
 		}
 	},
 
@@ -464,8 +506,9 @@ export default {
 			} else {
 				next(false)
 			}
+		} else {
+			next()
 		}
-		next()
 	},
 
 	computed: {
@@ -617,6 +660,26 @@ export default {
 			}
 			this.recordEditBox = false
 			this.recordEditIndex = null
+		},
+
+		insertChemChar(str, keyBoard = false) {
+			const recordContentBox = this.$refs.record_content
+			const textBox = recordContentBox.$el.getElementsByTagName('textarea')[0]
+			if (textBox) {
+				if (null !== textBox.selectionStart && null !== textBox.selectionEnd) {
+					const strLeft = textBox.value.substring(0, textBox.selectionStart)
+					const strRight = textBox.value.substr(textBox.selectionEnd)
+					this.formProcedures[this.recordEditIndex].record_content = strLeft + str + strRight
+					textBox.focus()
+					// 插入字符后光标移动到插入字符的后边
+					this.$nextTick(() => {
+						textBox.setSelectionRange((strLeft + str).length, (strLeft + str).length)
+					})
+				}
+			}
+			if (keyBoard) {
+				this.periodicVisible = false
+			}
 		},
 
 		// 添加一行实验记录

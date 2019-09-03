@@ -7,6 +7,7 @@
 		:close-on-press-escape="false"
 		:destroy-on-close="true"
 		:before-close="handleClose"
+		v-el-drag-dialog
 	>
 		<el-form ref="form" :rules="rules" :model="formData" label-position="left" label-width="80px">
 			<el-form-item label="审核结果" prop="result">
@@ -34,10 +35,12 @@
 </template>
 
 <script>
+import elDragDialog from '@/directive/el-drag-dialog'
 import experimentApi from '@/api/experiment'
 
 export default {
 	name: 'ExperimentAudit',
+	directives: { elDragDialog },
 	props: {
 		visible: {
 			type: Boolean,

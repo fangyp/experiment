@@ -112,7 +112,6 @@
 											<td>试剂</td>
 											<td style="min-width:100px; width:14%">理论量/g</td>
 											<td style="min-width:100px; width:14%">实际量/g</td>
-											<td style="max-width:55px; width:55px;" />
 											<td style="min-width:100px; width:19%">实验记录</td>
 										</tr>
 									</thead>
@@ -129,7 +128,6 @@
 													<td>{{ procedure.experiment_parameters[0].reagent }}</td>
 													<td>{{ procedure.experiment_parameters[0].theoretical_volum }}</td>
 													<td>{{ procedure.experiment_parameters[0].actual_volum }}</td>
-													<td />
 												</template>
 
 												<!-- 实验记录列 -->
@@ -146,8 +144,6 @@
 													<td>{{ parameters.reagent }}</td>
 													<td>{{ parameters.theoretical_volum }}</td>
 													<td>{{ parameters.actual_volum }}</td>
-													<td>{{ parameters.remark }}</td>
-													<td />
 												</tr>
 											</template>
 										</template>
@@ -264,9 +260,9 @@
 		</el-row>
 
 		<!-- 实验步骤的实验记录编辑框 -->
-		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="50%"
+		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="45%"
 		:before-close="handleProcedureRecordClose">
-			<div class="pad-md"><pre class="text-box">{{ showRecordContent }}</pre></div>
+			<div class="pad-md"><pre class="text-box" style="min-height: 300px;">{{ showRecordContent }}</pre></div>
 		</el-drawer>
 
 		<!-- 实验审核弹框 -->
