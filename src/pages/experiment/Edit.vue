@@ -442,15 +442,14 @@
 			</el-button-group>
 		</el-dialog>
 
-	<div id="div1">
-	</div>
+	<!--<div id="div1"></div>-->
 
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
-import Kekule from 'kekule'
+// import Kekule from 'kekule'
 // const Kekule = require('kekule').Kekule
 import poppyjs from 'poppyjs-elem'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -554,6 +553,7 @@ export default {
 		this.loadData()
 	},
 
+	/*
 	mounted: function() {
 		setTimeout(() => {
 					console.log(document.getElementById('div1'))
@@ -561,6 +561,7 @@ export default {
 		}, 3000);
 
 	},
+	*/
 
 	beforeDestroy() {
 		this.stopAutoSave()
