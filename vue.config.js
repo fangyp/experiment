@@ -71,17 +71,22 @@ module.exports = {
 		after: require('./mock/mock-server.js')
 	},
 
-	configureWebpack: {
+	configureWebpack: config => {
 		// provide the app's title in webpack's name field, so that
 		// it can be accessed in index.html to inject the correct title.
-		name: name,
-		resolve: {
-			alias: {
-				'@': resolve('src')
+
+		// ** 特别重要：没有这句配置，kekule加载时会出错，因为其中部分变量名字被压缩后将无法运行
+		config.optimization.minimizer[0].options.terserOptions.mangle.reserved = ['$super', '$origin']
+
+		return {
+			name: name,
+			resolve: {
+				alias: {
+					'@': resolve('src')
+				}
 			}
 		}
 	},
-
 
 	chainWebpack(config) {
 		// config.plugins.delete('preload') // TODO: need test
