@@ -103,6 +103,7 @@ module.exports = {
 				symbolId: 'icon-[name]'
 			})
 			.end()
+		config.module.rule('cur').test(/\.(cur|ico)$/).use('file-loader').loader('file-loader')
 
 		// set preserveWhitespace
 		config.module

@@ -355,6 +355,7 @@
 			:destroy-on-close="true"
 			:before-close="handleRecordEditBoxClose"
 			v-if="recordEditBox"
+			style="overflow-y: scroll"
 		>
 			<div v-if="null !== recordEditIndex && recordEditIndex >= 0" class="record-edit-box">
 				<el-form :model="formProcedures[recordEditIndex]">
@@ -376,13 +377,21 @@
 							ref="record_content"
 							v-model="formProcedures[recordEditIndex].record_content"
 							type="textarea"
-							rows="12"
+							rows="10"
 							placeholder="输入实验记录"
 							maxlength="200"
 							show-word-limit
 							:readonly="autoSaveLock"
 							style="font-size: 1.5em;letter-spacing: 0.13em;"
 						/>
+					</el-form-item>
+
+					<!-- 化学结构式 Viewer -->
+					<el-form-item>
+						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;"
+						data-widget="Kekule.ChemWidget.Viewer" data-chem-obj="url(#molecule)">
+							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit" />
+						</div>
 					</el-form-item>
 				</el-form>
 			</div>
@@ -420,7 +429,7 @@
 							ref="record_content2"
 							v-model="formRecords[recordEditIndex].content"
 							type="textarea"
-							rows="12"
+							rows="10"
 							placeholder="输入实验记录"
 							maxlength="200"
 							show-word-limit
@@ -442,14 +451,50 @@
 			</el-button-group>
 		</el-dialog>
 
-	<!--<div id="div1"></div>-->
+		<!-- 化学结构式编辑器 -->
+		<el-dialog title="结构式编辑" v-if="chemEditVisible" :visible.sync="chemEditVisible" :modal="true" :destroy-on-close="true"
+		width="70%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
+			<div id="chemEditBox" style="width:100%;height:600px" data-widget="Kekule.Editor.Composer" data-chem-obj="url(#molecule)"></div>
+		</el-dialog>
+
+		<script id="molecule" type="chemical/x-mdl-molfile">
+
+		CDK    9/19/06,14:29
+
+		12 12  0  0  0  0  0  0  0  0999 V2000
+		415.0000  974.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		383.8231  992.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		383.8231 1028.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		415.0000 1046.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		446.1769 1028.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		446.1769  992.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		352.6462 1046.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+		352.6462 1082.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		352.6462  974.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		415.0000  938.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		477.3538  974.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		477.3538 1046.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+		1  2  1  0  0  0  0
+		2  3  1  0  0  0  0
+		3  4  1  0  0  0  0
+		4  5  1  0  0  0  0
+		5  6  1  0  0  0  0
+		6  1  1  0  0  0  0
+		3  7  1  1  0  0  0
+		7  8  1  0  0  0  0
+		2  9  1  6  0  0  0
+		1 10  1  1  0  0  0
+		6 11  1  1  0  0  0
+		5 12  1  0  0  0  0
+		M  END
+		</script>
 
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
-// import Kekule from 'kekule'
+import Kekule from 'kekule'
 // const Kekule = require('kekule').Kekule
 import poppyjs from 'poppyjs-elem'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -525,9 +570,13 @@ export default {
 
 			// 元素周期表数据
 			periodic: periodic,
-			periodicTop: periodic.slice(0, 20),
+			periodicTop: periodic.slice(0, 15),
 			periodicVisible: false,
-			periodicKeyboardTarget: 'recored_content'
+			periodicKeyboardTarget: 'recored_content',
+
+			// 化学结构式编辑器
+			chemEditVisible: false,
+			chemEditor: null
 		}
 	},
 
@@ -552,16 +601,6 @@ export default {
 		}
 		this.loadData()
 	},
-
-	/*
-	mounted: function() {
-		setTimeout(() => {
-					console.log(document.getElementById('div1'))
-			var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('div1'))
-		}, 3000);
-
-	},
-	*/
 
 	beforeDestroy() {
 		this.stopAutoSave()
@@ -709,6 +748,20 @@ export default {
 		appendRecordToProcedure(event, procedure, index) {
 			this.recordEditBox = true
 			this.recordEditIndex = index
+
+			this.$nextTick(() => {
+				setTimeout(() => {
+					console.log(document.getElementById('chemViewer'))
+					var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('chemViewer'))
+					chemViewer.setEnableToolbar(true)
+					.setEnableDirectInteraction(true)
+					.setEnableEdit(false)
+					.setToolButtons([
+						'zoomIn', 'zoomOut',
+						'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'
+					])
+				}, 800)
+			})
 		},
 
 		handleRecordEditBoxClose() {
@@ -725,7 +778,6 @@ export default {
 		},
 
 		showRecordEdit2(index) {
-			console.log(index)
 			this.recordEditBox2 = true
 			this.recordEditIndex = index
 		},
@@ -757,6 +809,48 @@ export default {
 			if (keyBoard) {
 				this.periodicVisible = false
 			}
+		},
+
+		// 显示化学结构式编辑器
+		showChemEdit() {
+			const self = this
+			this.chemEditVisible = true
+
+			this.$nextTick(() => {
+				setTimeout(() => {
+					const composer = new Kekule.Editor.Composer(document.getElementById('chemEditBox'))
+					console.log('>>>>>>>>>>>. 123')
+					self.chemEditor = composer
+					composer.setEnableOperHistory(true)
+					.setEnableLoadNewFile(false)
+					.setEnableCreateNewDoc(false)
+					.setAllowCreateNewChild(true)
+					.setCommonToolButtons(['undo', 'redo', 'copy', 'cut', 'paste',
+						'zoomIn', 'reset', 'zoomOut', 'config', 'objInspector'])   // create all default common tool buttons
+					.setChemToolButtons(['manipulate', 'erase', 'bond', 'atom', 'formula',
+						'ring', 'charge', 'glyph', 'textAndImage'])   // create all default chem tool buttons
+					.setStyleToolComponentNames(['fontName', 'fontSize', 'color',
+						'textDirection', 'textAlign'])
+					console.log(self.chemEditor)
+				}, 500);
+			})
+		},
+		hideChemEdit() {
+			this.chemEditVisible = false
+			this.chemEditor = null
+		},
+		handleChemEditClose() {
+			const chemObj = this.chemEditor.getChemObj()
+			const data = Kekule.IO.saveFormatData(chemObj, 'cml')
+			// and save molecule in CML
+			var cmlData = Kekule.IO.saveFormatData(chemObj, 'cml')
+			console.log(cmlData, typeof cmlData)
+			cmlData = Kekule.IO.saveFormatData(chemObj, 'mol')
+			console.log(cmlData, typeof cmlData)
+			cmlData = Kekule.IO.saveFormatData(chemObj, 'smi')
+			console.log(cmlData, typeof cmlData)
+
+			this.hideChemEdit()
 		},
 
 		// 添加一行实验记录
@@ -1054,5 +1148,9 @@ pre {
 		padding: 0;
 		border: none;
 	}
+}
+
+.el-drawer__body {
+	overflow-y: scroll;
 }
 </style>
