@@ -222,7 +222,7 @@
 			</el-tab-pane>
 
 			<!-- 更多实验记录 Tab -->
-			<el-tab-pane label="实验记录">
+			<el-tab-pane label="更多实验记录">
 				<el-form v-model="formProcedures" label-position="left" class="demo-table-expand" size="mini">
 					<div class="note-block">温馨提示：你可以添加和实验步骤无关的实验记录内容</div>
 
@@ -241,8 +241,11 @@
 									<td>{{ index + 1 }}.</td>
 									<td>
 										<el-form-item prop="content">
-											<el-input v-model="record.content" type="textarea" maxlength="200" rows="3" placeholder="输入实验记录内容" show-word-limit
-											:readonly="autoSaveLock"/>
+											<pre class="text-box" @click="showRecordEdit2(index)">{{ record.content }}</pre>
+											<!--
+											<el-input :value="record.content" type="textarea" maxlength="200" rows="3" placeholder="输入实验记录内容" show-word-limit
+											:readonly="true" @click.native="showRecordEdit2(index)"/>
+											-->
 										</el-form-item>
 									</td>
 									<td>
@@ -348,8 +351,10 @@
 			:visible.sync="recordEditBox"
 			direction="rtl"
 			:modal="true"
-			size="60%"
+			size="70%"
+			:destroy-on-close="true"
 			:before-close="handleRecordEditBoxClose"
+			v-if="recordEditBox"
 		>
 			<div v-if="null !== recordEditIndex && recordEditIndex >= 0" class="record-edit-box">
 				<el-form :model="formProcedures[recordEditIndex]">
@@ -358,14 +363,14 @@
 							<!-- 快捷输入栏 -->
 							<el-button type="default" size="small"
 							v-for="(ch, index) in [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ]" :key="index"
-							@click="insertChemChar(ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ch[1]}}</sub></el-button>
+							@click="insertChemChar('record_content', ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ ch[1] }}</sub></el-button>
 						</el-button-group>
 						<el-button-group class="mg-b-sm">
 							<!-- 元素周期元素输入栏 -->
 							<el-button type="default" size="small" v-for="(ch, index) in periodicTop" :key="index" style="min-width:75px;"
-							@click="insertChemChar(ch[0], false)">{{ch[0]}}<sup> {{ch[1]}}</sup></el-button>
+							@click="insertChemChar('record_content', ch[0], false)">{{ ch[0] }}<sup> {{ ch[1] }}</sup></el-button>
 
-							<el-button type="primary" size="small" class="mg-l-xs" @click="periodicVisible = true">更多</el-button>
+							<el-button type="primary" size="small" class="mg-l-xs" @click="periodicVisible = true; periodicKeyboardTarget = 'record_content'">更多</el-button>
 						</el-button-group>
 						<el-input
 							ref="record_content"
@@ -375,34 +380,78 @@
 							placeholder="输入实验记录"
 							maxlength="200"
 							show-word-limit
+							:readonly="autoSaveLock"
 							style="font-size: 1.5em;letter-spacing: 0.13em;"
 						/>
 					</el-form-item>
 				</el-form>
 			</div>
 		</el-drawer>
-		<!-- 元素周期键盘 -->
-		<el-dialog
-			title="元素符号输入"
-			:visible.sync="periodicVisible"
+
+		<!-- 更多实验记录编辑框 -->
+		<el-drawer
+			ref="drawer"
+			title="编辑实验记录"
+			:visible.sync="recordEditBox2"
+			direction="rtl"
 			:modal="true"
+			size="70%"
 			:destroy-on-close="true"
-			width="80%"
-			top="6vh"
-			v-el-drag-dialog
+			:before-close="handleRecordEditBoxClose2"
+			v-if="recordEditBox2"
 		>
+			<div v-if="null !== recordEditIndex && recordEditIndex >= 0" class="record-edit-box">
+				<el-form>
+					<el-form-item prop="content">
+						<el-button-group class="mg-b-sm">
+							<!-- 快捷输入栏 -->
+							<el-button type="default" size="small"
+							v-for="(ch, index) in [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ]" :key="index"
+							@click="insertChemChar('record_content2', ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ ch[1] }}</sub></el-button>
+						</el-button-group>
+						<el-button-group class="mg-b-sm">
+							<!-- 元素周期元素输入栏 -->
+							<el-button type="default" size="small" v-for="(ch, index) in periodicTop" :key="index" style="min-width:75px;"
+							@click="insertChemChar('record_content2', ch[0], false)">{{ ch[0] }}<sup> {{ ch[1] }}</sup></el-button>
+
+							<el-button type="primary" size="small" class="mg-l-xs" @click="periodicVisible = true; periodicKeyboardTarget = 'record_content2'">更多</el-button>
+						</el-button-group>
+						<el-input
+							ref="record_content2"
+							v-model="formRecords[recordEditIndex].content"
+							type="textarea"
+							rows="12"
+							placeholder="输入实验记录"
+							maxlength="200"
+							show-word-limit
+							:readonly="autoSaveLock"
+							style="font-size: 1.5em;letter-spacing: 0.13em;"
+						/>
+					</el-form-item>
+				</el-form>
+			</div>
+		</el-drawer>
+
+		<!-- 元素周期键盘 -->
+		<el-dialog title="元素符号输入" :visible.sync="periodicVisible" :modal="true" :destroy-on-close="true" width="80%" top="6vh" v-el-drag-dialog>
 			<el-button-group>
 				<!-- 元素周期元素输入栏 -->
 				<el-button type="default" size="small" style="min-width:75px;"
 				v-for="(ch, index) in periodic" :key="index"
-				@click="insertChemChar(ch[0], true)">{{ch[0]}} <sup>{{ch[1]}}</sup></el-button>
+				@click="insertChemChar(periodicKeyboardTarget, ch[0], true)">{{ ch[0] }} <sup>{{ ch[1] }}</sup></el-button>
 			</el-button-group>
 		</el-dialog>
+
+	<div id="div1">
+	</div>
+
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
+import Kekule from 'kekule'
+// const Kekule = require('kekule').Kekule
 import poppyjs from 'poppyjs-elem'
 import elDragDialog from '@/directive/el-drag-dialog'
 import { mapGetters } from 'vuex'
@@ -414,6 +463,8 @@ import periodic from './periodic'
 
 // 自动保存间隔时间，单位：秒
 const AUTO_SAVE_INTERVAL = 60
+
+// var mol = new Kekule.Molecule();
 
 export default {
 	name: 'ExperimentEdit',
@@ -435,7 +486,7 @@ export default {
 			stateOption[BoolEnum.No] = 'warning'
 			stateOption[BoolEnum.Yes] = 'success'
 			return stateOption[status]
-		},
+		}
 	},
 	data() {
 		return {
@@ -454,7 +505,7 @@ export default {
 				humidity: '',
 				purpose: '',
 				r_nco: '',
-				conclusion: '',
+				conclusion: ''
 			},
 			formProcedures: [],
 			formRecords: [],
@@ -466,6 +517,7 @@ export default {
 
 			// other var
 			recordEditBox: false,
+			recordEditBox2: false,
 			recordEditIndex: null,
 			isAutoSave: true, // 标示是否开启自动保存功能
 			autoSaveInerval: null,
@@ -475,7 +527,16 @@ export default {
 			// 元素周期表数据
 			periodic: periodic,
 			periodicTop: periodic.slice(0, 20),
-			periodicVisible: false
+			periodicVisible: false,
+			periodicKeyboardTarget: 'recored_content'
+		}
+	},
+
+	computed: {
+		...mapGetters(['permissions']),
+
+		experimentAbility() {
+			return experimentService.getExperimentAbility(this.permissions, this.experiment)
 		}
 	},
 
@@ -493,12 +554,20 @@ export default {
 		this.loadData()
 	},
 
+	mounted: function() {
+		setTimeout(() => {
+					console.log(document.getElementById('div1'))
+			var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('div1'))
+		}, 3000);
+
+	},
+
 	beforeDestroy() {
 		this.stopAutoSave()
 	},
 
 	beforeRouteLeave(to, from, next) {
-		if (! this.isErrorBack) {
+		if (!this.isErrorBack) {
 			const answer = window.confirm('如果有内容未保存，离开后将丢失，您确定要离开编辑页面吗？')
 			if (answer) {
 				this.stopAutoSave()
@@ -509,14 +578,6 @@ export default {
 		} else {
 			next()
 		}
-	},
-
-	computed: {
-		...mapGetters(['permissions']),
-
-		experimentAbility() {
-			return experimentService.getExperimentAbility(this.permissions, this.experiment)
-		},
 	},
 
 	methods: {
@@ -557,7 +618,7 @@ export default {
 					humidity: this.experiment.humidity,
 					purpose: this.experiment.purpose,
 					r_nco: this.experiment.r_nco,
-					conclusion: this.experiment.conclusion,
+					conclusion: this.experiment.conclusion
 				}
 			}
 
@@ -570,7 +631,7 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
-						has_record: item.record_id != null,
+						has_record: item.record_id != null
 					}
 
 					if (item.experiment_parameters === null || item.experiment_parameters.length === 0) {
@@ -581,7 +642,7 @@ export default {
 								reagent: itemPara.reagent,
 								theoretical_volum: itemPara.theoretical_volum,
 								actual_volum: itemPara.actual_volum,
-								remark: itemPara.remark,
+								remark: itemPara.remark
 							}
 							tmp.experiment_parameters.push(tmpPara)
 						})
@@ -595,7 +656,7 @@ export default {
 				this.records.forEach(item => {
 					const tmp = {
 						id: item.id,
-						content: item.content,
+						content: item.content
 					}
 					self.formRecords.push(tmp)
 				})
@@ -621,7 +682,7 @@ export default {
 				yesBtn: '移除',
 				yesCallback: function() {
 					self.formProcedures.splice(index, 1)
-				},
+				}
 			})
 		},
 
@@ -639,12 +700,12 @@ export default {
 					yesBtn: '移除',
 					yesCallback: function() {
 						procedure.experiment_parameters.splice(index, 1)
-					},
+					}
 				})
 			}
 		},
 
-		appendRecordToProcedure($event, procedure, index) {
+		appendRecordToProcedure(event, procedure, index) {
 			this.recordEditBox = true
 			this.recordEditIndex = index
 		},
@@ -662,14 +723,29 @@ export default {
 			this.recordEditIndex = null
 		},
 
-		insertChemChar(str, keyBoard = false) {
-			const recordContentBox = this.$refs.record_content
+		showRecordEdit2(index) {
+			console.log(index)
+			this.recordEditBox2 = true
+			this.recordEditIndex = index
+		},
+
+		handleRecordEditBoxClose2() {
+			this.recordEditBox2 = false
+			this.recordEditIndex = null
+		},
+
+		insertChemChar(target, str, keyBoard = false) {
+			const recordContentBox = this.$refs[target]
 			const textBox = recordContentBox.$el.getElementsByTagName('textarea')[0]
 			if (textBox) {
 				if (null !== textBox.selectionStart && null !== textBox.selectionEnd) {
 					const strLeft = textBox.value.substring(0, textBox.selectionStart)
 					const strRight = textBox.value.substr(textBox.selectionEnd)
-					this.formProcedures[this.recordEditIndex].record_content = strLeft + str + strRight
+					if (target === 'record_content') {
+						this.formProcedures[this.recordEditIndex].record_content = strLeft + str + strRight
+					} else {
+						this.formRecords[this.recordEditIndex].content = strLeft + str + strRight
+					}
 					textBox.focus()
 					// 插入字符后光标移动到插入字符的后边
 					this.$nextTick(() => {
@@ -701,7 +777,7 @@ export default {
 				yesBtn: '移除',
 				yesCallback: function() {
 					self.formRecords.splice(index, 1)
-				},
+				}
 			})
 		},
 
@@ -713,7 +789,7 @@ export default {
 				experiment_parameters: [this.createEmptyParameter()], // 默认创建一个参数
 				record_content: null,
 				has_record: false,
-				record_id: null,
+				record_id: null
 			}
 		},
 
@@ -723,7 +799,7 @@ export default {
 				reagent: '',
 				theoretical_volum: '',
 				actual_volum: '',
-				remark: '',
+				remark: ''
 			}
 		},
 
@@ -732,7 +808,7 @@ export default {
 			return {
 				record_id: null,
 				content: '',
-				procedure_id: null,
+				procedure_id: null
 			}
 		},
 
@@ -749,7 +825,7 @@ export default {
 				title: '保存实验',
 				yesCallback: function() {
 					self.submitUpdate(false)
-				},
+				}
 			})
 		},
 
@@ -780,7 +856,7 @@ export default {
 		// 提交保存的基本方法
 		submitUpdate(auto) {
 			const self = this
-			if (auto && ! this.isAutoSave) {
+			if (auto && !this.isAutoSave) {
 				return
 			}
 			if (this.$refs['baseForm']) {
@@ -803,7 +879,7 @@ export default {
 									try {
 										self.autoSaveLock = true
 										self.submitUpdate0(auto)
-									} catch(e) {
+									} catch (e) {
 										self.autoSaveLock = false
 									}
 								})
@@ -825,7 +901,7 @@ export default {
 				humidity: self.baseForm.humidity,
 				purpose: self.baseForm.purpose,
 				r_nco: self.baseForm.r_nco,
-				conclusion: self.baseForm.conclusion,
+				conclusion: self.baseForm.conclusion
 			}
 			// 解析实验步骤参数
 			const procedures = []
@@ -835,7 +911,7 @@ export default {
 					procedure_title: item.procedure_title,
 					experiment_parameters: [],
 					record_content: item.record_content,
-					record_id: item.record_id,
+					record_id: item.record_id
 				}
 
 				item.experiment_parameters.forEach(itemPara => {
@@ -843,7 +919,7 @@ export default {
 						reagent: itemPara.reagent,
 						theoretical_volum: itemPara.theoretical_volum,
 						actual_volum: itemPara.actual_volum,
-						remark: itemPara.remark,
+						remark: itemPara.remark
 					}
 					tmp.experiment_parameters.push(tmpPara)
 				})
@@ -857,7 +933,7 @@ export default {
 			self.formRecords.forEach(item => {
 				const tmp = {
 					id: item.id,
-					content: item.content,
+					content: item.content
 				}
 
 				records.push(tmp)
@@ -882,12 +958,13 @@ export default {
 		// 返回上一页
 		goback() {
 			this.$router.go(-1)
-		},
+		}
 	}
 }
 </script>
 
 <style lang="scss">
+@import '@/styles/my_variables.scss';
 .demo-table-expand {
 	font-size: 15px;
 }
@@ -956,5 +1033,25 @@ export default {
 
 .record-edit-box {
 	padding: 15px;
+}
+pre {
+	margin: 0;
+	font-family: inherit;
+	word-break: break-word;
+	text-align: left;
+}
+
+.text-box {
+	padding: 5px 15px;
+	margin: 0;
+	border: 1px solid #e6ebf5;
+	border-radius: 4px;
+	color: $text-major;
+	min-height: 32px;
+
+	&.plain {
+		padding: 0;
+		border: none;
+	}
 }
 </style>
