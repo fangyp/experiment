@@ -154,7 +154,7 @@
 												<pre v-show="procedure.has_record" style="padding-left:10px;font-size:0.8em;text-align: left;">{{ procedure.record_content }}</pre>
 											</div>
 											<div>
-												<el-button type="info" size="mini" icon="el-icon-edit" plain circle @click="appendRecordToProcedure($event, procedure, index)"/>
+												<el-button type="info" size="mini" icon="el-icon-edit" plain circle @click="editRecordInProcedure($event, procedure, index)"/>
 											</div>
 										</td>
 									</tr>
@@ -363,7 +363,7 @@
 						<el-button-group class="mg-b-sm">
 							<!-- 快捷输入栏 -->
 							<el-button type="default" size="small"
-							v-for="(ch, index) in [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ]" :key="index"
+							v-for="(ch, index) in chemNums" :key="index"
 							@click="insertChemChar('record_content', ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ ch[1] }}</sub></el-button>
 						</el-button-group>
 						<el-button-group class="mg-b-sm">
@@ -387,10 +387,10 @@
 					</el-form-item>
 
 					<!-- 化学结构式 Viewer -->
-					<el-form-item>
+					<el-form-item label="结构式">
 						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;"
-						data-widget="Kekule.ChemWidget.Viewer" data-chem-obj="url(#molecule)">
-							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit" />
+						data-widget="Kekule.ChemWidget.Viewer">
+							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(true)" />
 						</div>
 					</el-form-item>
 				</el-form>
@@ -415,7 +415,7 @@
 						<el-button-group class="mg-b-sm">
 							<!-- 快捷输入栏 -->
 							<el-button type="default" size="small"
-							v-for="(ch, index) in [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ]" :key="index"
+							v-for="(ch, index) in chemNums" :key="index"
 							@click="insertChemChar('record_content2', ch[0])"><sub :style="index == 0 ? 'font-size: 1.5em;font-weight:600': ''">{{ ch[1] }}</sub></el-button>
 						</el-button-group>
 						<el-button-group class="mg-b-sm">
@@ -437,6 +437,14 @@
 							style="font-size: 1.5em;letter-spacing: 0.13em;"
 						/>
 					</el-form-item>
+
+					<!-- 化学结构式 Viewer -->
+					<el-form-item label="结构式">
+						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;"
+						data-widget="Kekule.ChemWidget.Viewer">
+							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(false)" />
+						</div>
+					</el-form-item>
 				</el-form>
 			</div>
 		</el-drawer>
@@ -453,42 +461,9 @@
 
 		<!-- 化学结构式编辑器 -->
 		<el-dialog title="结构式编辑" v-if="chemEditVisible" :visible.sync="chemEditVisible" :modal="true" :destroy-on-close="true"
-		width="70%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
-			<div id="chemEditBox" style="width:100%;height:600px" data-widget="Kekule.Editor.Composer" data-chem-obj="url(#molecule)"></div>
+		width="80%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
+			<div id="chemEditBox" style="width:100%;min-height:400px;height:550px" data-widget="Kekule.Editor.Composer"></div>
 		</el-dialog>
-
-		<script id="molecule" type="chemical/x-mdl-molfile">
-
-		CDK    9/19/06,14:29
-
-		12 12  0  0  0  0  0  0  0  0999 V2000
-		415.0000  974.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		383.8231  992.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		383.8231 1028.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		415.0000 1046.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		446.1769 1028.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		446.1769  992.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		352.6462 1046.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-		352.6462 1082.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		352.6462  974.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		415.0000  938.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		477.3538  974.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		477.3538 1046.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-		1  2  1  0  0  0  0
-		2  3  1  0  0  0  0
-		3  4  1  0  0  0  0
-		4  5  1  0  0  0  0
-		5  6  1  0  0  0  0
-		6  1  1  0  0  0  0
-		3  7  1  1  0  0  0
-		7  8  1  0  0  0  0
-		2  9  1  6  0  0  0
-		1 10  1  1  0  0  0
-		6 11  1  1  0  0  0
-		5 12  1  0  0  0  0
-		M  END
-		</script>
-
 	</div>
 	<!-- /.app-container -->
 </template>
@@ -569,6 +544,7 @@ export default {
 			isErrorBack: false, // 当返回上一页时，标志是否是发生了错误返回的
 
 			// 元素周期表数据
+			chemNums: [ ['·', '·'], ['₀', '0'], ['₁', '1'], ['₂', '2'], ['₃', '3'], ['₄', '4'], ['₅', '5'], ['₆', '6'], ['₇', '7'], ['₈', '8'], ['₉', '9'] ],
 			periodic: periodic,
 			periodicTop: periodic.slice(0, 15),
 			periodicVisible: false,
@@ -576,6 +552,7 @@ export default {
 
 			// 化学结构式编辑器
 			chemEditVisible: false,
+			chemEditTarget: 'procedure',
 			chemEditor: null
 		}
 	},
@@ -671,6 +648,11 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
+						chem_mol: item.chem_mol,
+						chem_xml: item.chem_xml,
+						chem_cml: item.chem_cml,
+						chem_mol3k: item.chem_mol3k,
+						chem_smi: item.chem_smi,
 						has_record: item.record_id != null
 					}
 
@@ -696,7 +678,12 @@ export default {
 				this.records.forEach(item => {
 					const tmp = {
 						id: item.id,
-						content: item.content
+						content: item.content,
+						chem_mol: item.chem_mol,
+						chem_xml: item.chem_xml,
+						chem_cml: item.chem_cml,
+						chem_mol3k: item.chem_mol3k,
+						chem_smi: item.chem_smi,
 					}
 					self.formRecords.push(tmp)
 				})
@@ -745,22 +732,26 @@ export default {
 			}
 		},
 
-		appendRecordToProcedure(event, procedure, index) {
+		loadChemMainData(sourceObj) {
+			if (sourceObj.chem_xml !== undefined && sourceObj.chem_xml !== null) {
+				return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
+			}
+			return null
+		},
+
+		editRecordInProcedure(event, procedure, index) {
+			const self = this
 			this.recordEditBox = true
 			this.recordEditIndex = index
 
 			this.$nextTick(() => {
-				setTimeout(() => {
-					console.log(document.getElementById('chemViewer'))
-					var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('chemViewer'))
-					chemViewer.setEnableToolbar(true)
-					.setEnableDirectInteraction(true)
-					.setEnableEdit(false)
-					.setToolButtons([
-						'zoomIn', 'zoomOut',
-						'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'
-					])
-				}, 800)
+				this.loadChemViewer((chemViewer) => {
+					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
+					const chemObj = self.loadChemMainData(procedure)
+					if (chemObj !== null) {
+						chemViewer.setChemObj(chemObj)
+					}
+				})
 			})
 		},
 
@@ -778,8 +769,19 @@ export default {
 		},
 
 		showRecordEdit2(index) {
+			const self = this
 			this.recordEditBox2 = true
 			this.recordEditIndex = index
+
+			this.$nextTick(() => {
+				this.loadChemViewer((chemViewer) => {
+					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
+					const chemObj = self.loadChemMainData(self.formRecords[index])
+					if (chemObj !== null) {
+						chemViewer.setChemObj(chemObj)
+					}
+				})
+			})
 		},
 
 		handleRecordEditBoxClose2() {
@@ -812,27 +814,28 @@ export default {
 		},
 
 		// 显示化学结构式编辑器
-		showChemEdit() {
+		showChemEdit(isProcedureRcord) {
 			const self = this
 			this.chemEditVisible = true
+			this.chemEditTarget = (isProcedureRcord ? 'procedure': 'record')
 
 			this.$nextTick(() => {
-				setTimeout(() => {
-					const composer = new Kekule.Editor.Composer(document.getElementById('chemEditBox'))
-					console.log('>>>>>>>>>>>. 123')
-					self.chemEditor = composer
-					composer.setEnableOperHistory(true)
-					.setEnableLoadNewFile(false)
-					.setEnableCreateNewDoc(false)
-					.setAllowCreateNewChild(true)
-					.setCommonToolButtons(['undo', 'redo', 'copy', 'cut', 'paste',
-						'zoomIn', 'reset', 'zoomOut', 'config', 'objInspector'])   // create all default common tool buttons
-					.setChemToolButtons(['manipulate', 'erase', 'bond', 'atom', 'formula',
-						'ring', 'charge', 'glyph', 'textAndImage'])   // create all default chem tool buttons
-					.setStyleToolComponentNames(['fontName', 'fontSize', 'color',
-						'textDirection', 'textAlign'])
-					console.log(self.chemEditor)
-				}, 500);
+				this.createChemEditor((chemEditor) => {
+					self.chemEditor = chemEditor
+					// 设置数据
+					let oriData = null
+					if (isProcedureRcord) {
+						// 关联了实验步骤的实验记录
+						oriData = self.formProcedures[self.recordEditIndex]
+					} else {
+						// 其他的实验记录
+						oriData = self.formRecords[self.recordEditIndex]
+					}
+					const chemObj = self.loadChemMainData(oriData)
+					if (chemObj !== undefined && chemObj !== null) {
+						chemEditor.setChemObj(chemObj)
+					}
+				})
 			})
 		},
 		hideChemEdit() {
@@ -840,17 +843,76 @@ export default {
 			this.chemEditor = null
 		},
 		handleChemEditClose() {
-			const chemObj = this.chemEditor.getChemObj()
-			const data = Kekule.IO.saveFormatData(chemObj, 'cml')
-			// and save molecule in CML
-			var cmlData = Kekule.IO.saveFormatData(chemObj, 'cml')
-			console.log(cmlData, typeof cmlData)
-			cmlData = Kekule.IO.saveFormatData(chemObj, 'mol')
-			console.log(cmlData, typeof cmlData)
-			cmlData = Kekule.IO.saveFormatData(chemObj, 'smi')
-			console.log(cmlData, typeof cmlData)
+			// 关闭编辑框时，提取化学结构式各种数据，保存到本地form
+			const self = this
+			const chemData = this.extractChemData()
+			if (this.chemEditTarget === 'procedure') {
+				Object.assign(this.formProcedures[this.recordEditIndex], chemData)
 
+				this.loadChemViewer((chemViewer) => {
+					const chemObj = self.loadChemMainData(this.formProcedures[this.recordEditIndex])
+					if (chemObj !== null) {
+						chemViewer.setChemObj(chemObj)
+					}
+				})
+			} else {
+				Object.assign(this.formRecords[this.recordEditIndex], chemData)
+
+				this.loadChemViewer((chemViewer) => {
+					const chemObj = self.loadChemMainData(this.formRecords[this.recordEditIndex])
+					if (chemObj !== null) {
+						chemViewer.setChemObj(chemObj)
+					}
+				})
+			}
 			this.hideChemEdit()
+		},
+		// 加载一个Kekule viewer 对象
+		loadChemViewer(callback) {
+			Kekule.X.domReady(() => {
+				const chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('chemViewer'))
+				chemViewer.setEnableToolbar(true)
+				.setEnableDirectInteraction(true)
+				.setEnableEdit(false)
+				.setToolButtons(['zoomIn', 'zoomOut', 'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'])
+
+				callback(chemViewer)
+			})
+		},
+		// 创建一个Kekule editor 对象
+		createChemEditor(callback) {
+			Kekule.X.domReady(() => {
+				const _chemEditor = new Kekule.Editor.ChemSpaceEditor(document, null, Kekule.Render.RendererType.R2D)
+				const chemEditor = new Kekule.Editor.Composer(document.getElementById('chemEditBox'), _chemEditor)
+				//self.chemEditor = Kekule.Widget.getWidgetById('chemEditBox');
+				chemEditor.setEnableDimensionTransform(true).setAutoSetMinDimension(true)
+				chemEditor.setPredefinedSetting('fullFunc')
+				.setEnableOperHistory(true)
+				.setEnableLoadNewFile(false)
+				.setEnableCreateNewDoc(false)
+				.setAllowCreateNewChild(true)
+				.setCommonToolButtons(['undo', 'redo', 'copy', 'cut', 'paste', 'zoomIn', 'reset', 'zoomOut', 'config', 'objInspector'])
+				.setStyleToolComponentNames(['fontName', 'fontSize', 'color', 'textDirection', 'textAlign'])
+				.setChemToolButtons(['manipulate', 'erase', 'bond', 'atom', 'formula', 'ring', 'charge', 'glyph', 'textImage'])
+				callback(chemEditor)
+			})
+		},
+		// 从当前kekule编辑器中提取数据
+		extractChemData() {
+			// ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
+			if (null !== this.chemEditor) {
+				const chemObj = this.chemEditor.getChemObj()
+				const data = {
+					chem_cml: Kekule.IO.saveFormatData(chemObj, 'cml'),
+					chem_mol: Kekule.IO.saveFormatData(chemObj, 'mol'),
+					chem_smi: Kekule.IO.saveFormatData(chemObj, 'smi'),
+					chem_xml: Kekule.IO.saveFormatData(chemObj, 'Kekule-XML'),
+					chem_sdf: Kekule.IO.saveFormatData(chemObj, 'sd'),
+					chem_mol3k: Kekule.IO.saveFormatData(chemObj, 'mol3k')
+				}
+				return data
+			}
+			return null
 		},
 
 		// 添加一行实验记录
@@ -883,6 +945,11 @@ export default {
 				procedure_title: '',
 				experiment_parameters: [this.createEmptyParameter()], // 默认创建一个参数
 				record_content: null,
+				chem_mol: null,
+				chem_xml: null,
+				chem_cml: null,
+				chem_mol3k: null,
+				chem_smi: null,
 				has_record: false,
 				record_id: null
 			}
@@ -903,6 +970,11 @@ export default {
 			return {
 				record_id: null,
 				content: '',
+				chem_mol: null,
+				chem_xml: null,
+				chem_cml: null,
+				chem_mol3k: null,
+				chem_smi: null,
 				procedure_id: null
 			}
 		},
@@ -1006,7 +1078,12 @@ export default {
 					procedure_title: item.procedure_title,
 					experiment_parameters: [],
 					record_content: item.record_content,
-					record_id: item.record_id
+					record_id: item.record_id,
+					chem_mol: btoa(item.chem_mol),
+					chem_xml: item.chem_xml,
+					// chem_cml: item.chem_cml,
+					// chem_mol3k: item.chem_mol3k,
+					// chem_smi: item.chem_smi
 				}
 
 				item.experiment_parameters.forEach(itemPara => {
@@ -1028,7 +1105,12 @@ export default {
 			self.formRecords.forEach(item => {
 				const tmp = {
 					id: item.id,
-					content: item.content
+					content: item.content,
+					chem_xml: item.chem_xml,
+					chem_mol: btoa(item.chem_mol),
+					// chem_cml: item.chem_cml,
+					// chem_mol3k: item.chem_mol3k,
+					// chem_smi: item.chem_smi
 				}
 
 				records.push(tmp)

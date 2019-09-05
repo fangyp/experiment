@@ -75,8 +75,10 @@ module.exports = {
 		// provide the app's title in webpack's name field, so that
 		// it can be accessed in index.html to inject the correct title.
 
-		// ** 特别重要：没有这句配置，kekule加载时会出错，因为其中部分变量名字被压缩后将无法运行
-		config.optimization.minimizer[0].options.terserOptions.mangle.reserved = ['$super', '$origin']
+		if (process.env.NODE_ENV !== 'development') {
+			// ** 特别重要：没有这句配置，kekule加载时会出错，因为其中部分变量名字被压缩后将无法运行
+			config.optimization.minimizer[0].options.terserOptions.mangle.reserved = ['$super', '$origin']
+		}
 
 		return {
 			name: name,
@@ -154,10 +156,17 @@ module.exports = {
 									priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
 									test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
 								},
+								/*
+								kekule: {
+									name: 'chunk-kekule',
+									priority: 10,
+									test: /[\\/]node_modules[\\/]_?kekule(.*)/
+								},
+								*/
 								commons: {
 									name: 'chunk-commons',
 									test: resolve('src/components'), // can customize your rules
-									minChunks: 3, //	minimum common number
+									minChunks: 3, // minimum common number
 									priority: 5,
 									reuseExistingChunk: true
 								}

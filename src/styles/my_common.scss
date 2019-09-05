@@ -46,14 +46,14 @@
 }
 
 // ----- 自定义留白、边距类 -----
-$base-layout-mg-xs: 5px;
-$base-layout-mg-sm: 10px;
-$base-layout-mg-md: 15px;
-$base-layout-mg-lg: 25px;
-$base-layout-pad-xs: 5px;
-$base-layout-pad-sm: 10px;
-$base-layout-pad-md: 15px;
-$base-layout-pad-lg: 25px;
+$base-layout-mg-xs: 5px !important;
+$base-layout-mg-sm: 10px !important;
+$base-layout-mg-md: 15px !important;
+$base-layout-mg-lg: 25px !important;
+$base-layout-pad-xs: 5px !important;
+$base-layout-pad-sm: 10px !important;
+$base-layout-pad-md: 15px !important;
+$base-layout-pad-lg: 25px !important;
 .mg-xs {margin: $base-layout-mg-xs;} .mg-sm {margin: $base-layout-mg-sm;} .mg-md {margin: $base-layout-mg-md;} .mg-lg {margin: $base-layout-mg-lg;} .mg-0 {margin:  0px !important}
 .mg-t-xs {margin-top: $base-layout-mg-xs;} .mg-b-xs {margin-bottom: $base-layout-mg-xs;} .mg-l-xs {margin-left: $base-layout-mg-xs;} .mg-r-xs {margin-right: $base-layout-mg-xs;}
 .mg-t-sm {margin-top: $base-layout-mg-sm;} .mg-b-sm {margin-bottom: $base-layout-mg-sm;} .mg-l-sm {margin-left: $base-layout-mg-sm;} .mg-r-sm {margin-right: $base-layout-mg-sm;}

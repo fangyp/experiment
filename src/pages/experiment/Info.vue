@@ -133,7 +133,7 @@
 												<!-- 实验记录列 -->
 												<td :rowspan="procedure.experiment_parameters.length" class="last-col">
 													<pre class="text-box plain"
-													@click="showProcedureRecord($event, procedure.record_content)" >{{ procedure.record_content }}</pre>
+													@click="showProcedureRecord($event, index)" >{{ procedure.record_content }}</pre>
 												</td>
 											</tr>
 
@@ -164,6 +164,7 @@
 										<tr>
 											<td style="min-width:20px; width:60px" class="text-center">序号</td>
 											<td style="min-width:300px;" class="text-left">记录内容</td>
+											<td style="width:60px;">结构式</td>
 										</tr>
 									</thead>
 
@@ -172,6 +173,9 @@
 										:class="'el-table__row' + (index%2 ==1 ? '--striped': '')">
 											<td class="text-center">{{ index + 1 }}.</td>
 											<td class="text-left"><pre class="text-box plain" style="min-height:20px;">{{ record.content }}</pre></td>
+											<td>
+												<el-link v-if="record.chem_xml" @click="showChem(false, index)"><font-awesome-icon icon="atom"/></el-link>
+											</td>
 										</tr>
 									</tbody>
 								</table>
@@ -260,9 +264,13 @@
 		</el-row>
 
 		<!-- 实验步骤的实验记录编辑框 -->
-		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="45%"
+		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="55%"
 		:before-close="handleProcedureRecordClose">
-			<div class="pad-md"><pre class="text-box" style="min-height: 300px;">{{ showRecordContent }}</pre></div>
+			<div class="pad-md">
+				<pre class="text-box" style="min-height: 300px;">{{ showRecordContent }}</pre>
+				<div id="procedureChemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #dfe4ed;" class="mg-t-sm"
+				@click="showChem(true)" data-widget="Kekule.ChemWidget.Viewer"></div>
+			</div>
 		</el-drawer>
 
 		<!-- 实验审核弹框 -->
@@ -275,11 +283,19 @@
 		<!-- 分配人员弹框 -->
 		<assigning-member :visible="assigningMemberVisible" :experiment-id="experimentId" 
 		:close-callback="handleAssignMemberClose" :confirm-callback="handleAssignMemberConfirm"/>
+
+		<!-- 化学结构式 -->
+		<el-dialog title="结构式" v-if="chemViewerVisible" :visible.sync="chemViewerVisible" :modal="true" :destroy-on-close="true"
+		width="80%" top="4vh" v-el-drag-dialog>
+			<div id="chemViewer" style="width:100%;min-height:400px;height:550px" data-widget="Kekule.ChemWidget.Viewer"></div>
+		</el-dialog>
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
+import Kekule from 'kekule'
+import elDragDialog from '@/directive/el-drag-dialog'
 import poppyjs from 'poppyjs-elem'
 import { mapGetters } from 'vuex'
 import experimentApi from '@/api/experiment'
@@ -299,6 +315,7 @@ export default {
 		AuditList,
 		AssigningMember,
 	},
+	directives: { elDragDialog },
 	filters: {
 		// 用户获取状态颜色
 		expStatusFilter(status) {
@@ -359,6 +376,8 @@ export default {
 			// 显示实验记录详情
 			recordBox: false,
 			showRecordContent: null,
+			chemViewerVisible: false,
+			chemViewerIndex: null,
 
 			// 添加/编辑测试记录
 			addTestingVisible: false,
@@ -463,6 +482,7 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
+						chem_xml: item.chem_xml,
 						has_record: (item.record_id != null)
 					}
 
@@ -487,7 +507,8 @@ export default {
 				this.records.forEach(item => {
 					const tmp = {
 						id: item.id,
-						content: item.content
+						content: item.content,
+						chem_xml: item.chem_xml
 					}
 					self.formRecords.push(tmp)
 				})
@@ -523,10 +544,22 @@ export default {
 		},
 
 		// 显示一个实验步骤关联的实验记录内容
-		showProcedureRecord($event, recordContent) {
-			if (! poppyjs.util.StringUtil.isEmpty(recordContent)) {
+		showProcedureRecord($event, index) {
+			const self= this
+			if (!poppyjs.util.StringUtil.isEmpty(this.formProcedures[index].record_content) ||
+			!poppyjs.util.StringUtil.isEmpty(this.formProcedures[index].chen_xml)) {
 				this.recordBox = true
-				this.showRecordContent = recordContent
+				this.showRecordContent = this.formProcedures[index].record_content
+				this.chemViewerIndex = index
+
+				this.$nextTick(() => {
+					this.loadChemViewer('procedureChemViewer', (chemViewer) => {
+						const chemObj = self.loadChemMainData(self.formProcedures[index])
+						if (chemObj !== null) {
+							chemViewer.setChemObj(chemObj)
+						}
+					})
+				})
 			}
 		},
 		// 处理：实验步骤关联的实验记录内容弹框的关闭
@@ -670,7 +703,53 @@ export default {
 		},
 		handleAssignMemberClose() {
 			this.assigningMemberVisible = false
-		}
+		},
+
+		// 显示化学结构式
+		showChem(isProcedure, index = null) {
+			const self = this
+			if (!isProcedure) {
+				this.chemViewerIndex = index
+			}
+			this.chemViewerVisible = true
+
+			this.$nextTick(() => {
+				this.loadChemViewer('chemViewer', (chemViewer) => {
+					let chemObj = null
+					if (isProcedure) {
+						chemObj = self.loadChemMainData(self.formProcedures[self.chemViewerIndex])
+					} else {
+						chemObj = self.loadChemMainData(self.formRecords[self.chemViewerIndex])
+					}
+					if (chemObj !== null) {
+						chemViewer.setChemObj(chemObj)
+					}
+				})
+			})
+		},
+		// 加载一个Kekule viewer 对象
+		loadChemViewer(id, callback) {
+			Kekule.X.domReady(() => {
+				const chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(id))
+				chemViewer
+				.setEnableDirectInteraction(true)
+				.setEnableEdit(false)
+				if (id !== 'procedureChemViewer') {
+					chemViewer.setEnableToolbar(true).
+					setToolButtons(['zoomIn', 'zoomOut', 'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'])
+				} else {
+					chemViewer.setEnableToolbar(false)
+				}
+
+				callback(chemViewer)
+			})
+		},
+		loadChemMainData(sourceObj) {
+			if (sourceObj.chem_xml !== undefined && sourceObj.chem_xml !== null) {
+				return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
+			}
+			return null
+		},
 
 	}
 }
