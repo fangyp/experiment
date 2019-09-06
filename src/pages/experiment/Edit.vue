@@ -462,6 +462,7 @@
 		<!-- 化学结构式编辑器 -->
 		<el-dialog title="结构式编辑" v-if="chemEditVisible" :visible.sync="chemEditVisible" :modal="true" :destroy-on-close="true"
 		width="80%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
+			<el-alert title="特别提醒：结构式编辑时，只有关闭编辑框后，数据才会被自动保存" type="warning" />
 			<div id="chemEditBox" style="width:100%;min-height:400px;height:550px" data-widget="Kekule.Editor.Composer"></div>
 		</el-dialog>
 	</div>
@@ -733,8 +734,10 @@ export default {
 		},
 
 		loadChemMainData(sourceObj) {
-			if (sourceObj.chem_xml !== undefined && sourceObj.chem_xml !== null) {
-				return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
+			if (sourceObj.chem_mol !== undefined && !poppyjs.util.StringUtil.isEmpty(sourceObj.chem_mol)) {
+				// return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
+				console.log(sourceObj.chem_mol)
+				return Kekule.IO.loadFormatData(sourceObj.chem_mol, 'mol')
 			}
 			return null
 		},
@@ -745,7 +748,7 @@ export default {
 			this.recordEditIndex = index
 
 			this.$nextTick(() => {
-				this.loadChemViewer((chemViewer) => {
+				this.loadChemViewer(true, (chemViewer) => {
 					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
 					const chemObj = self.loadChemMainData(procedure)
 					if (chemObj !== null) {
@@ -774,11 +777,17 @@ export default {
 			this.recordEditIndex = index
 
 			this.$nextTick(() => {
-				this.loadChemViewer((chemViewer) => {
+				this.loadChemViewer(true, (chemViewer) => {
 					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
 					const chemObj = self.loadChemMainData(self.formRecords[index])
 					if (chemObj !== null) {
-						chemViewer.setChemObj(chemObj)
+						try {
+							chemViewer.setChemObj(chemObj)
+						} catch(e) {
+							if (!(e instanceof TypeError) || e.message !== "Cannot read property 'x1' of null") {
+								throw e
+							}
+						}
 					}
 				})
 			})
@@ -849,7 +858,7 @@ export default {
 			if (this.chemEditTarget === 'procedure') {
 				Object.assign(this.formProcedures[this.recordEditIndex], chemData)
 
-				this.loadChemViewer((chemViewer) => {
+				this.loadChemViewer(false, (chemViewer) => {
 					const chemObj = self.loadChemMainData(this.formProcedures[this.recordEditIndex])
 					if (chemObj !== null) {
 						chemViewer.setChemObj(chemObj)
@@ -858,25 +867,37 @@ export default {
 			} else {
 				Object.assign(this.formRecords[this.recordEditIndex], chemData)
 
-				this.loadChemViewer((chemViewer) => {
+				this.loadChemViewer(false, (chemViewer) => {
 					const chemObj = self.loadChemMainData(this.formRecords[this.recordEditIndex])
 					if (chemObj !== null) {
-						chemViewer.setChemObj(chemObj)
+						try {
+							chemViewer.setChemObj(chemObj)
+						} catch(e) {
+							if (!(e instanceof TypeError) || e.message !== "Cannot read property 'x1' of null") {
+								throw e
+							}
+						}
 					}
 				})
 			}
 			this.hideChemEdit()
 		},
 		// 加载一个Kekule viewer 对象
-		loadChemViewer(callback) {
+		loadChemViewer(isNew, callback) {
 			Kekule.X.domReady(() => {
-				const chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('chemViewer'))
-				chemViewer.setEnableToolbar(true)
-				.setEnableDirectInteraction(true)
-				.setEnableEdit(false)
-				.setToolButtons(['zoomIn', 'zoomOut', 'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'])
+				if (isNew) {
+					const chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById('chemViewer'))
+					chemViewer.setEnableToolbar(true)
+					.setEnableDirectInteraction(true)
+					.setEnableEdit(false)
+					.setToolButtons(['zoomIn', 'zoomOut', 'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ'])
 
-				callback(chemViewer)
+					callback(chemViewer)
+				} else {
+					const chemViewer = Kekule.Widget.getWidgetById('chemViewer')
+
+					callback(chemViewer)
+				}
 			})
 		},
 		// 创建一个Kekule editor 对象
@@ -892,8 +913,8 @@ export default {
 				.setEnableCreateNewDoc(false)
 				.setAllowCreateNewChild(true)
 				.setCommonToolButtons(['undo', 'redo', 'copy', 'cut', 'paste', 'zoomIn', 'reset', 'zoomOut', 'config', 'objInspector'])
+				.setChemToolButtons(['manipulate', 'erase', 'bond', 'atomAndFormula', 'ring', 'charge'])
 				.setStyleToolComponentNames(['fontName', 'fontSize', 'color', 'textDirection', 'textAlign'])
-				.setChemToolButtons(['manipulate', 'erase', 'bond', 'atom', 'formula', 'ring', 'charge', 'glyph', 'textImage'])
 				callback(chemEditor)
 			})
 		},
@@ -903,12 +924,12 @@ export default {
 			if (null !== this.chemEditor) {
 				const chemObj = this.chemEditor.getChemObj()
 				const data = {
-					chem_cml: Kekule.IO.saveFormatData(chemObj, 'cml'),
-					chem_mol: Kekule.IO.saveFormatData(chemObj, 'mol'),
-					chem_smi: Kekule.IO.saveFormatData(chemObj, 'smi'),
 					chem_xml: Kekule.IO.saveFormatData(chemObj, 'Kekule-XML'),
-					chem_sdf: Kekule.IO.saveFormatData(chemObj, 'sd'),
-					chem_mol3k: Kekule.IO.saveFormatData(chemObj, 'mol3k')
+					chem_mol: Kekule.IO.saveFormatData(chemObj, 'mol'),
+					// chem_cml: Kekule.IO.saveFormatData(chemObj, 'cml'),
+					// chem_smi: Kekule.IO.saveFormatData(chemObj, 'smi'),
+					// chem_sdf: Kekule.IO.saveFormatData(chemObj, 'sd'),
+					// chem_mol3k: Kekule.IO.saveFormatData(chemObj, 'mol3k')
 				}
 				return data
 			}
@@ -1079,7 +1100,7 @@ export default {
 					experiment_parameters: [],
 					record_content: item.record_content,
 					record_id: item.record_id,
-					chem_mol: btoa(item.chem_mol),
+					chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
 					chem_xml: item.chem_xml,
 					// chem_cml: item.chem_cml,
 					// chem_mol3k: item.chem_mol3k,
@@ -1107,7 +1128,7 @@ export default {
 					id: item.id,
 					content: item.content,
 					chem_xml: item.chem_xml,
-					chem_mol: btoa(item.chem_mol),
+					chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
 					// chem_cml: item.chem_cml,
 					// chem_mol3k: item.chem_mol3k,
 					// chem_smi: item.chem_smi
