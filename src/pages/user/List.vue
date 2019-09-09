@@ -161,7 +161,7 @@
         :model="user"
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:10px;"
+        style="margin-left:10px;"
       >
         <el-form-item
           v-show="createFormStatus==='create' || createFormStatus==='update'"
