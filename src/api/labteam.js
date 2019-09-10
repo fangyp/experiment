@@ -4,9 +4,10 @@ import webcore from '@/webcore'
  * 枚举
  * @param {*} data
  */
-export function preloadData() {
+export function preloadData(data) {
+	const { id = '' } = data
 	return webcore.admin.Service.requestAdmin({
-		url: '/lab-team/preload',
+		url: `/lab-team/preload/${id}`,
 		showSuccessMsg: false,
 		showErrorMsg: false,
 		showLoading: false

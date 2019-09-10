@@ -62,7 +62,11 @@ const labteam = {
 	mutations: {
 		// 获取预加载项目
 		onPreloadAction(state, payload = {}) {
-			preloadDataRequest()
+			const { team_id = '' } = payload
+			const params = {
+				id: team_id,
+			}
+			preloadDataRequest(params)
 				.then(response => {
 					const { lab_staffs = [], team_leaders = [] } = response.data || {}
 					state.lab_staffs = lab_staffs

@@ -331,7 +331,7 @@ export default {
      * 修改
      */
     modifyInfo(row) {
-       this.$store.dispatch('labteam/onPreloadAction')
+      this.$store.dispatch('labteam/onPreloadAction', row)
       this.$store.dispatch('labteam/onModifyAction', row)
       this.$nextTick(() => {
         this.$refs['createForm'].clearValidate()
