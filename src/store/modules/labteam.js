@@ -67,6 +67,7 @@ const labteam = {
 					const { lab_staffs = [], team_leaders = [] } = response.data || {}
 					state.lab_staffs = lab_staffs
 					state.team_leaders = team_leaders
+					console.log(response);
 				})
 		},
 		// 获取数据列表
@@ -117,6 +118,7 @@ const labteam = {
 				const { user_id = 0 } = user
 				member_ids.push(user_id)
 			}
+			console.log(member_ids);
 			state.createNew = {
 				id: team_id,
 				team_name: team_name,

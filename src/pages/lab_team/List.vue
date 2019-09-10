@@ -288,6 +288,7 @@ export default {
     },
     // 新建动作
     createAction() {
+      this.$store.dispatch('labteam/onPreloadAction')
       this.$store.dispatch('labteam/onCreateAction')
       this.$nextTick(() => {
         this.$refs['createForm'].clearValidate()
@@ -330,7 +331,7 @@ export default {
      * 修改
      */
     modifyInfo(row) {
-      console.log(row);
+       this.$store.dispatch('labteam/onPreloadAction')
       this.$store.dispatch('labteam/onModifyAction', row)
       this.$nextTick(() => {
         this.$refs['createForm'].clearValidate()
