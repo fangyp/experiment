@@ -174,7 +174,7 @@
 											<td class="text-center">{{ index + 1 }}.</td>
 											<td class="text-left"><pre class="text-box plain" style="min-height:20px;">{{ record.content }}</pre></td>
 											<td>
-												<el-link v-if="record.chem_xml" @click="showChem(false, index)"><font-awesome-icon icon="atom"/></el-link>
+												<el-link v-if="record.chem_sketch" @click="showChem(false, index)"><font-awesome-icon icon="atom"/></el-link>
 											</td>
 										</tr>
 									</tbody>
@@ -264,12 +264,22 @@
 		</el-row>
 
 		<!-- 实验步骤的实验记录编辑框 -->
+		<!--
 		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="55%"
 		:before-close="handleProcedureRecordClose">
 			<div class="pad-md">
 				<pre class="text-box" style="min-height: 300px;">{{ showRecordContent }}</pre>
 				<div id="procedureChemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #dfe4ed;" class="mg-t-sm"
 				@click="showChem(true)" data-widget="Kekule.ChemWidget.Viewer"></div>
+			</div>
+		</el-drawer>
+		-->
+		<el-drawer ref="drawer" title="实验记录" :visible.sync="recordBox" direction="rtl" :modal="true" size="55%"
+		:before-close="handleProcedureRecordClose">
+			<div class="pad-md">
+				<pre class="text-box" style="min-height: 300px;">{{ showRecordContent }}</pre>
+				<div id="procedureChemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #dfe4ed;" class="mg-t-sm"
+				@click="showChem(true)"><canvas id="procedureChemCanvas"></canvas></div>
 			</div>
 		</el-drawer>
 
@@ -285,16 +295,24 @@
 		:close-callback="handleAssignMemberClose" :confirm-callback="handleAssignMemberConfirm"/>
 
 		<!-- 化学结构式 -->
+		<!--
 		<el-dialog title="结构式" v-if="chemViewerVisible" :visible.sync="chemViewerVisible" :modal="true" :destroy-on-close="true"
 		width="80%" top="4vh" v-el-drag-dialog>
 			<div id="chemViewer" style="width:100%;min-height:400px;height:550px" data-widget="Kekule.ChemWidget.Viewer"></div>
 		</el-dialog>
+		-->
+		<el-dialog title="结构式" v-if="chemViewerVisible" :visible.sync="chemViewerVisible" :modal="true" :destroy-on-close="true"
+		width="80%" top="4vh" v-el-drag-dialog>
+			<div id="chemViewer" style="width:100%;min-height:400px;height:550px"><sketchpad ref="sketchpad" :toolbar-visible="false" :is-drawing-mode="false" /></div>
+		</el-dialog>
+		
 	</div>
 	<!-- /.app-container -->
+	
 </template>
 
 <script>
-import Kekule from 'kekule'
+//import Kekule from 'kekule'
 import elDragDialog from '@/directive/el-drag-dialog'
 import poppyjs from 'poppyjs-elem'
 import { mapGetters } from 'vuex'
@@ -306,6 +324,7 @@ import ExperimentAudit from './components/ExperimentAudit'
 import ExperimentTestingAdd from './components/ExperimentTestingAdd'
 import AuditList from './components/AuditList'
 import AssigningMember from './components/AssigningMember'
+import Sketchpad from './components/Sketchpad'
 
 export default {
 	name: 'ExperimentInfo',
@@ -314,6 +333,7 @@ export default {
 		ExperimentTestingAdd,
 		AuditList,
 		AssigningMember,
+		Sketchpad,
 	},
 	directives: { elDragDialog },
 	filters: {
@@ -482,7 +502,8 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
-						chem_xml: item.chem_xml,
+						chem_sketch: item.chem_sketch,
+						//chem_xml: item.chem_xml,
 						has_record: (item.record_id != null)
 					}
 
@@ -508,7 +529,8 @@ export default {
 					const tmp = {
 						id: item.id,
 						content: item.content,
-						chem_xml: item.chem_xml
+						chem_sketch: item.chem_sketch,
+						//chem_xml: item.chem_xml
 					}
 					self.formRecords.push(tmp)
 				})
@@ -553,10 +575,18 @@ export default {
 				this.chemViewerIndex = index
 
 				this.$nextTick(() => {
-					this.loadChemViewer('procedureChemViewer', (chemViewer) => {
+					/*
+					this.loadChemViewer('procedureChemCanvas', (chemViewer) => {
 						const chemObj = self.loadChemMainData(self.formProcedures[index])
 						if (chemObj !== null) {
 							chemViewer.setChemObj(chemObj)
+						}
+					})
+					*/
+					this.loadChemViewer('procedureChemCanvas', (chemViewer) => {
+						const chemData = self.formProcedures[index].chem_sketch
+						if (chemData !== null) {
+							chemViewer.loadFromJSON(chemData)
 						}
 					})
 				})
@@ -714,19 +744,20 @@ export default {
 			this.chemViewerVisible = true
 
 			this.$nextTick(() => {
-				this.loadChemViewer('chemViewer', (chemViewer) => {
-					let chemObj = null
-					if (isProcedure) {
-						chemObj = self.loadChemMainData(self.formProcedures[self.chemViewerIndex])
-					} else {
-						chemObj = self.loadChemMainData(self.formRecords[self.chemViewerIndex])
-					}
-					if (chemObj !== null) {
-						chemViewer.setChemObj(chemObj)
-					}
-				})
+				let chemObj = null
+				if (isProcedure) {
+					chemObj = self.loadChemMainData(self.formProcedures[self.chemViewerIndex])
+				} else {
+					chemObj = self.loadChemMainData(self.formRecords[self.chemViewerIndex])
+				}
+				if (chemObj !== null) {
+					setTimeout(() => {
+						self.$refs['sketchpad'].loadFromJSON(chemObj)
+					}, 500)
+				}
 			})
 		},
+		/*
 		// 加载一个Kekule viewer 对象
 		loadChemViewer(id, callback) {
 			Kekule.X.domReady(() => {
@@ -744,13 +775,33 @@ export default {
 				callback(chemViewer)
 			})
 		},
+		*/
+		loadChemViewer(el, callback) {
+
+			const canvasObj = new fabric.Canvas(el, {
+	          isDrawingMode: false,
+	          selectable: false,
+	          selection: false
+			})
+	        canvasObj.setWidth('400', {cssOnly: true, backstoreOnly: true})
+			canvasObj.setHeight('200', {cssOnly: true, backstoreOnly: true})
+			canvasObj.setZoom(0.3)
+			callback(canvasObj)
+		},
+		/*
 		loadChemMainData(sourceObj) {
 			if (sourceObj.chem_xml !== undefined && sourceObj.chem_xml !== null) {
 				return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
 			}
 			return null
 		},
-
+		*/
+		loadChemMainData(sourceObj) {
+			if (sourceObj.chem_sketch && !poppyjs.util.StringUtil.isEmpty(sourceObj.chem_sketch)) {
+				return sourceObj.chem_sketch
+			}
+			return null
+		},
 	}
 }
 </script>

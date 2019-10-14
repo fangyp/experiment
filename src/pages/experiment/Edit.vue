@@ -388,8 +388,14 @@
 
 					<!-- 化学结构式 Viewer -->
 					<el-form-item label="结构式">
+						<!--
 						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;"
 						data-widget="Kekule.ChemWidget.Viewer">
+							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(true)" />
+						</div>
+						-->
+						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;">
+							<canvas id="procedureChemCanvas1"></canvas>
 							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(true)" />
 						</div>
 					</el-form-item>
@@ -440,8 +446,14 @@
 
 					<!-- 化学结构式 Viewer -->
 					<el-form-item label="结构式">
+						<!--
 						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;"
 						data-widget="Kekule.ChemWidget.Viewer">
+							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(false)" />
+						</div>
+						-->
+						<div id="chemViewer" style="min-width:400px;min-height:200px;width:100%;height:340px;border:1px solid #ccc;">
+							<canvas id="procedureChemCanvas2"></canvas>
 							<el-button type="primary" plain class="mg-b-xs" style="position:absolute;right:2px;top:2px" icon="el-icon-edit" @click="showChemEdit(false)" />
 						</div>
 					</el-form-item>
@@ -460,18 +472,24 @@
 		</el-dialog>
 
 		<!-- 化学结构式编辑器 -->
+		<!--
 		<el-dialog title="结构式编辑" v-if="chemEditVisible" :visible.sync="chemEditVisible" :modal="true" :destroy-on-close="true"
 		width="80%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
 			<el-alert title="特别提醒：结构式编辑时，只有关闭编辑框后，数据才会被自动保存" type="warning" />
 			<div id="chemEditBox" style="width:100%;min-height:400px;height:550px" data-widget="Kekule.Editor.Composer"></div>
+		</el-dialog>
+		-->
+		<el-dialog title="结构式编辑" v-if="chemEditVisible" :visible.sync="chemEditVisible" :modal="true" :destroy-on-close="true"
+		width="80%" top="4vh" v-el-drag-dialog :before-close="handleChemEditClose">
+			<el-alert title="特别提醒：结构式编辑时，只有关闭编辑框后，数据才会被自动保存" type="warning" />
+			<div id="chemEditBox" style="width:100%;min-height:400px;height:550px"><sketchpad ref="sketchpad" /></div>
 		</el-dialog>
 	</div>
 	<!-- /.app-container -->
 </template>
 
 <script>
-import Kekule from 'kekule'
-// const Kekule = require('kekule').Kekule
+//import Kekule from 'kekule'
 import poppyjs from 'poppyjs-elem'
 import elDragDialog from '@/directive/el-drag-dialog'
 import { mapGetters } from 'vuex'
@@ -480,6 +498,7 @@ import { baseRules, baseRules2, baseRules3 } from './validation_rules'
 import experimentService from './experiment_service'
 import { BoolEnum, ExperimentStatusEnum } from '@/webcore/common/enums'
 import periodic from './periodic'
+import Sketchpad from './components/Sketchpad'
 
 // 自动保存间隔时间，单位：秒
 const AUTO_SAVE_INTERVAL = 60
@@ -489,6 +508,9 @@ const AUTO_SAVE_INTERVAL = 60
 export default {
 	name: 'ExperimentEdit',
 	directives: { elDragDialog },
+	components: {
+		Sketchpad
+	},
 	filters: {
 		// 用户获取状态颜色
 		expStatusFilter(status) {
@@ -649,11 +671,12 @@ export default {
 						experiment_parameters: [],
 						record_id: item.record_id,
 						record_content: item.record_content,
-						chem_mol: item.chem_mol,
-						chem_xml: item.chem_xml,
-						chem_cml: item.chem_cml,
-						chem_mol3k: item.chem_mol3k,
-						chem_smi: item.chem_smi,
+						chem_sketch: item.chem_sketch,
+						//chem_mol: item.chem_mol,
+						//chem_xml: item.chem_xml,
+						//chem_cml: item.chem_cml,
+						//chem_mol3k: item.chem_mol3k,
+						//chem_smi: item.chem_smi,
 						has_record: item.record_id != null
 					}
 
@@ -680,11 +703,12 @@ export default {
 					const tmp = {
 						id: item.id,
 						content: item.content,
-						chem_mol: item.chem_mol,
-						chem_xml: item.chem_xml,
-						chem_cml: item.chem_cml,
-						chem_mol3k: item.chem_mol3k,
-						chem_smi: item.chem_smi,
+						chem_sketch: item.chem_sketch,
+						//chem_mol: item.chem_mol,
+						//chem_xml: item.chem_xml,
+						//chem_cml: item.chem_cml,
+						//chem_mol3k: item.chem_mol3k,
+						//chem_smi: item.chem_smi,
 					}
 					self.formRecords.push(tmp)
 				})
@@ -733,6 +757,7 @@ export default {
 			}
 		},
 
+		/*
 		loadChemMainData(sourceObj) {
 			if (sourceObj.chem_mol !== undefined && !poppyjs.util.StringUtil.isEmpty(sourceObj.chem_mol)) {
 				// return Kekule.IO.loadFormatData(sourceObj.chem_xml, 'Kekule-XML')
@@ -741,18 +766,41 @@ export default {
 			}
 			return null
 		},
+		*/
+
+		loadChemMainData(sourceObj) {
+			if (sourceObj.chem_sketch && !poppyjs.util.StringUtil.isEmpty(sourceObj.chem_sketch)) {
+				return sourceObj.chem_sketch
+			}
+			return null
+		},
+
 
 		editRecordInProcedure(event, procedure, index) {
 			const self = this
 			this.recordEditBox = true
 			this.recordEditIndex = index
 
+			/*
 			this.$nextTick(() => {
 				this.loadChemViewer(true, (chemViewer) => {
 					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
 					const chemObj = self.loadChemMainData(procedure)
 					if (chemObj !== null) {
 						chemViewer.setChemObj(chemObj)
+					}
+				})
+			})
+			*/
+			this.$nextTick(() => {
+				this.loadChemViewer('procedureChemCanvas1', (chemViewer) => {
+					const chemData = self.loadChemMainData(procedure)
+					console.log(chemData)
+					console.log(chemViewer)
+					if (chemData !== null) {
+						setTimeout(() => {
+							chemViewer.loadFromJSON(chemData)
+						}, 500)
 					}
 				})
 			})
@@ -777,6 +825,7 @@ export default {
 			this.recordEditIndex = index
 
 			this.$nextTick(() => {
+				/*
 				this.loadChemViewer(true, (chemViewer) => {
 					// load data, ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
 					const chemObj = self.loadChemMainData(self.formRecords[index])
@@ -790,6 +839,14 @@ export default {
 						}
 					}
 				})
+				*/
+				this.loadChemViewer('procedureChemCanvas2', (chemViewer) => {
+					const chemData = self.loadChemMainData(self.formRecords[index])
+					if (chemData !== null) {
+						chemViewer.loadFromJSON(chemData)
+					}
+				})
+				
 			})
 		},
 
@@ -829,6 +886,7 @@ export default {
 			this.chemEditTarget = (isProcedureRcord ? 'procedure': 'record')
 
 			this.$nextTick(() => {
+				/*
 				this.createChemEditor((chemEditor) => {
 					self.chemEditor = chemEditor
 					// 设置数据
@@ -845,12 +903,32 @@ export default {
 						chemEditor.setChemObj(chemObj)
 					}
 				})
+				*/
+				this.createChemEditor((chemEditor) => {
+					self.chemEditor = chemEditor
+					// 设置数据
+					let oriData = null
+					if (isProcedureRcord) {
+						// 关联了实验步骤的实验记录
+						oriData = self.formProcedures[self.recordEditIndex]
+					} else {
+						// 其他的实验记录
+						oriData = self.formRecords[self.recordEditIndex]
+					}
+					const chemData = oriData.chem_sketch
+					if (chemData) {
+						setTimeout(() => {
+							chemEditor.loadFromJSON(chemData)
+						}, 500)
+					}
+				})
 			})
 		},
 		hideChemEdit() {
 			this.chemEditVisible = false
 			this.chemEditor = null
 		},
+		/*
 		handleChemEditClose() {
 			// 关闭编辑框时，提取化学结构式各种数据，保存到本地form
 			const self = this
@@ -882,7 +960,39 @@ export default {
 			}
 			this.hideChemEdit()
 		},
+		*/
+		handleChemEditClose() {
+			// 关闭编辑框时，提取化学结构式各种数据，保存到本地form
+			const self = this
+			const chemData = this.extractChemData()
+
+			if (this.chemEditTarget === 'procedure') {
+				Object.assign(this.formProcedures[this.recordEditIndex], chemData)
+
+				this.loadChemViewer('procedureChemCanvas1', (chemViewer) => {
+					const chemObj = self.loadChemMainData(this.formProcedures[this.recordEditIndex])
+					console.log(chemObj)
+					if (chemObj !== null) {
+						chemViewer.clear()
+						chemViewer.loadFromJSON(chemObj)
+					}
+				})
+			} else {
+				Object.assign(this.formRecords[this.recordEditIndex], chemData)
+
+				this.loadChemViewer('procedureChemCanvas2', (chemViewer) => {
+					const chemObj = self.loadChemMainData(this.formRecords[this.recordEditIndex])
+					if (chemObj !== null) {
+						chemViewer.clear()
+						chemViewer.loadFromJSON(chemObj)
+					}
+				})
+			}
+
+			this.hideChemEdit()
+		},
 		// 加载一个Kekule viewer 对象
+		/*
 		loadChemViewer(isNew, callback) {
 			Kekule.X.domReady(() => {
 				if (isNew) {
@@ -900,7 +1010,20 @@ export default {
 				}
 			})
 		},
+		*/
+		loadChemViewer(el, callback) {
+			const canvasObj = new fabric.StaticCanvas(el, {
+	          isDrawingMode: false,
+	          selectable: false,
+	          selection: false
+			})
+	        canvasObj.setWidth('400', {cssOnly: true, backstoreOnly: true})
+			canvasObj.setHeight('200', {cssOnly: true, backstoreOnly: true})
+			canvasObj.setZoom(0.3)
+			callback(canvasObj)
+		},
 		// 创建一个Kekule editor 对象
+		/*
 		createChemEditor(callback) {
 			Kekule.X.domReady(() => {
 				const _chemEditor = new Kekule.Editor.ChemSpaceEditor(document, null, Kekule.Render.RendererType.R2D)
@@ -918,7 +1041,13 @@ export default {
 				callback(chemEditor)
 			})
 		},
+		*/
+		createChemEditor(callback) {
+			const canvasObj = this.$refs['sketchpad']
+			callback(canvasObj)
+		},
 		// 从当前kekule编辑器中提取数据
+		/*
 		extractChemData() {
 			// ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
 			if (null !== this.chemEditor) {
@@ -934,6 +1063,11 @@ export default {
 				return data
 			}
 			return null
+		},
+		*/
+		extractChemData() {
+			// ref doc: http://partridgejiang.github.io/Kekule.js/documents/tutorial/content/molIO.html#example
+			return { chem_sketch: this.$refs['sketchpad'].exportData() }
 		},
 
 		// 添加一行实验记录
@@ -966,11 +1100,12 @@ export default {
 				procedure_title: '',
 				experiment_parameters: [this.createEmptyParameter()], // 默认创建一个参数
 				record_content: null,
-				chem_mol: null,
-				chem_xml: null,
-				chem_cml: null,
-				chem_mol3k: null,
-				chem_smi: null,
+				chem_sketch: null,
+				//chem_mol: null,
+				//chem_xml: null,
+				//chem_cml: null,
+				//chem_mol3k: null,
+				//chem_smi: null,
 				has_record: false,
 				record_id: null
 			}
@@ -991,11 +1126,12 @@ export default {
 			return {
 				record_id: null,
 				content: '',
-				chem_mol: null,
-				chem_xml: null,
-				chem_cml: null,
-				chem_mol3k: null,
-				chem_smi: null,
+				chem_sketch: null,
+				//chem_mol: null,
+				//chem_xml: null,
+				//chem_cml: null,
+				//chem_mol3k: null,
+				//chem_smi: null,
 				procedure_id: null
 			}
 		},
@@ -1100,8 +1236,9 @@ export default {
 					experiment_parameters: [],
 					record_content: item.record_content,
 					record_id: item.record_id,
-					chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
-					chem_xml: item.chem_xml,
+					chem_sketch: item.chem_sketch,
+					//chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
+					//chem_xml: item.chem_xml,
 					// chem_cml: item.chem_cml,
 					// chem_mol3k: item.chem_mol3k,
 					// chem_smi: item.chem_smi
@@ -1127,8 +1264,9 @@ export default {
 				const tmp = {
 					id: item.id,
 					content: item.content,
-					chem_xml: item.chem_xml,
-					chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
+					chem_sketch: item.chem_sketch,
+					//chem_xml: item.chem_xml,
+					//chem_mol: ( poppyjs.util.StringUtil.isEmpty(item.chem_mol) ? null: btoa(item.chem_mol) ),
 					// chem_cml: item.chem_cml,
 					// chem_mol3k: item.chem_mol3k,
 					// chem_smi: item.chem_smi
