@@ -78,11 +78,13 @@
           {
             name: 'redo',
             icon: ' icon-xiangqian'
-          },
+		  },
+		  /*
           {
             name: 'reset',
             icon: ' icon-reset'
-          },
+		  },
+		  */
         ],
         mouseFrom:{},
         mouseTo:{},
