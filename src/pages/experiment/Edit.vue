@@ -115,12 +115,12 @@
 											</td>
 											<td>
 												<el-form-item prop="theoretical_volum">
-													<el-input v-model.number="procedure.experiment_parameters[0].theoretical_volum" type="number" maxlength="10" :readonly="autoSaveLock"/>
+													<el-input v-model="procedure.experiment_parameters[0].theoretical_volum" type="number" maxlength="10" :readonly="autoSaveLock"/>
 												</el-form-item>
 											</td>
 											<td>
 												<el-form-item prop="actual_volum">
-													<el-input v-model.number="procedure.experiment_parameters[0].actual_volum" type="number" maxlength="10" :readonly="autoSaveLock"/>
+													<el-input v-model="procedure.experiment_parameters[0].actual_volum" type="number" maxlength="10" :readonly="autoSaveLock"/>
 												</el-form-item>
 											</td>
 											<!-- <td>

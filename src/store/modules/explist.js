@@ -100,6 +100,8 @@ const explist = {
 		experiment_status_list: [], // 实验状态列表
 		team_id: '', // 实验组id
 		lab_team_list: [], // 全部实验组列表(包含状态不可用的)
+		user_list: [],
+		user_id: '',
 		keyword: '', /** 搜索条件 */
 		dataList: [], // 数据列表
 		statusOptions: statusOptions// 审核
@@ -112,9 +114,10 @@ const explist = {
 		onPreloadAction(state, payload = {}) {
 			preloadDataRequest()
 				.then(response => {
-					const { experiment_status_list = [], lab_team_list = [] } = response.data || {}
+					const { experiment_status_list = [], lab_team_list = [], user_list = [] } = response.data || {}
 					state.experiment_status_list = experiment_status_list
 					state.lab_team_list = lab_team_list
+					state.user_list = user_list
 				})
 		},
 		// 获取数据列表
@@ -123,6 +126,7 @@ const explist = {
 			const params = {
 				experiment_name: state.keyword,
 				team_id: state.team_id,
+				user_id: state.user_id,
 				experiment_status: state.experiment_status,
 				ordering: 'created_time,desc',
 				page: payload.page,

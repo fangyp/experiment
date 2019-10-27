@@ -38,6 +38,21 @@
           :value="item.key"
         />
       </el-select>
+      <el-select
+        v-show="user_list && user_list.length >0"
+        v-model="user_id"
+        placeholder="实验人员"
+        clearable
+        style="margin-right:10px; width: 180px"
+        class="filter-item"
+      >
+        <el-option
+          v-for="item in user_list"
+          :key="item.key"
+          :label="item.value"
+          :value="item.key"
+        />
+      </el-select>
 
       <el-button
         v-waves
@@ -256,7 +271,8 @@ export default {
       tableKey: state => state.explist.tableKey,
       dataList: state => state.explist.dataList,
       experiment_status_list: state => state.explist.experiment_status_list,
-      lab_team_list: state => state.explist.lab_team_list,
+	  lab_team_list: state => state.explist.lab_team_list,
+	  user_list: state => state.explist.user_list,
       statusOptions: state => state.explist.statusOptions
     }),
     keyword: {
@@ -297,6 +313,14 @@ export default {
       },
       set(val) {
         this.$store.state.explist.team_id = val;
+      }
+	},
+    user_id: {
+      get() {
+        return this.$store.state.explist.user_id;
+      },
+      set(val) {
+        this.$store.state.explist.user_id = val;
       }
     }
   },
