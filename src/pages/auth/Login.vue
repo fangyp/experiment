@@ -1,32 +1,32 @@
 <template>
-	<div id="login" class="login-container">
-		<div class="title-container">
-			<img src="../../icons/logo/logotbf.png">
-			<span>{{this.$store.state.settings.title}}</span>
-		</div>
-		<el-form class="login-form">
-			<el-form-item prop="username">
-				<span class="svg-container">
-					<font-awesome-icon icon="user" />
-				</span>
-				<!-- <el-input type="password" style="position:fixed;bottom:-8000px" /> -->
-				<el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
-			</el-form-item>
-			<el-form-item>
-				<span class="svg-container">
-					<font-awesome-icon icon="unlock" />
-				</span>
-				<!-- <el-input type="password" style="position:fixed;bottom:-9000px" /> -->
-				<el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
-			</el-form-item>
-			<!-- <el-checkbox :checked="checked" @change="setChecked">记住密码</el-checkbox> -->
-			<el-button
-				type="primary"
-				style="margin-top:15px; height:40px; width:100%;margin-bottom:60px;"
-				@click="submitLogin"
-			>登录</el-button>
-		</el-form>
-	</div>
+  <div id="login" class="login-container">
+    <div class="title-container">
+      <img src="../../icons/logo/logotbf.png" />
+      <span>{{this.$store.state.settings.title}}</span>
+    </div>
+    <el-form class="login-form">
+      <el-form-item prop="username">
+        <span class="svg-container">
+          <font-awesome-icon icon="user" />
+        </span>
+        <!-- <el-input type="password" style="position:fixed;bottom:-8000px" /> -->
+        <el-input type="text" placeholder="请输入用户名" :value="account" @input="setAccount" />
+      </el-form-item>
+      <el-form-item>
+        <span class="svg-container">
+          <font-awesome-icon icon="unlock" />
+        </span>
+        <!-- <el-input type="password" style="position:fixed;bottom:-9000px" /> -->
+        <el-input placeholder="请输入您的密码" :value="password" show-password @input="setPassword" />
+      </el-form-item>
+      <!-- <el-checkbox :checked="checked" @change="setChecked">记住密码</el-checkbox> -->
+      <el-button
+        type="primary"
+        style="margin-top:15px; height:40px; width:100%;margin-bottom:60px;"
+        @click="submitLogin"
+      >登录</el-button>
+    </el-form>
+  </div>
 </template>
 <script>
 import poppyjs from 'poppyjs-elem'
@@ -35,49 +35,49 @@ const showToast = poppyjs.html.Dialog.showMessage
 
 import { mapState } from 'vuex'
 export default {
-	computed: {
-		/**
+  computed: {
+    /**
      * state
      * */
-		...mapState({
-			account: state => state.login.account,
-			password: state => state.login.password,
-			checked: state => state.login.checked,
-			loading: state => state.login.loading
-		})
-		/**
+    ...mapState({
+      account: state => state.login.account,
+      password: state => state.login.password,
+      checked: state => state.login.checked,
+      loading: state => state.login.loading,
+    }),
+    /**
      * 计算属性
      * */
-		// ...mapGetters({ account: "setAccount", password: "setPassword" })
-	},
-	methods: {
-		setAccount(text) {
-			this.$store.dispatch('login/setAccount', text.trim())
-		},
-		setPassword(text) {
-			this.$store.dispatch('login/setPassword', text.trim())
-		},
-		setChecked(isCheck) {
-			console.log('isCheck = ' + isCheck)
-			this.$store.dispatch('login/setChecked', isCheck)
-		},
-		submitLogin() {
-			if (isEmpty(this.$store.state.login.account)) {
-				return showToast('请输入您的登录账号')
-			}
-			if (isEmpty(this.$store.state.login.password)) {
-				return showToast('请输入登录密码')
-			}
-			const params = {
-				account: this.$store.state.login.account,
-				password: this.$store.state.login.password
-			}
-			this.$store.dispatch('login/showLoading', true)
-			this.$store.dispatch('login/submitLogin', params).then(() => {
-				this.$router.push('/')
-			})
-		}
-	}
+    // ...mapGetters({ account: "setAccount", password: "setPassword" })
+  },
+  methods: {
+    setAccount(text) {
+      this.$store.dispatch('login/setAccount', text.trim())
+    },
+    setPassword(text) {
+      this.$store.dispatch('login/setPassword', text.trim())
+    },
+    setChecked(isCheck) {
+      console.log('isCheck = ' + isCheck)
+      this.$store.dispatch('login/setChecked', isCheck)
+    },
+    submitLogin() {
+      if (isEmpty(this.$store.state.login.account)) {
+        return showToast('请输入您的登录账号')
+      }
+      if (isEmpty(this.$store.state.login.password)) {
+        return showToast('请输入登录密码')
+      }
+      const params = {
+        account: this.$store.state.login.account,
+        password: this.$store.state.login.password,
+      }
+      this.$store.dispatch('login/showLoading', true)
+      this.$store.dispatch('login/submitLogin', params).then(() => {
+        this.$router.push('/')
+      })
+    },
+  },
 }
 </script>
 <style lang="scss">
@@ -123,6 +123,12 @@ $cursor: #fff;
 }
 </style>
 <style lang="scss" scoped>
+.demo-acctont {
+  color: #889aa4;
+  font-size: 15px;
+  vertical-align: middle;
+  font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+}
 .login-container {
   min-width: 768;
   width: 100%;
@@ -131,11 +137,7 @@ $cursor: #fff;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   -moz-background-size: 100% 100%;
-  background-image: linear-gradient(
-    135deg,
-    rgba(34, 166, 241, 1),
-    #667eea
-  ) !important;
+  background-image: linear-gradient(135deg, rgba(34, 166, 241, 1), #667eea) !important;
   .title-container {
     width: 100%;
     text-align: center;
